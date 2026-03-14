@@ -1,0 +1,37 @@
+import { NextRequest, NextResponse } from 'next/server';
+
+const locales = ['es', 'en', 'pt', 'zh', 'ar'];
+const defaultLocale = 'es';
+
+function getLocale(request: NextRequest): string {
+  const acceptLanguage = request.headers.get('Accept-Language') || '';
+  const preferred = acceptLanguage.split(',').map((lang) => lang.split(';')[0].trim().slice(0, 2));
+
+  for (const lang of preferred) {
+    if (locales.includes(lang)) {
+      return lang;
+    }
+  }
+
+  return defaultLocale;
+}
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Check if pathname already has a locale
+  const pathnameHasLocale = locales.some(
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  );
+
+  if (!pathnameHasLocale) {
+    const locale = getLocale(request);
+    return NextResponse.redirect(new URL(`/${locale}${pathname}`, request.url));
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|logo.svg|.*\\..*).*)'],
+};

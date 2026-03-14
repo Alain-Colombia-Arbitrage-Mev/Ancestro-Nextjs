@@ -1,0 +1,300 @@
+import {
+  signUp,
+  signIn,
+  signOut,
+  confirmSignUp,
+  confirmSignIn,
+  resetPassword,
+  confirmResetPassword,
+  fetchAuthSession,
+  signInWithRedirect,
+  getCurrentUser,
+  fetchUserAttributes,
+  updatePassword,
+  updateUserAttributes,
+  resendSignUpCode,
+} from 'aws-amplify/auth';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
+// ===== ERROR MAPPING =====
+const ERROR_MESSAGES: Record<string, Record<string, string>> = {
+  es: {
+    UserNotConfirmedException: 'Tu cuenta no ha sido verificada. Revisa tu correo.',
+    NotAuthorizedException: 'Correo o contrasena incorrectos.',
+    UsernameExistsException: 'Ya existe una cuenta con este correo.',
+    UserNotFoundException: 'No existe una cuenta con este correo.',
+    CodeMismatchException: 'El codigo ingresado no es valido.',
+    ExpiredCodeException: 'El codigo ha expirado. Solicita uno nuevo.',
+    InvalidPasswordException: 'La contrasena debe tener al menos 8 caracteres, una mayuscula, una minuscula y un numero.',
+    LimitExceededException: 'Demasiados intentos. Intenta de nuevo mas tarde.',
+    TooManyRequestsException: 'Demasiadas solicitudes. Espera un momento.',
+    InvalidParameterException: 'Los datos ingresados no son validos.',
+    UserAlreadyAuthenticatedException: 'Ya tienes una sesion activa.',
+    default: 'Ocurrio un error. Intenta de nuevo.',
+  },
+  en: {
+    UserNotConfirmedException: 'Your account has not been verified. Check your email.',
+    NotAuthorizedException: 'Incorrect email or password.',
+    UsernameExistsException: 'An account with this email already exists.',
+    UserNotFoundException: 'No account found with this email.',
+    CodeMismatchException: 'The code entered is not valid.',
+    ExpiredCodeException: 'The code has expired. Request a new one.',
+    InvalidPasswordException: 'Password must have at least 8 characters, one uppercase, one lowercase and one number.',
+    LimitExceededException: 'Too many attempts. Try again later.',
+    TooManyRequestsException: 'Too many requests. Please wait.',
+    InvalidParameterException: 'The data entered is not valid.',
+    UserAlreadyAuthenticatedException: 'You already have an active session.',
+    default: 'An error occurred. Please try again.',
+  },
+};
+
+export function getAuthErrorMessage(error: any, lang: string = 'es'): string {
+  const messages = ERROR_MESSAGES[lang] || ERROR_MESSAGES['en'];
+  const errorName = error?.name || error?.code || '';
+
+  // Handle Amplify v6 error format
+  if (errorName && messages[errorName]) {
+    return messages[errorName];
+  }
+
+  // Try to match by message content
+  const msg = error?.message || '';
+  if (msg.includes('not confirmed')) return messages['UserNotConfirmedException'];
+  if (msg.includes('Incorrect username or password')) return messages['NotAuthorizedException'];
+  if (msg.includes('User already exists')) return messages['UsernameExistsException'];
+  if (msg.includes('User does not exist')) return messages['UserNotFoundException'];
+  if (msg.includes('Invalid verification code')) return messages['CodeMismatchException'];
+  if (msg.includes('expired')) return messages['ExpiredCodeException'];
+  if (msg.includes('Password did not conform')) return messages['InvalidPasswordException'];
+  if (msg.includes('Attempt limit exceeded')) return messages['LimitExceededException'];
+
+  return messages['default'];
+}
+
+// ===== SIGN UP =====
+export async function cognitoSignUp(
+  email: string,
+  password: string,
+  name: string,
+  phone: string
+) {
+  const nameParts = name.trim().split(/\s+/);
+  const givenName = nameParts[0] || name;
+  const familyName = nameParts.slice(1).join(' ') || ' ';
+  const username = `user_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+  // Cognito requires E.164 format: +15550000000
+  const e164Phone = phone.replace(/[^0-9+]/g, '');
+
+  const result = await signUp({
+    username,
+    password,
+    options: {
+      userAttributes: {
+        email,
+        name,
+        given_name: givenName,
+        family_name: familyName,
+        middle_name: ' ',
+        nickname: givenName.toLowerCase(),
+        preferred_username: email.split('@')[0],
+        profile: ' ',
+        picture: ' ',
+        address: ' ',
+        birthdate: '1990-01-01',
+        gender: ' ',
+        locale: 'es',
+        phone_number: e164Phone,
+        updated_at: String(Math.floor(Date.now() / 1000)),
+      },
+    },
+  });
+  return result;
+}
+
+// ===== CONFIRM SIGN UP =====
+export async function cognitoConfirmSignUp(email: string, code: string) {
+  const result = await confirmSignUp({
+    username: email,
+    confirmationCode: code,
+  });
+  return result;
+}
+
+// ===== SIGN IN =====
+export async function cognitoSignIn(email: string, password: string) {
+  const result = await signIn({
+    username: email,
+    password,
+  });
+  return result;
+}
+
+// ===== GOOGLE SIGN IN =====
+export async function cognitoSignInWithGoogle() {
+  await signInWithRedirect({ provider: 'Google' });
+}
+
+// ===== SIGN OUT =====
+export async function cognitoSignOut() {
+  await signOut({ global: true });
+}
+
+// ===== FORGOT PASSWORD =====
+export async function cognitoForgotPassword(email: string) {
+  const result = await resetPassword({ username: email });
+  return result;
+}
+
+// ===== CONFIRM RESET PASSWORD =====
+export async function cognitoConfirmResetPassword(
+  email: string,
+  code: string,
+  newPassword: string
+) {
+  await confirmResetPassword({
+    username: email,
+    confirmationCode: code,
+    newPassword,
+  });
+}
+
+// ===== GET COGNITO TOKEN =====
+export async function getCognitoToken(): Promise<string | null> {
+  try {
+    const session = await fetchAuthSession();
+    return session.tokens?.idToken?.toString() ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// ===== RESEND SIGN UP CODE =====
+export async function cognitoResendCode(email: string) {
+  await resendSignUpCode({ username: email });
+}
+
+// ===== GET CURRENT COGNITO USER =====
+export async function getCognitoUser() {
+  try {
+    const user = await getCurrentUser();
+    const attributes = await fetchUserAttributes();
+    return {
+      userId: user.userId,
+      email: attributes.email || '',
+      name: attributes.name || '',
+      phone: attributes.phone_number || '',
+      emailVerified: attributes.email_verified === 'true',
+    };
+  } catch {
+    return null;
+  }
+}
+
+// ===== UPDATE PASSWORD =====
+export async function cognitoChangePassword(oldPassword: string, newPassword: string) {
+  await updatePassword({ oldPassword, newPassword });
+}
+
+// ===== CONFIRM NEW PASSWORD (admin-created users) =====
+export async function cognitoConfirmNewPassword(newPassword: string, email?: string) {
+  const result = await confirmSignIn({
+    challengeResponse: newPassword,
+    options: {
+      userAttributes: {
+        address: ' ',
+        gender: ' ',
+        profile: ' ',
+        family_name: email?.split('@')[0] || ' ',
+        given_name: email?.split('@')[0] || ' ',
+        phone_number: '+10000000000',
+        preferred_username: email?.split('@')[0] || 'user',
+        locale: 'es',
+        picture: ' ',
+        nickname: email?.split('@')[0] || ' ',
+        name: email?.split('@')[0] || 'User',
+        middle_name: ' ',
+      },
+    },
+  });
+  return result;
+}
+
+// ===== UPDATE USER ATTRIBUTES =====
+export async function cognitoUpdateProfile(attributes: { name?: string; phone_number?: string }) {
+  const userAttributes: Record<string, string> = {};
+  if (attributes.name) userAttributes.name = attributes.name;
+  if (attributes.phone_number) userAttributes.phone_number = attributes.phone_number;
+  await updateUserAttributes({ userAttributes });
+}
+
+// ===== SYNC WITH BACKEND (NestJS) =====
+export async function syncWithBackend(cognitoToken: string): Promise<{ user: any; token: string } | null> {
+  if (!API_URL) {
+    return null;
+  }
+  try {
+    const response = await fetch(`${API_URL}/api/users/sync`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${cognitoToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Backend sync failed: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch {
+    return null;
+  }
+}
+
+// ===== CHECK & RESTORE SESSION =====
+export async function checkAndRestoreSession(): Promise<boolean> {
+  try {
+    const session = await fetchAuthSession();
+    if (!session.tokens?.idToken) return false;
+
+    const cognitoUser = await getCognitoUser();
+    if (!cognitoUser) return false;
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ===== HANDLE OAUTH CALLBACK =====
+export async function handleOAuthCallback(): Promise<{ user: any; token: string | null } | null> {
+  try {
+    const cognitoUser = await getCognitoUser();
+    if (!cognitoUser) return null;
+
+    const idToken = await getCognitoToken();
+
+    if (idToken) {
+      const backendResult = await syncWithBackend(idToken);
+      if (backendResult) {
+        return backendResult;
+      }
+    }
+
+    return {
+      user: {
+        id: cognitoUser.userId,
+        email: cognitoUser.email,
+        name: cognitoUser.name || cognitoUser.email.split('@')[0],
+        phone: cognitoUser.phone,
+        isVerified: cognitoUser.emailVerified,
+        createdAt: new Date().toISOString(),
+      },
+      token: idToken,
+    };
+  } catch {
+    return null;
+  }
+}
