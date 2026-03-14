@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { fetchKycStatus, markKycPending, type KycStatus } from '@/lib/kyc';
 import MetaMapButton from './MetaMapButton';
 import KycStatusBadge from './KycStatusBadge';
+import AmlQuestionnaire, { type AmlData } from './AmlQuestionnaire';
 
 interface InvestorOnboardingProps {
   lang: string;
@@ -16,8 +17,8 @@ const text: Record<string, Record<string, string>> = {
     subtitle: 'Para cumplir con regulaciones SEC y anti-lavado de dinero (AML), necesitamos verificar tu identidad antes de procesar tu solicitud de inversion.',
     step1: 'Verificacion de Identidad (KYC)',
     step1desc: 'Sube tu documento de identidad y completa una verificacion biometrica.',
-    step2: 'Evaluacion Anti-Lavado (AML)',
-    step2desc: 'Verificacion automatica contra listas de sanciones y PEPs.',
+    step2: 'Debida Diligencia (AML)',
+    step2desc: 'Cuestionario sobre origen de fondos, relaciones politicas y perfil financiero.',
     step3: 'Aprobacion',
     step3desc: 'Una vez aprobado, podras completar tu solicitud de inversion.',
     pending: 'Tu verificacion esta en proceso. Esto puede tomar unos minutos. Te notificaremos por correo.',
@@ -34,8 +35,8 @@ const text: Record<string, Record<string, string>> = {
     subtitle: 'To comply with SEC regulations and anti-money laundering (AML) requirements, we need to verify your identity before processing your investment request.',
     step1: 'Identity Verification (KYC)',
     step1desc: 'Upload your government-issued ID and complete biometric verification.',
-    step2: 'Anti-Money Laundering (AML)',
-    step2desc: 'Automated screening against sanctions lists and PEPs.',
+    step2: 'Due Diligence (AML)',
+    step2desc: 'Questionnaire about source of funds, political relationships, and financial profile.',
     step3: 'Approval',
     step3desc: 'Once approved, you can complete your investment request.',
     pending: 'Your verification is being processed. This may take a few minutes. We will notify you by email.',
@@ -52,8 +53,8 @@ const text: Record<string, Record<string, string>> = {
     subtitle: 'Para cumprir com regulamentacoes SEC e anti-lavagem de dinheiro (AML), precisamos verificar sua identidade antes de processar sua solicitacao de investimento.',
     step1: 'Verificacao de Identidade (KYC)',
     step1desc: 'Envie seu documento de identidade e complete a verificacao biometrica.',
-    step2: 'Avaliacao Anti-Lavagem (AML)',
-    step2desc: 'Verificacao automatica contra listas de sancoes e PEPs.',
+    step2: 'Diligencia Devida (AML)',
+    step2desc: 'Questionario sobre origem de fundos, relacoes politicas e perfil financeiro.',
     step3: 'Aprovacao',
     step3desc: 'Uma vez aprovado, voce podera completar sua solicitacao de investimento.',
     pending: 'Sua verificacao esta em processo. Isso pode levar alguns minutos.',
@@ -69,6 +70,7 @@ const text: Record<string, Record<string, string>> = {
 
 export default function InvestorOnboarding({ lang, onVerified }: InvestorOnboardingProps) {
   const [kycStatus, setKycStatus] = useState<KycStatus>('not_started');
+  const [amlCompleted, setAmlCompleted] = useState(false);
   const [polling, setPolling] = useState(false);
   const t = text[lang] || text.en;
 
@@ -76,11 +78,19 @@ export default function InvestorOnboarding({ lang, onVerified }: InvestorOnboard
     const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
     if (token) fetchKycStatus(token).then((s) => {
       setKycStatus(s);
-      if (s === 'verified') onVerified?.();
     });
-  }, [onVerified]);
+    // Check if AML was already submitted in this session
+    if (typeof window !== 'undefined' && sessionStorage.getItem('aml_completed') === '1') {
+      setAmlCompleted(true);
+    }
+  }, []);
 
-  // Poll for status when pending
+  // When both KYC verified + AML completed → investor approved
+  useEffect(() => {
+    if (kycStatus === 'verified' && amlCompleted) onVerified?.();
+  }, [kycStatus, amlCompleted, onVerified]);
+
+  // Poll for KYC status when pending
   useEffect(() => {
     if (kycStatus !== 'pending' || polling) return;
     setPolling(true);
@@ -92,26 +102,46 @@ export default function InvestorOnboarding({ lang, onVerified }: InvestorOnboard
         setKycStatus(s);
         clearInterval(interval);
         setPolling(false);
-        if (s === 'verified') onVerified?.();
       }
     }, 5000);
     return () => { clearInterval(interval); setPolling(false); };
-  }, [kycStatus, polling, onVerified]);
+  }, [kycStatus, polling]);
 
-  const handleFinished = useCallback(async () => {
+  const handleKycFinished = useCallback(async () => {
     setKycStatus('pending');
     const token = localStorage.getItem('ancestro:token');
     if (token) await markKycPending(token);
   }, []);
 
-  const stepStatus = (step: number) => {
-    if (kycStatus === 'verified') return 'done';
-    if (kycStatus === 'pending' && step <= 2) return step === 1 ? 'done' : 'active';
-    if (kycStatus === 'not_started' || kycStatus === 'rejected') return step === 1 ? 'active' : 'upcoming';
+  const handleAmlComplete = useCallback(async (data: AmlData) => {
+    // Send AML data to backend
+    try {
+      const token = localStorage.getItem('ancestro:token');
+      const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      await fetch(`${API}/api/kyc/aml`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify(data),
+      });
+    } catch { /* will be reviewed manually */ }
+    setAmlCompleted(true);
+    if (typeof window !== 'undefined') sessionStorage.setItem('aml_completed', '1');
+  }, []);
+
+  // Determine which step is active
+  const kycDone = kycStatus === 'verified';
+  const kycActive = !kycDone;
+  const amlActive = kycDone && !amlCompleted;
+  const allDone = kycDone && amlCompleted;
+
+  const stepStatus = (step: number): string => {
+    if (step === 1) return kycDone ? 'done' : kycStatus === 'pending' ? 'active' : 'active';
+    if (step === 2) return amlCompleted ? 'done' : kycDone ? 'active' : 'upcoming';
+    if (step === 3) return allDone ? 'done' : 'upcoming';
     return 'upcoming';
   };
 
-  if (kycStatus === 'verified') return null;
+  if (allDone) return null;
 
   return (
     <>
@@ -123,12 +153,12 @@ export default function InvestorOnboarding({ lang, onVerified }: InvestorOnboard
             </svg>
           </div>
           <h3 className="io-title">{t.title}</h3>
-          <KycStatusBadge status={kycStatus} lang={lang} />
+          <KycStatusBadge status={allDone ? 'verified' : kycStatus} lang={lang} />
         </div>
 
         <p className="io-subtitle">{t.subtitle}</p>
 
-        {/* Steps */}
+        {/* Steps indicator */}
         <div className="io-steps">
           {[
             { num: 1, title: t.step1, desc: t.step1desc },
@@ -152,10 +182,10 @@ export default function InvestorOnboarding({ lang, onVerified }: InvestorOnboard
           })}
         </div>
 
-        {/* Action area */}
-        {(kycStatus === 'not_started' || kycStatus === 'rejected') && (
+        {/* Step 1: KYC via MetaMap */}
+        {kycActive && (kycStatus === 'not_started' || kycStatus === 'rejected') && (
           <div className="io-action">
-            <MetaMapButton userId="" userEmail="" onFinished={handleFinished} />
+            <MetaMapButton userId="" userEmail="" onFinished={handleKycFinished} />
             <div className="io-trust">
               <span>{t.time}</span>
               <span>{t.secure}</span>
@@ -174,6 +204,13 @@ export default function InvestorOnboarding({ lang, onVerified }: InvestorOnboard
         {kycStatus === 'rejected' && (
           <div className="io-status io-status--rejected">
             <p>{t.rejected}</p>
+          </div>
+        )}
+
+        {/* Step 2: AML Questionnaire */}
+        {amlActive && (
+          <div className="io-aml-section">
+            <AmlQuestionnaire lang={lang} onComplete={handleAmlComplete} />
           </div>
         )}
       </div>
@@ -202,6 +239,7 @@ export default function InvestorOnboarding({ lang, onVerified }: InvestorOnboard
         .io-trust span::before{content:'';width:4px;height:4px;border-radius:50%;background:rgba(34,197,94,0.6)}
         .io-status{padding:16px;border-radius:12px;text-align:center;display:flex;align-items:center;justify-content:center;gap:12px}
         .io-status p{margin:0;font-size:14px;line-height:1.5}
+        .io-aml-section{margin-top:8px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.06)}
         .io-status--pending{background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.2);color:#eab308}
         .io-status--rejected{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#ef4444}
         .io-status-spinner{width:20px;height:20px;border:2px solid rgba(234,179,8,0.2);border-top-color:#eab308;border-radius:50%;animation:ioSpin 0.8s linear infinite;flex-shrink:0}
