@@ -114,16 +114,28 @@ export default function InvestorOnboarding({ lang, onVerified }: InvestorOnboard
   }, []);
 
   const handleAmlComplete = useCallback(async (data: AmlData) => {
-    // Send AML data to backend
+    // Save to Airtable + RDS via Next.js API route
     try {
-      const token = localStorage.getItem('ancestro:token');
-      const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-      await fetch(`${API}/api/kyc/aml`, {
+      await fetch('/api/investor-onboarding', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
     } catch { /* will be reviewed manually */ }
+
+    // Also send to Lambda for investor_profiles (if backend is configured)
+    try {
+      const token = localStorage.getItem('ancestro:token');
+      const API = process.env.NEXT_PUBLIC_API_URL;
+      if (API && token) {
+        await fetch(`${API}/kyc/aml`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify(data),
+        });
+      }
+    } catch { /* Lambda may not be deployed yet */ }
+
     setAmlCompleted(true);
     if (typeof window !== 'undefined') sessionStorage.setItem('aml_completed', '1');
   }, []);
