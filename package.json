@@ -13,11 +13,13 @@
     "@aws-sdk/client-bedrock-runtime": "^3.1005.0",
     "aws-amplify": "^6.16.2",
     "next": "^16.1.6",
+    "pg": "^8.20.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
     "@types/node": "^25.4.0",
+    "@types/pg": "^8.18.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "typescript": "^5.9.3"
