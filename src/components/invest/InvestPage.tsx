@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { fetchKycStatus, type KycStatus } from '@/lib/kyc';
+import InvestorOnboarding from '@/components/kyc/InvestorOnboarding';
 
 interface InvestPageProps {
   lang: string;
@@ -181,6 +183,14 @@ export default function InvestPage({ lang }: InvestPageProps) {
     }
   }, []);
 
+  /* KYC state */
+  const [kycStatus, setKycStatus] = useState<KycStatus>('not_started');
+
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
+    if (token) fetchKycStatus(token).then(setKycStatus);
+  }, []);
+
   /* accordion state */
   const [openPanels, setOpenPanels] = useState<Record<string, boolean>>({});
 
@@ -247,6 +257,10 @@ export default function InvestPage({ lang }: InvestPageProps) {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (kycStatus !== 'verified') {
+      alert(lang === 'es' ? 'Debes completar la verificacion de identidad antes de invertir.' : 'You must complete identity verification before investing.');
+      return;
+    }
     const errors: Record<string, boolean> = {};
     if (!formData.name.trim()) errors.name = true;
     if (!formData.email.trim() || !formData.email.includes('@')) errors.email = true;
@@ -572,6 +586,8 @@ export default function InvestPage({ lang }: InvestPageProps) {
                 <h3 className="invest-form-title">Request Access to Invest</h3>
                 <p className="invest-form-subtitle">Share your details and our team will reach out within 24 hours.</p>
               </div>
+
+              <InvestorOnboarding lang={lang} onVerified={() => setKycStatus('verified')} />
 
               {!submitted ? (
                 <form className="invest-form" onSubmit={handleFormSubmit} noValidate>
