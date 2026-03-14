@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BEDROCK_REGION = process.env.AWS_BEDROCK_REGION || 'us-east-1';
-const BEDROCK_MODEL_ID = process.env.AWS_BEDROCK_MODEL_ID || 'anthropic.claude-3-haiku-20240307-v1:0';
-const KNOWLEDGE_BASE_ID = process.env.AWS_KNOWLEDGE_BASE_ID || '';
+const BEDROCK_REGION = process.env.BEDROCK_REGION || 'us-east-1';
+const BEDROCK_MODEL_ID = process.env.BEDROCK_MODEL_ID || 'anthropic.claude-3-haiku-20240307-v1:0';
+const KNOWLEDGE_BASE_ID = process.env.KNOWLEDGE_BASE_ID || '';
 
 const SYSTEM_PROMPT = `You are the Ancestro AI assistant — a helpful, knowledgeable expert on Ancestro's products and services in Latin America. You help customers with:
 
