@@ -51,12 +51,29 @@ export default function WaitlistForm({ lang }: WaitlistFormProps) {
     return () => observer.disconnect();
   }, []);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsLoading(false);
-    setIsSuccess(true);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.get('fullName'),
+          email: formData.get('email'),
+          phone: `${formData.get('countryCode')} ${formData.get('phone')}`,
+          country: formData.get('country'),
+        }),
+      });
+      if (!res.ok) throw new Error('Server error');
+      setIsSuccess(true);
+    } catch {
+      alert(t(lang, 'contact.error'));
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
