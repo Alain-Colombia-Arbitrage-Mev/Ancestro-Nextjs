@@ -11,8 +11,7 @@ interface InvestPageProps {
 /* ── Data ── */
 
 const INVESTMENT = {
-  sharePrice: '$1.00',
-  valuation: '$25M',
+  valuationCap: '$25M',
 };
 
 const deepDivePanels = [
@@ -75,8 +74,7 @@ const funds = [
 const terms = [
   { key: 'Entity', val: 'Delaware C-Corp', gold: false },
   { key: 'Instrument', val: 'SAFE agreement', gold: false },
-  { key: 'Share Price', val: INVESTMENT.sharePrice, gold: true },
-  { key: 'Valuation', val: INVESTMENT.valuation, gold: true },
+  { key: 'Valuation Cap', val: INVESTMENT.valuationCap, gold: true },
   { key: 'Transfer', val: 'Wire to U.S. account', gold: false },
   { key: 'Profile', val: 'Early-stage, high-asymmetry', gold: false },
 ];
@@ -317,13 +315,8 @@ export default function InvestPage({ lang }: InvestPageProps) {
 
           <div className="hero-stats">
             <div className="stat">
-              <span className="stat-value">{INVESTMENT.sharePrice}</span>
-              <span className="stat-label">Share Price</span>
-            </div>
-            <div className="stat-divider"></div>
-            <div className="stat">
-              <span className="stat-value">{INVESTMENT.valuation}</span>
-              <span className="stat-label">Pre-Money Valuation</span>
+              <span className="stat-value">{INVESTMENT.valuationCap}</span>
+              <span className="stat-label">Valuation Cap</span>
             </div>
             <div className="stat-divider"></div>
             <div className="stat">
@@ -710,9 +703,9 @@ export default function InvestPage({ lang }: InvestPageProps) {
                   100% Confidential
                 </span>
                 <span className="form-footer-sep"></span>
-                <span className="form-footer-item">{INVESTMENT.sharePrice} per share</span>
+                <span className="form-footer-item">{INVESTMENT.valuationCap} valuation cap</span>
                 <span className="form-footer-sep"></span>
-                <span className="form-footer-item">{INVESTMENT.valuation} valuation</span>
+                <span className="form-footer-item">SAFE Agreement</span>
               </div>
             </div>
 
