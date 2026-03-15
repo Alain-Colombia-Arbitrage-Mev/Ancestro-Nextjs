@@ -30,12 +30,12 @@ export async function POST(req: NextRequest) {
       'Full Name': name,
       'Email': email,
       'Phone': phone || '',
-      'Investment Range USD': amount,
+      'Investment Range (USD)': amount,
       'Message': message || '',
-      'Form Source': 'invest-page',
-      'Follow Up Status': 'New',
-      'Submission Date': new Date().toISOString().split('T')[0],
-      'Department Notified': 'Investor Relations',
+      'Form Source': 'Investment Web Form',
+      'Follow-Up Status': 'New',
+      'Submission Date': new Date().toISOString(),
+      'Department Notified': 'Investment',
     });
 
     return NextResponse.json({ success: true });
