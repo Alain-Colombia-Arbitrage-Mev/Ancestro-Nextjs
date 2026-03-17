@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
         ...(entityCriteria?.includes('entityAssets') && { 'Entity Assets 5M': true }),
         ...(entityCriteria?.includes('allAccredited') && { 'Entity All Accredited': true }),
         // AML
-        'Source of Funds': { salary: 'Salary', business: 'Business', investments: 'Investments', inheritance: 'Inheritance', savings: 'Savings', realEstate: 'Real Estate', other: 'Other' }[sourceOfFunds] || sourceOfFunds || '',
+        'Source of Funds': ({ salary: 'Salary', business: 'Business', investments: 'Investments', inheritance: 'Inheritance', savings: 'Savings', realEstate: 'Real Estate', other: 'Other' } as Record<string, string>)[sourceOfFunds as string] || sourceOfFunds || '',
         ...(sourceOfFundsOther && { 'Source Other Detail': sourceOfFundsOther }),
         'Is PEP': isPep || false,
         ...(pepDetails && { 'PEP Details': pepDetails }),
