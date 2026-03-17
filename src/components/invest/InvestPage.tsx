@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { fetchKycStatus, type KycStatus } from '@/lib/kyc';
+import { fetchKycStatus, markKycPending, type KycStatus } from '@/lib/kyc';
+import MetaMapButton from '@/components/kyc/MetaMapButton';
 
 
 interface InvestPageProps {
@@ -327,11 +328,10 @@ export default function InvestPage({ lang }: InvestPageProps) {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Re-enable KYC check after testing
-    // if (kycStatus !== 'verified') {
-    //   alert(lang === 'es' ? 'Debes completar la verificacion de identidad antes de invertir.' : 'You must complete identity verification before investing.');
-    //   return;
-    // }
+    if (kycStatus !== 'verified') {
+      alert(lang === 'es' ? 'Debes completar la verificación de identidad antes de invertir.' : 'You must complete identity verification before investing.');
+      return;
+    }
     if (!formData.declarationAccepted) {
       setFormErrors({ declarationAccepted: true });
       return;
@@ -647,11 +647,70 @@ export default function InvestPage({ lang }: InvestPageProps) {
           >
             <div className="invest-form-card">
               <div className="invest-form-header">
-                <h3 className="invest-form-title">Request Access to Invest</h3>
-                <p className="invest-form-subtitle">Share your details and our team will reach out within 24 hours.</p>
+                <h3 className="invest-form-title">{lang === 'es' ? 'Solicitud de Inversión' : 'Investment Application'}</h3>
+                <p className="invest-form-subtitle">{lang === 'es' ? 'Verifica tu identidad para acceder al formulario de inversión.' : 'Verify your identity to access the investment form.'}</p>
               </div>
 
-              {!submitted ? (
+              {/* KYC Verification Gate */}
+              <div className="kyc-gate">
+                {kycStatus === 'not_started' && (
+                  <div className="kyc-gate-step">
+                    <div className="kyc-gate-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(248,176,59,0.8)" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <p className="kyc-gate-text">{lang === 'es' ? 'Paso 1: Verifica tu identidad con MetaMap' : 'Step 1: Verify your identity with MetaMap'}</p>
+                    <MetaMapButton
+                      userId={typeof window !== 'undefined' ? localStorage.getItem('ancestro:userId') || 'anonymous' : 'anonymous'}
+                      userEmail={typeof window !== 'undefined' ? localStorage.getItem('ancestro:email') || '' : ''}
+                      onFinished={() => {
+                        setKycStatus('pending');
+                        const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
+                        if (token) markKycPending(token);
+                      }}
+                    />
+                  </div>
+                )}
+                {kycStatus === 'pending' && (
+                  <div className="kyc-gate-step kyc-gate-step--pending">
+                    <div className="kyc-gate-icon kyc-gate-icon--pending">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <p className="kyc-gate-text">{lang === 'es' ? 'Verificación en proceso. Te notificaremos cuando esté aprobada.' : 'Verification in progress. We\'ll notify you when approved.'}</p>
+                    <button type="button" className="kyc-gate-refresh" onClick={() => {
+                      const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
+                      if (token) fetchKycStatus(token).then(setKycStatus);
+                    }}>{lang === 'es' ? 'Verificar estado' : 'Check status'}</button>
+                  </div>
+                )}
+                {kycStatus === 'rejected' && (
+                  <div className="kyc-gate-step kyc-gate-step--rejected">
+                    <div className="kyc-gate-icon kyc-gate-icon--rejected">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    </div>
+                    <p className="kyc-gate-text">{lang === 'es' ? 'Verificación rechazada. Intenta nuevamente o contacta soporte.' : 'Verification rejected. Try again or contact support.'}</p>
+                    <MetaMapButton
+                      userId={typeof window !== 'undefined' ? localStorage.getItem('ancestro:userId') || 'anonymous' : 'anonymous'}
+                      userEmail={typeof window !== 'undefined' ? localStorage.getItem('ancestro:email') || '' : ''}
+                      onFinished={() => {
+                        setKycStatus('pending');
+                        const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
+                        if (token) markKycPending(token);
+                      }}
+                    />
+                  </div>
+                )}
+                {kycStatus === 'verified' && (
+                  <div className="kyc-gate-step kyc-gate-step--verified">
+                    <div className="kyc-gate-icon kyc-gate-icon--verified">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    <p className="kyc-gate-text">{lang === 'es' ? 'Identidad verificada. Completa el formulario de inversión.' : 'Identity verified. Complete the investment form below.'}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Investment Form — only when KYC verified */}
+              {kycStatus === 'verified' && !submitted ? (
                 <form className="invest-form" onSubmit={handleFormSubmit} noValidate>
                   {/* Progress bar */}
                   <div className="form-progress">
@@ -2130,6 +2189,21 @@ export default function InvestPage({ lang }: InvestPageProps) {
           color: rgba(255, 255, 255, 0.2);
           font-size: 0.85rem;
         }
+
+        /* KYC Gate */
+        .kyc-gate{margin-bottom:20px}
+        .kyc-gate-step{display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px;border:1px solid rgba(255,255,255,0.06);border-radius:12px;background:rgba(255,255,255,0.02);text-align:center}
+        .kyc-gate-step--pending{border-color:rgba(234,179,8,0.2);background:rgba(234,179,8,0.03)}
+        .kyc-gate-step--rejected{border-color:rgba(239,68,68,0.2);background:rgba(239,68,68,0.03)}
+        .kyc-gate-step--verified{border-color:rgba(34,197,94,0.2);background:rgba(34,197,94,0.03)}
+        .kyc-gate-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(248,176,59,0.1)}
+        .kyc-gate-icon--pending{background:rgba(234,179,8,0.1)}
+        .kyc-gate-icon--rejected{background:rgba(239,68,68,0.1)}
+        .kyc-gate-icon--verified{background:rgba(34,197,94,0.1)}
+        .kyc-gate-text{font-size:14px;color:rgba(255,255,255,0.6);line-height:1.5;margin:0}
+        .kyc-gate-refresh{padding:8px 20px;border:1px solid rgba(234,179,8,0.3);border-radius:10px;background:rgba(234,179,8,0.06);color:#eab308;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s}
+        .kyc-gate-refresh:hover{background:rgba(234,179,8,0.12);border-color:rgba(234,179,8,0.5)}
+        .metamap-btn-container{display:flex;justify-content:center}
 
         /* Multi-step form additions */
         .form-progress{display:flex;justify-content:center;gap:8px;margin-bottom:20px}
