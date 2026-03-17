@@ -1,42 +1,100 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAirtableRecord } from '@/lib/airtable';
-import { query } from '@/lib/db';
 
 const TABLE_ID = process.env.AIRTABLE_INVEST_FORM || '';
+const LAMBDA_WEBHOOK_URL = process.env.LAMBDA_WEBHOOK_URL || 'https://4518za7znc.execute-api.us-east-1.amazonaws.com/prod/kyc/webhook';
 
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
-    const { name, email, phone, amount, message } = data;
+    const {
+      name, email, phone, amount, message,
+      dateOfBirth, address, citizenship, investorType,
+      accreditationCriteria, entityCriteria,
+      sourceOfFunds, sourceOfFundsOther,
+      isPep, pepDetails,
+      isUsCitizen, usTaxId,
+      declarationAccepted,
+    } = data;
 
     if (!name || !email || !amount) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Save to RDS
-    await query(
-      `INSERT INTO investment_requests (investment_request, full_name, email, phone, investment_range_usd, message, form_source, follow_up_status, assigned_to, submission_date, department_notified)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10)`,
-      [
-        `${name} - ${amount} - ${new Date().toISOString().split('T')[0]}`,
-        name, email, phone || '', amount, message || '',
-        'invest-page', 'New', '', 'Investor Relations',
-      ]
-    );
+    // Accreditation status logic
+    const accreditationStatus = (isPep || isUsCitizen) ? 'Requires Review' : 'Pending';
 
-    // Save to Airtable
-    await createAirtableRecord(TABLE_ID, {
-      'Investment Request': `${name} - ${amount} - ${new Date().toISOString().split('T')[0]}`,
-      'Full Name': name,
-      'Email': email,
-      'Phone': phone || '',
-      'Investment Range (USD)': amount,
-      'Message': message || '',
-      'Form Source': 'Investment Web Form',
-      'Follow-Up Status': 'New',
-      'Submission Date': new Date().toISOString(),
-      'Department Notified': 'Investment',
-    });
+    // Save to Lambda (RDS) and Airtable in parallel
+    const [lambdaResult, airtableResult] = await Promise.allSettled([
+      // Send to Lambda webhook → saves to RDS
+      fetch(LAMBDA_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: 'invest-form', ...data }),
+      }).then(async (res) => {
+        if (!res.ok) {
+          const body = await res.text();
+          throw new Error(`Lambda ${res.status}: ${body}`);
+        }
+        return res.json();
+      }),
+
+      // Save to Airtable
+      createAirtableRecord(TABLE_ID, {
+        'Investment Request': `${name} - ${amount} - ${new Date().toISOString().split('T')[0]}`,
+        'Full Name': name,
+        'Email': email,
+        'Phone': phone || '',
+        'Investment Range (USD)': amount,
+        'Message': message || '',
+        // Investor Info
+        'Date of Birth': dateOfBirth || '',
+        'Address': address || '',
+        'Citizenship': citizenship || '',
+        'Investor Type': investorType || 'individual',
+        // Accreditation
+        ...(accreditationCriteria?.includes('incomeIndividual') && { 'Income Individual 200K': true }),
+        ...(accreditationCriteria?.includes('incomeJoint') && { 'Income Joint 300K': true }),
+        ...(accreditationCriteria?.includes('netWorth') && { 'Net Worth 1M': true }),
+        ...(accreditationCriteria?.includes('professional') && { 'Professional Cert': true }),
+        ...(accreditationCriteria?.includes('insider') && { 'Company Insider': true }),
+        ...(accreditationCriteria?.includes('knowledgeable') && { 'Knowledgeable Employee': true }),
+        // Entity Accreditation
+        ...(entityCriteria?.includes('bank') && { 'Entity Financial Institution': true }),
+        ...(entityCriteria?.includes('benefitPlan') && { 'Entity Benefit Plan 5M': true }),
+        ...(entityCriteria?.includes('privateFund') && { 'Entity Private Fund 5M': true }),
+        ...(entityCriteria?.includes('familyOffice') && { 'Entity Family Office 5M': true }),
+        ...(entityCriteria?.includes('entityAssets') && { 'Entity Assets 5M': true }),
+        ...(entityCriteria?.includes('allAccredited') && { 'Entity All Accredited': true }),
+        // AML
+        'Source of Funds': sourceOfFunds || '',
+        ...(sourceOfFundsOther && { 'Source Other Detail': sourceOfFundsOther }),
+        'Is PEP': isPep || false,
+        ...(pepDetails && { 'PEP Details': pepDetails }),
+        'Is US Citizen': isUsCitizen || false,
+        ...(usTaxId && { 'US Tax ID': usTaxId }),
+        // Status
+        'Declaration Accepted': declarationAccepted || false,
+        'Accreditation Status': accreditationStatus,
+        'Form Source': 'Investment Web Form',
+        'Follow-Up Status': 'New',
+        'Submission Date': new Date().toISOString(),
+        'Department Notified': 'Investment',
+      }),
+    ]);
+
+    // Log failures but don't fail the request if one destination fails
+    if (lambdaResult.status === 'rejected') {
+      console.error('[Invest API] Lambda failed:', lambdaResult.reason);
+    }
+    if (airtableResult.status === 'rejected') {
+      console.error('[Invest API] Airtable failed:', airtableResult.reason);
+    }
+
+    // Fail only if both destinations failed
+    if (lambdaResult.status === 'rejected' && airtableResult.status === 'rejected') {
+      return NextResponse.json({ error: 'Failed to save investment request' }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (err) {

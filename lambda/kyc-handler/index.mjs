@@ -1,9 +1,11 @@
 /**
  * Lambda: ancestro-kyc-webhook
- * Única función: recibir webhooks de MetaMap y actualizar RDS.
- * Todo lo demás (status, pending, AML) lo maneja el backend Express.js en EC2.
+ * Dual-purpose:
+ *   1. Recibir webhooks de MetaMap (con firma HMAC) → actualizar kyc_events + investor_profiles
+ *   2. Recibir submissions del formulario de inversión (sin HMAC) → guardar en investment_requests
  *
- * API Gateway: POST /kyc/webhook → esta Lambda
+ * API Gateway: ANY /kyc/webhook → esta Lambda
+ * Diferenciación: si tiene header x-signature → MetaMap; si tiene campo "source":"invest-form" → formulario
  */
 
 import { createHmac, timingSafeEqual } from 'crypto';
@@ -23,6 +25,13 @@ const pool = new Pool({
 
 const WEBHOOK_SECRET = process.env.METAMAP_WEBHOOK_SECRET;
 
+const CORS_HEADERS = {
+  'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type, x-signature, X-Signature',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
+
 // ── Verificar firma HMAC-SHA256 de MetaMap ───────────────────────
 function verifySignature(rawBody, signature) {
   if (!signature || !WEBHOOK_SECRET) return false;
@@ -34,39 +43,76 @@ function verifySignature(rawBody, signature) {
   }
 }
 
-// ── Handler ──────────────────────────────────────────────────────
-export async function handler(event) {
-  console.log('MetaMap webhook received');
+// ── Manejar formulario de inversión ──────────────────────────────
+async function handleInvestForm(payload) {
+  const {
+    name, email, phone, amount, message,
+    dateOfBirth, address, citizenship, investorType,
+    accreditationCriteria, entityCriteria,
+    sourceOfFunds, sourceOfFundsOther,
+    isPep, pepDetails,
+    isUsCitizen, usTaxId,
+    declarationAccepted,
+  } = payload;
 
-  // 1. Obtener body raw
-  const rawBody = event.isBase64Encoded
-    ? Buffer.from(event.body, 'base64').toString('utf8')
-    : event.body;
-
-  // 2. Validar firma HMAC
-  const signature = event.headers?.['x-signature'] || event.headers?.['X-Signature'];
-
-  if (!verifySignature(rawBody, signature)) {
-    console.error('Invalid webhook signature');
-    return {
-      statusCode: 401,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Invalid signature' }),
-    };
-  }
-
-  // 3. Parsear payload
-  let payload;
-  try {
-    payload = JSON.parse(rawBody);
-  } catch {
+  if (!name || !email || !amount) {
     return {
       statusCode: 400,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Invalid JSON' }),
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: 'Missing required fields: name, email, amount' }),
     };
   }
 
+  // Determinar accreditation status
+  let accreditationStatus = 'pending';
+  if (isPep || isUsCitizen) accreditationStatus = 'requires_review';
+
+  const client = await pool.connect();
+  try {
+    await client.query(
+      `INSERT INTO investment_requests
+        (investment_request, full_name, email, phone, investment_range_usd, message,
+         date_of_birth, address, citizenship, investor_type,
+         accreditation_criteria, entity_criteria,
+         source_of_funds, source_of_funds_other,
+         is_pep, pep_details,
+         is_us_citizen, us_tax_id,
+         declaration_accepted, accreditation_status,
+         form_source, follow_up_status, assigned_to, submission_date, department_notified)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,NOW(),$24)`,
+      [
+        `${name} - ${amount} - ${new Date().toISOString().split('T')[0]}`,
+        name, email, phone || '', amount, message || '',
+        dateOfBirth || null, address || '', citizenship || '', investorType || 'individual',
+        accreditationCriteria || [], entityCriteria || [],
+        sourceOfFunds || '', sourceOfFundsOther || '',
+        isPep || false, pepDetails || '',
+        isUsCitizen || false, usTaxId || '',
+        declarationAccepted || false, accreditationStatus,
+        'invest-page', 'New', '', 'Investor Relations',
+      ]
+    );
+
+    console.log(`Investment request saved: ${email} - ${amount} - ${accreditationStatus}`);
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ success: true }),
+    };
+  } catch (err) {
+    console.error('DB error (invest form):', err.message);
+    return {
+      statusCode: 500,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: 'Internal error' }),
+    };
+  } finally {
+    client.release();
+  }
+}
+
+// ── Manejar webhook de MetaMap ───────────────────────────────────
+async function handleMetaMapWebhook(payload) {
   const eventName = payload.eventName || 'unknown';
   const verificationId = payload.resource?.split('/').pop() || payload.id || null;
   const metadata = payload.metadata || {};
@@ -76,14 +122,14 @@ export async function handler(event) {
 
   const client = await pool.connect();
   try {
-    // 4. Guardar en audit trail (SIEMPRE, para cualquier evento)
+    // Guardar en audit trail (SIEMPRE)
     await client.query(
       `INSERT INTO kyc_events (user_id, event_type, verification_id, status, raw_payload)
        VALUES ($1, $2, $3, $4, $5)`,
       [userId, eventName, verificationId, payload.status || null, payload]
     );
 
-    // 5. Actualizar investor_profiles solo en eventos de resultado
+    // Actualizar investor_profiles en eventos de resultado
     if (userId && ['verification_completed', 'verification_updated'].includes(eventName)) {
       let kycStatus = 'pending';
       let kycVerified = false;
@@ -96,14 +142,12 @@ export async function handler(event) {
         kycVerified = false;
       }
 
-      // Crear profile si no existe
       await client.query(
         `INSERT INTO investor_profiles (user_id)
          VALUES ($1) ON CONFLICT (user_id) DO NOTHING`,
         [userId]
       );
 
-      // Actualizar KYC status
       await client.query(
         `UPDATE investor_profiles SET
           kyc_status = $1,
@@ -118,7 +162,7 @@ export async function handler(event) {
       console.log(`KYC updated: user=${userId} status=${kycStatus}`);
     }
 
-    // 6. Expiración
+    // Expiración
     if (eventName === 'verification_expired' && userId) {
       await client.query(
         `UPDATE investor_profiles SET kyc_status = 'rejected'
@@ -130,17 +174,72 @@ export async function handler(event) {
 
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: CORS_HEADERS,
       body: JSON.stringify({ received: true }),
     };
   } catch (err) {
-    console.error('DB error:', err.message);
+    console.error('DB error (MetaMap):', err.message);
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: CORS_HEADERS,
       body: JSON.stringify({ error: 'Internal error' }),
     };
   } finally {
     client.release();
   }
+}
+
+// ── Handler principal ────────────────────────────────────────────
+export async function handler(event) {
+  // CORS preflight
+  if (event.requestContext?.http?.method === 'OPTIONS' || event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers: CORS_HEADERS, body: '' };
+  }
+
+  // 1. Obtener body raw
+  const rawBody = event.isBase64Encoded
+    ? Buffer.from(event.body, 'base64').toString('utf8')
+    : event.body;
+
+  // 2. Parsear payload
+  let payload;
+  try {
+    payload = JSON.parse(rawBody);
+  } catch {
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: 'Invalid JSON' }),
+    };
+  }
+
+  // 3. Diferenciar: MetaMap (tiene x-signature) vs formulario de inversión (source: invest-form)
+  const signature = event.headers?.['x-signature'] || event.headers?.['X-Signature'];
+
+  if (signature) {
+    // MetaMap webhook — validar HMAC
+    console.log('MetaMap webhook received');
+    if (!verifySignature(rawBody, signature)) {
+      console.error('Invalid webhook signature');
+      return {
+        statusCode: 401,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ error: 'Invalid signature' }),
+      };
+    }
+    return handleMetaMapWebhook(payload);
+  }
+
+  if (payload.source === 'invest-form') {
+    // Formulario de inversión
+    console.log('Investment form received');
+    return handleInvestForm(payload);
+  }
+
+  // Payload no reconocido
+  return {
+    statusCode: 400,
+    headers: CORS_HEADERS,
+    body: JSON.stringify({ error: 'Unknown request type' }),
+  };
 }

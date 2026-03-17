@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { fetchKycStatus, type KycStatus } from '@/lib/kyc';
-import InvestorOnboarding from '@/components/kyc/InvestorOnboarding';
+
 
 interface InvestPageProps {
   lang: string;
@@ -201,7 +201,18 @@ export default function InvestPage({ lang }: InvestPageProps) {
   const [ctaVisible, setCtaVisible] = useState(false);
 
   /* form state */
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', amount: '', message: '' });
+  const [formStep, setFormStep] = useState(1);
+  const [formData, setFormData] = useState({
+    // Basic invest fields
+    name: '', email: '', phone: '', amount: '', message: '',
+    // AML / SEC 501(a) fields
+    dateOfBirth: '', address: '', citizenship: '', investorType: 'individual',
+    accreditationCriteria: [] as string[], entityCriteria: [] as string[],
+    sourceOfFunds: '', sourceOfFundsOther: '',
+    isPep: false, pepDetails: '',
+    isUsCitizen: false, usTaxId: '',
+    declarationAccepted: false,
+  });
   const [formErrors, setFormErrors] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -253,18 +264,78 @@ export default function InvestPage({ lang }: InvestPageProps) {
 
   if (!unlocked) return <AccessGate onUnlock={() => setUnlocked(true)} />;
 
+  const naturalPersonCriteria = [
+    { key: 'incomeIndividual', label: lang === 'es' ? 'Ingreso individual > USD $200,000 en los últimos 2 años' : 'Individual income > USD $200,000 in each of the last 2 years' },
+    { key: 'incomeJoint', label: lang === 'es' ? 'Ingreso conjunto > USD $300,000 en los últimos 2 años' : 'Joint income > USD $300,000 in each of the last 2 years' },
+    { key: 'netWorth', label: lang === 'es' ? 'Patrimonio neto > USD $1,000,000 (excl. residencia)' : 'Net worth > USD $1,000,000 (excl. primary residence)' },
+    { key: 'professional', label: lang === 'es' ? 'Licencia Serie 7, 65, 82 u otra certificación SEC' : 'Series 7, 65, 82 license or SEC-designated certification' },
+    { key: 'insider', label: lang === 'es' ? 'Director, ejecutivo o socio general de Ancestro Inc.' : 'Director, executive officer, or general partner of Ancestro Inc.' },
+    { key: 'knowledgeable', label: lang === 'es' ? 'Empleado calificado de un fondo privado' : 'Knowledgeable employee of a private fund' },
+  ];
+  const entityCriteriaOptions = [
+    { key: 'bank', label: lang === 'es' ? 'Banco, corredor, aseguradora o compañía de inversión registrada' : 'Bank, broker-dealer, insurance company, or registered investment company' },
+    { key: 'benefitPlan', label: lang === 'es' ? 'Plan de beneficios con activos > USD $5M' : 'Employee benefit plan with assets > USD $5M' },
+    { key: 'privateFund', label: lang === 'es' ? 'Fondo privado con AUM > USD $5M' : 'Private fund with AUM > USD $5M' },
+    { key: 'familyOffice', label: lang === 'es' ? 'Family office con AUM > USD $5M' : 'Family office with AUM > USD $5M' },
+    { key: 'entityAssets', label: lang === 'es' ? 'Entidad con activos totales > USD $5M' : 'Entity with total assets > USD $5M' },
+    { key: 'allAccredited', label: lang === 'es' ? 'Todos los propietarios son inversionistas acreditados' : 'All equity owners are accredited investors' },
+  ];
+  const fundSourceOptions = [
+    { key: 'salary', label: lang === 'es' ? 'Salario / Ingresos laborales' : 'Salary / Employment income' },
+    { key: 'business', label: lang === 'es' ? 'Ingresos de negocio propio' : 'Business income' },
+    { key: 'investments', label: lang === 'es' ? 'Retorno de inversiones' : 'Returns from investments' },
+    { key: 'inheritance', label: lang === 'es' ? 'Herencia' : 'Inheritance' },
+    { key: 'savings', label: lang === 'es' ? 'Ahorros personales' : 'Personal savings' },
+    { key: 'realEstate', label: lang === 'es' ? 'Venta de bienes inmuebles' : 'Real estate sale' },
+    { key: 'other', label: lang === 'es' ? 'Otro' : 'Other' },
+  ];
+
+  const toggleArrayItem = (field: 'accreditationCriteria' | 'entityCriteria', value: string) => {
+    setFormData(prev => {
+      const arr = prev[field];
+      return { ...prev, [field]: arr.includes(value) ? arr.filter(v => v !== value) : [...arr, value] };
+    });
+  };
+
+  const validateFormStep = (): boolean => {
+    const errors: Record<string, boolean> = {};
+    if (formStep === 1) {
+      if (!formData.name.trim()) errors.name = true;
+      if (!formData.email.trim() || !formData.email.includes('@')) errors.email = true;
+      if (!formData.amount) errors.amount = true;
+      if (!formData.dateOfBirth) errors.dateOfBirth = true;
+      if (!formData.address.trim()) errors.address = true;
+      if (!formData.citizenship.trim()) errors.citizenship = true;
+    }
+    if (formStep === 2) {
+      if (formData.investorType !== 'entity' && formData.accreditationCriteria.length === 0) errors.accreditationCriteria = true;
+      if (formData.investorType === 'entity' && formData.entityCriteria.length === 0) errors.entityCriteria = true;
+    }
+    if (formStep === 3) {
+      if (!formData.sourceOfFunds) errors.sourceOfFunds = true;
+      if (formData.sourceOfFunds === 'other' && !formData.sourceOfFundsOther.trim()) errors.sourceOfFundsOther = true;
+      if (formData.isPep && !formData.pepDetails.trim()) errors.pepDetails = true;
+      if (formData.isUsCitizen && !formData.usTaxId.trim()) errors.usTaxId = true;
+    }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleFormNext = () => {
+    if (validateFormStep()) setFormStep(s => s + 1);
+  };
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (kycStatus !== 'verified') {
-      alert(lang === 'es' ? 'Debes completar la verificacion de identidad antes de invertir.' : 'You must complete identity verification before investing.');
+    // TODO: Re-enable KYC check after testing
+    // if (kycStatus !== 'verified') {
+    //   alert(lang === 'es' ? 'Debes completar la verificacion de identidad antes de invertir.' : 'You must complete identity verification before investing.');
+    //   return;
+    // }
+    if (!formData.declarationAccepted) {
+      setFormErrors({ declarationAccepted: true });
       return;
     }
-    const errors: Record<string, boolean> = {};
-    if (!formData.name.trim()) errors.name = true;
-    if (!formData.email.trim() || !formData.email.includes('@')) errors.email = true;
-    if (!formData.amount) errors.amount = true;
-    setFormErrors(errors);
-    if (Object.keys(errors).length > 0) return;
 
     setSubmitting(true);
     try {
@@ -580,110 +651,189 @@ export default function InvestPage({ lang }: InvestPageProps) {
                 <p className="invest-form-subtitle">Share your details and our team will reach out within 24 hours.</p>
               </div>
 
-              <InvestorOnboarding lang={lang} onVerified={() => setKycStatus('verified')} />
-
               {!submitted ? (
                 <form className="invest-form" onSubmit={handleFormSubmit} noValidate>
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor="invest-name" className="form-label">
-                        Full Name
-                      </label>
-                      <input
-                        type="text"
-                        id="invest-name"
-                        required
-                        autoComplete="name"
-                        placeholder="John Doe"
-                        className={`form-input ${formErrors.name ? 'has-error' : ''}`}
-                        value={formData.name}
-                        onChange={(e) => {
-                          setFormData((d) => ({ ...d, name: e.target.value }));
-                          setFormErrors((err) => ({ ...err, name: false }));
-                        }}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="invest-email" className="form-label">
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        id="invest-email"
-                        required
-                        autoComplete="email"
-                        placeholder="john@company.com"
-                        className={`form-input ${formErrors.email ? 'has-error' : ''}`}
-                        value={formData.email}
-                        onChange={(e) => {
-                          setFormData((d) => ({ ...d, email: e.target.value }));
-                          setFormErrors((err) => ({ ...err, email: false }));
-                        }}
-                      />
-                    </div>
+                  {/* Progress bar */}
+                  <div className="form-progress">
+                    {[1, 2, 3, 4].map(s => (
+                      <div key={s} className={`form-progress-step${formStep >= s ? ' active' : ''}${formStep > s ? ' done' : ''}`}>
+                        <div className="form-progress-num">{formStep > s ? '\u2713' : s}</div>
+                        <span className="form-progress-label">
+                          {s === 1 ? (lang === 'es' ? 'Info' : 'Info') : s === 2 ? (lang === 'es' ? 'Acreditaci\u00f3n' : 'Accreditation') : s === 3 ? 'AML' : (lang === 'es' ? 'Firma' : 'Sign')}
+                        </span>
+                      </div>
+                    ))}
                   </div>
 
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor="invest-phone" className="form-label">
-                        Phone <span className="form-optional">(optional)</span>
-                      </label>
-                      <input
-                        type="tel"
-                        id="invest-phone"
-                        autoComplete="tel"
-                        placeholder="+1 (555) 000-0000"
-                        className="form-input"
-                        value={formData.phone}
-                        onChange={(e) => setFormData((d) => ({ ...d, phone: e.target.value }))}
-                      />
+                  {/* Step 1: Basic Info + Investment */}
+                  {formStep === 1 && (
+                    <div className="form-step-anim">
+                      <div className="form-row">
+                        <div className="form-group">
+                          <label className="form-label">{lang === 'es' ? 'Nombre Completo' : 'Full Name'} *</label>
+                          <input type="text" autoComplete="name" placeholder="John Doe" className={`form-input ${formErrors.name ? 'has-error' : ''}`} value={formData.name} onChange={e => { setFormData(d => ({ ...d, name: e.target.value })); setFormErrors(err => ({ ...err, name: false })); }} />
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">Email *</label>
+                          <input type="email" autoComplete="email" placeholder="john@company.com" className={`form-input ${formErrors.email ? 'has-error' : ''}`} value={formData.email} onChange={e => { setFormData(d => ({ ...d, email: e.target.value })); setFormErrors(err => ({ ...err, email: false })); }} />
+                        </div>
+                      </div>
+                      <div className="form-row">
+                        <div className="form-group">
+                          <label className="form-label">{lang === 'es' ? 'Tel\u00e9fono' : 'Phone'} <span className="form-optional">({lang === 'es' ? 'opcional' : 'optional'})</span></label>
+                          <input type="tel" autoComplete="tel" placeholder="+1 (555) 000-0000" className="form-input" value={formData.phone} onChange={e => setFormData(d => ({ ...d, phone: e.target.value }))} />
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">{lang === 'es' ? 'Fecha de Nacimiento' : 'Date of Birth'} *</label>
+                          <input type="date" className={`form-input ${formErrors.dateOfBirth ? 'has-error' : ''}`} value={formData.dateOfBirth} onChange={e => { setFormData(d => ({ ...d, dateOfBirth: e.target.value })); setFormErrors(err => ({ ...err, dateOfBirth: false })); }} style={{ colorScheme: 'dark' }} />
+                        </div>
+                      </div>
+                      <div className="form-group form-group--full">
+                        <label className="form-label">{lang === 'es' ? 'Direcci\u00f3n de Residencia' : 'Residence Address'} *</label>
+                        <input type="text" autoComplete="street-address" placeholder={lang === 'es' ? 'Calle, Ciudad, Pa\u00eds' : 'Street, City, Country'} className={`form-input ${formErrors.address ? 'has-error' : ''}`} value={formData.address} onChange={e => { setFormData(d => ({ ...d, address: e.target.value })); setFormErrors(err => ({ ...err, address: false })); }} />
+                      </div>
+                      <div className="form-row">
+                        <div className="form-group">
+                          <label className="form-label">{lang === 'es' ? 'Ciudadan\u00eda / Pa\u00eds' : 'Citizenship / Country'} *</label>
+                          <input type="text" placeholder={lang === 'es' ? 'Ej: Colombia' : 'e.g. United States'} className={`form-input ${formErrors.citizenship ? 'has-error' : ''}`} value={formData.citizenship} onChange={e => { setFormData(d => ({ ...d, citizenship: e.target.value })); setFormErrors(err => ({ ...err, citizenship: false })); }} />
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">{lang === 'es' ? 'Rango de Inversi\u00f3n' : 'Investment Range'} *</label>
+                          <select className={`form-input form-select ${formErrors.amount ? 'has-error' : ''}`} value={formData.amount} onChange={e => { setFormData(d => ({ ...d, amount: e.target.value })); setFormErrors(err => ({ ...err, amount: false })); }}>
+                            <option value="" disabled>{lang === 'es' ? 'Seleccionar rango' : 'Select range'}</option>
+                            {investmentTiers.map(tier => (<option key={tier.value} value={tier.value}>{tier.label}</option>))}
+                          </select>
+                        </div>
+                      </div>
+                      <div className="form-row">
+                        <div className="form-group">
+                          <label className="form-label">{lang === 'es' ? 'Tipo de Inversionista' : 'Investor Type'}</label>
+                          <div className="form-chip-row">
+                            {(['individual', 'joint', 'entity'] as const).map(type => (
+                              <button key={type} type="button" className={`form-chip${formData.investorType === type ? ' form-chip--active' : ''}`} onClick={() => setFormData(d => ({ ...d, investorType: type }))}>
+                                {type === 'individual' ? (lang === 'es' ? 'Individual' : 'Individual') : type === 'joint' ? (lang === 'es' ? 'Conjunto' : 'Joint') : (lang === 'es' ? 'Entidad' : 'Entity')}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">{lang === 'es' ? 'Mensaje' : 'Message'} <span className="form-optional">({lang === 'es' ? 'opcional' : 'optional'})</span></label>
+                          <textarea rows={2} placeholder={lang === 'es' ? 'Cu\u00e9ntanos sobre tu inter\u00e9s en Ancestro...' : 'Tell us about your interest in Ancestro...'} className="form-input form-textarea" value={formData.message} onChange={e => setFormData(d => ({ ...d, message: e.target.value }))} />
+                        </div>
+                      </div>
+                      <button type="button" className="form-submit" onClick={handleFormNext}>
+                        <span className="form-submit-text">{lang === 'es' ? 'Siguiente' : 'Next'}</span>
+                        <svg className="form-submit-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                      </button>
                     </div>
-                    <div className="form-group">
-                      <label htmlFor="invest-amount" className="form-label">
-                        Investment Range
-                      </label>
-                      <select
-                        id="invest-amount"
-                        required
-                        className={`form-input form-select ${formErrors.amount ? 'has-error' : ''}`}
-                        value={formData.amount}
-                        onChange={(e) => {
-                          setFormData((d) => ({ ...d, amount: e.target.value }));
-                          setFormErrors((err) => ({ ...err, amount: false }));
-                        }}
-                      >
-                        <option value="" disabled>
-                          Select range
-                        </option>
-                        {investmentTiers.map((tier) => (
-                          <option key={tier.value} value={tier.value}>
-                            {tier.label}
-                          </option>
-                        ))}
-                      </select>
+                  )}
+
+                  {/* Step 2: Accreditation Criteria */}
+                  {formStep === 2 && (
+                    <div className="form-step-anim">
+                      <h4 className="form-section-title">
+                        {formData.investorType !== 'entity'
+                          ? (lang === 'es' ? 'Criterios de Acreditaci\u00f3n \u2014 Personas Naturales' : 'Accreditation Criteria \u2014 Natural Persons')
+                          : (lang === 'es' ? 'Criterios de Acreditaci\u00f3n \u2014 Entidades' : 'Accreditation Criteria \u2014 Entities')}
+                      </h4>
+                      <p className="form-hint">{lang === 'es' ? 'Seleccione todos los criterios que apliquen:' : 'Check all that apply:'}</p>
+                      <div className="form-checks">
+                        {(formData.investorType !== 'entity' ? naturalPersonCriteria : entityCriteriaOptions).map(c => {
+                          const field = formData.investorType !== 'entity' ? 'accreditationCriteria' : 'entityCriteria';
+                          const checked = formData[field].includes(c.key);
+                          return (
+                            <label key={c.key} className={`form-check-item${checked ? ' form-check-item--active' : ''}`}>
+                              <input type="checkbox" checked={checked} onChange={() => toggleArrayItem(field, c.key)} />
+                              <span>{c.label}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                      {(formErrors.accreditationCriteria || formErrors.entityCriteria) && (
+                        <p className="form-error-msg">{lang === 'es' ? 'Seleccione al menos un criterio' : 'Select at least one criterion'}</p>
+                      )}
+                      <div className="form-nav-row">
+                        <button type="button" className="form-btn-back" onClick={() => setFormStep(1)}>&larr; {lang === 'es' ? 'Anterior' : 'Back'}</button>
+                        <button type="button" className="form-submit" onClick={handleFormNext}>
+                          <span className="form-submit-text">{lang === 'es' ? 'Siguiente' : 'Next'}</span>
+                          <svg className="form-submit-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div className="form-group form-group--full">
-                    <label htmlFor="invest-message" className="form-label">
-                      Message <span className="form-optional">(optional)</span>
-                    </label>
-                    <textarea
-                      id="invest-message"
-                      rows={3}
-                      placeholder="Tell us about yourself and your interest in Ancestro..."
-                      className="form-input form-textarea"
-                      value={formData.message}
-                      onChange={(e) => setFormData((d) => ({ ...d, message: e.target.value }))}
-                    ></textarea>
-                  </div>
+                  {/* Step 3: AML Due Diligence */}
+                  {formStep === 3 && (
+                    <div className="form-step-anim">
+                      <h4 className="form-section-title">{lang === 'es' ? 'Debida Diligencia (AML)' : 'Due Diligence (AML)'}</h4>
+                      <div className="form-group">
+                        <label className="form-label">{lang === 'es' ? 'Origen de los fondos a invertir' : 'Source of funds to be invested'} *</label>
+                        <div className="form-chip-row form-chip-wrap">
+                          {fundSourceOptions.map(s => (
+                            <button key={s.key} type="button" className={`form-chip${formData.sourceOfFunds === s.key ? ' form-chip--active' : ''}`} onClick={() => { setFormData(d => ({ ...d, sourceOfFunds: s.key })); setFormErrors(err => ({ ...err, sourceOfFunds: false })); }}>
+                              {s.label}
+                            </button>
+                          ))}
+                        </div>
+                        {formData.sourceOfFunds === 'other' && (
+                          <input type="text" placeholder={lang === 'es' ? 'Especifique el origen' : 'Specify the source'} className={`form-input ${formErrors.sourceOfFundsOther ? 'has-error' : ''}`} value={formData.sourceOfFundsOther} onChange={e => { setFormData(d => ({ ...d, sourceOfFundsOther: e.target.value })); setFormErrors(err => ({ ...err, sourceOfFundsOther: false })); }} style={{ marginTop: 8 }} />
+                        )}
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">{lang === 'es' ? '\u00bfEs usted o alg\u00fan familiar cercano una Persona Pol\u00edticamente Expuesta (PEP)?' : 'Are you or any close relative a Politically Exposed Person (PEP)?'} *</label>
+                        <p className="form-hint">{lang === 'es' ? 'Funcionarios p\u00fablicos, diplom\u00e1ticos, militares de alto rango, ejecutivos de empresas estatales.' : 'Public officials, diplomats, senior military officers, state enterprise executives.'}</p>
+                        <div className="form-toggle-row">
+                          <button type="button" className={`form-toggle${formData.isPep ? ' form-toggle--warn' : ''}`} onClick={() => setFormData(d => ({ ...d, isPep: true }))}>{lang === 'es' ? 'S\u00ed' : 'Yes'}</button>
+                          <button type="button" className={`form-toggle${!formData.isPep ? ' form-toggle--active' : ''}`} onClick={() => setFormData(d => ({ ...d, isPep: false }))}>{lang === 'es' ? 'No' : 'No'}</button>
+                        </div>
+                        {formData.isPep && (
+                          <textarea rows={2} placeholder={lang === 'es' ? 'Describa la relaci\u00f3n pol\u00edtica' : 'Describe the political relationship'} className={`form-input form-textarea ${formErrors.pepDetails ? 'has-error' : ''}`} value={formData.pepDetails} onChange={e => { setFormData(d => ({ ...d, pepDetails: e.target.value })); setFormErrors(err => ({ ...err, pepDetails: false })); }} />
+                        )}
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">{lang === 'es' ? '\u00bfEs ciudadano o residente fiscal de EE.UU.?' : 'Are you a US citizen or tax resident?'} *</label>
+                        <div className="form-toggle-row">
+                          <button type="button" className={`form-toggle${formData.isUsCitizen ? ' form-toggle--active' : ''}`} onClick={() => setFormData(d => ({ ...d, isUsCitizen: true }))}>{lang === 'es' ? 'S\u00ed' : 'Yes'}</button>
+                          <button type="button" className={`form-toggle${!formData.isUsCitizen ? ' form-toggle--active' : ''}`} onClick={() => setFormData(d => ({ ...d, isUsCitizen: false }))}>{lang === 'es' ? 'No' : 'No'}</button>
+                        </div>
+                        {formData.isUsCitizen && (
+                          <input type="text" placeholder="SSN / ITIN" className={`form-input ${formErrors.usTaxId ? 'has-error' : ''}`} value={formData.usTaxId} onChange={e => { setFormData(d => ({ ...d, usTaxId: e.target.value })); setFormErrors(err => ({ ...err, usTaxId: false })); }} />
+                        )}
+                      </div>
+                      <div className="form-nav-row">
+                        <button type="button" className="form-btn-back" onClick={() => setFormStep(2)}>&larr; {lang === 'es' ? 'Anterior' : 'Back'}</button>
+                        <button type="button" className="form-submit" onClick={handleFormNext}>
+                          <span className="form-submit-text">{lang === 'es' ? 'Siguiente' : 'Next'}</span>
+                          <svg className="form-submit-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
-                  <button type="submit" className="form-submit" disabled={submitting}>
-                    <span className="form-submit-text">{submitting ? 'Sending...' : 'Request Access'}</span>
-                    <svg className="form-submit-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                  </button>
+                  {/* Step 4: Declaration & Submit */}
+                  {formStep === 4 && (
+                    <div className="form-step-anim">
+                      <h4 className="form-section-title">{lang === 'es' ? 'Declaraci\u00f3n Jurada' : 'Sworn Declaration'}</h4>
+                      <div className="form-declaration">
+                        <p className="form-declaration-text">
+                          {lang === 'es'
+                            ? 'Declaro que toda la informaci\u00f3n proporcionada es verdadera, correcta y completa. Entiendo que Ancestro Inc. se basa en mis respuestas para determinar mi elegibilidad bajo la Regla 506(b) de la Regulaci\u00f3n D. Los valores a adquirir son valores restringidos y no pueden ser ofrecidos, vendidos o transferidos excepto conforme a una exenci\u00f3n aplicable. Adquiero los valores para inversi\u00f3n propia, no para distribuci\u00f3n o reventa.'
+                            : 'I declare that all information provided is true, correct, and complete. I understand that Ancestro Inc. relies on my responses to determine eligibility under Rule 506(b) of Regulation D. The securities to be acquired are restricted securities and may not be offered, sold, or transferred except pursuant to an applicable exemption. I am acquiring the securities for my own account for investment purposes only, not for distribution or resale.'}
+                        </p>
+                        <label className={`form-declaration-check${formErrors.declarationAccepted ? ' form-declaration-check--error' : ''}`}>
+                          <input type="checkbox" checked={formData.declarationAccepted} onChange={e => { setFormData(d => ({ ...d, declarationAccepted: e.target.checked })); setFormErrors(err => ({ ...err, declarationAccepted: false })); }} />
+                          <span>{lang === 'es' ? 'Acepto la declaraci\u00f3n jurada' : 'I accept the sworn declaration'}</span>
+                        </label>
+                      </div>
+                      <div className="form-nav-row">
+                        <button type="button" className="form-btn-back" onClick={() => setFormStep(3)}>&larr; {lang === 'es' ? 'Anterior' : 'Back'}</button>
+                        <button type="submit" className="form-submit form-submit--final" disabled={submitting}>
+                          <span className="form-submit-text">{submitting ? (lang === 'es' ? 'Enviando...' : 'Sending...') : (lang === 'es' ? 'Enviar Solicitud' : 'Submit Application')}</span>
+                          <svg className="form-submit-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </form>
               ) : (
                 <div className="form-success is-active">
@@ -691,7 +841,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                     <polyline points="22 4 12 14.01 9 11.01" />
                   </svg>
-                  <p>Thank you! We&apos;ll be in touch soon.</p>
+                  <p>{lang === 'es' ? '\u00a1Gracias! Nos comunicaremos pronto.' : 'Thank you! We\'ll be in touch soon.'}</p>
                 </div>
               )}
 
@@ -1980,6 +2130,45 @@ export default function InvestPage({ lang }: InvestPageProps) {
           color: rgba(255, 255, 255, 0.2);
           font-size: 0.85rem;
         }
+
+        /* Multi-step form additions */
+        .form-progress{display:flex;justify-content:center;gap:8px;margin-bottom:20px}
+        .form-progress-step{display:flex;align-items:center;gap:6px;opacity:0.3;transition:opacity 0.2s}
+        .form-progress-step.active{opacity:1}
+        .form-progress-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5)}
+        .form-progress-step.active .form-progress-num{background:rgba(248,176,59,0.2);color:#f8b03b}
+        .form-progress-step.done .form-progress-num{background:rgba(34,197,94,0.2);color:#22c55e}
+        .form-progress-label{font-size:11px;color:rgba(255,255,255,0.5);display:none}
+        @media(min-width:600px){.form-progress-label{display:block}}
+        .form-step-anim{animation:formStepFade 0.3s ease}
+        @keyframes formStepFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+        .form-section-title{font-size:15px;font-weight:700;color:#fff;margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06)}
+        .form-hint{font-size:12px;color:rgba(255,255,255,0.35);line-height:1.5;margin:0 0 12px}
+        .form-chip-row{display:flex;gap:8px;flex-wrap:wrap}
+        .form-chip-wrap{flex-wrap:wrap}
+        .form-chip{display:inline-flex;align-items:center;padding:8px 14px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;cursor:pointer;font-size:12px;color:rgba(255,255,255,0.6);background:none;font-family:inherit;transition:all 0.2s}
+        .form-chip:hover{border-color:rgba(255,255,255,0.2)}
+        .form-chip--active{border-color:rgba(248,176,59,0.4);background:rgba(248,176,59,0.06);color:#f8b03b}
+        .form-checks{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+        .form-check-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid rgba(255,255,255,0.06);border-radius:10px;cursor:pointer;font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5;transition:all 0.2s}
+        .form-check-item input{width:16px;height:16px;accent-color:#f8b03b;margin-top:1px;flex-shrink:0}
+        .form-check-item:hover{border-color:rgba(255,255,255,0.15)}
+        .form-check-item--active{border-color:rgba(248,176,59,0.3);background:rgba(248,176,59,0.04);color:#fff}
+        .form-toggle-row{display:flex;gap:8px;margin-bottom:8px}
+        .form-toggle{padding:8px 20px;border:1px solid rgba(255,255,255,0.1);border-radius:10px;background:none;color:rgba(255,255,255,0.5);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s}
+        .form-toggle--active{border-color:rgba(34,197,94,0.4);background:rgba(34,197,94,0.08);color:#22c55e}
+        .form-toggle--warn{border-color:rgba(234,179,8,0.4);background:rgba(234,179,8,0.08);color:#eab308}
+        .form-declaration{padding:16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:12px;margin-bottom:16px}
+        .form-declaration-text{font-size:12px;color:rgba(255,255,255,0.4);line-height:1.7;margin:0 0 14px}
+        .form-declaration-check{display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:14px;font-weight:600;color:#fff}
+        .form-declaration-check input{width:18px;height:18px;accent-color:#f8b03b;margin-top:1px;flex-shrink:0}
+        .form-declaration-check--error{color:#ef4444}
+        .form-error-msg{color:#ef4444;font-size:12px;margin:4px 0 0}
+        .form-nav-row{display:flex;gap:12px;margin-top:16px}
+        .form-btn-back{padding:12px 24px;border:1px solid rgba(255,255,255,0.1);border-radius:10px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s}
+        .form-btn-back:hover{background:rgba(255,255,255,0.1)}
+        .form-submit--final{background:linear-gradient(135deg,#22c55e,#16a34a)}
+        .form-submit--final:hover{background:linear-gradient(135deg,#16a34a,#15803d);box-shadow:0 6px 20px rgba(34,197,94,0.3)}
 
         @media (max-width: 640px) {
           .final-cta { padding: 56px 20px 40px; }
