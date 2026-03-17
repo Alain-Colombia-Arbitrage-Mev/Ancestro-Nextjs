@@ -238,7 +238,12 @@ export default function InvestPage({ lang }: InvestPageProps) {
     isPep: false, pepDetails: '',
     isUsCitizen: false, usTaxId: '',
     declarationAccepted: false,
+    // Signature
+    signatureType: 'type' as 'draw' | 'type',
+    signatureData: '',
   });
+  const signatureCanvasRef = useRef<HTMLCanvasElement>(null);
+  const isDrawingRef = useRef(false);
   const [formErrors, setFormErrors] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -351,6 +356,66 @@ export default function InvestPage({ lang }: InvestPageProps) {
     if (validateFormStep()) setFormStep(s => s + 1);
   };
 
+  // Signature canvas helpers
+  const initCanvas = useCallback(() => {
+    const canvas = signatureCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * 2;
+    canvas.height = rect.height * 2;
+    ctx.scale(2, 2);
+    ctx.strokeStyle = '#f8b03b';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  }, []);
+
+  const getCanvasPos = (e: React.MouseEvent | React.TouchEvent) => {
+    const canvas = signatureCanvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  };
+
+  const startDraw = (e: React.MouseEvent | React.TouchEvent) => {
+    isDrawingRef.current = true;
+    const ctx = signatureCanvasRef.current?.getContext('2d');
+    if (!ctx) return;
+    const pos = getCanvasPos(e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+  };
+
+  const draw = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!isDrawingRef.current) return;
+    const ctx = signatureCanvasRef.current?.getContext('2d');
+    if (!ctx) return;
+    const pos = getCanvasPos(e);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+  };
+
+  const endDraw = () => {
+    isDrawingRef.current = false;
+    const canvas = signatureCanvasRef.current;
+    if (canvas) {
+      setFormData(d => ({ ...d, signatureData: canvas.toDataURL('image/png') }));
+    }
+  };
+
+  const clearCanvas = () => {
+    const canvas = signatureCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    setFormData(d => ({ ...d, signatureData: '' }));
+  };
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (kycStatus !== 'verified') {
@@ -359,6 +424,10 @@ export default function InvestPage({ lang }: InvestPageProps) {
     }
     if (!formData.declarationAccepted) {
       setFormErrors({ declarationAccepted: true });
+      return;
+    }
+    if (!formData.signatureData.trim()) {
+      setFormErrors({ signatureData: true });
       return;
     }
 
@@ -894,25 +963,74 @@ export default function InvestPage({ lang }: InvestPageProps) {
                     </div>
                   )}
 
-                  {/* Step 4: Declaration & Submit */}
+                  {/* Step 4: Declaration, Signature & Submit */}
                   {formStep === 4 && (
                     <div className="form-step-anim">
-                      <h4 className="form-section-title">{lang === 'es' ? 'Declaraci\u00f3n Jurada' : 'Sworn Declaration'}</h4>
+                      <h4 className="form-section-title">{lang === 'es' ? 'Declaración Jurada y Firma' : 'Sworn Declaration & Signature'}</h4>
                       <div className="form-declaration">
                         <p className="form-declaration-text">
                           {lang === 'es'
-                            ? 'Declaro que toda la informaci\u00f3n proporcionada es verdadera, correcta y completa. Entiendo que Ancestro Inc. se basa en mis respuestas para determinar mi elegibilidad bajo la Regla 506(b) de la Regulaci\u00f3n D. Los valores a adquirir son valores restringidos y no pueden ser ofrecidos, vendidos o transferidos excepto conforme a una exenci\u00f3n aplicable. Adquiero los valores para inversi\u00f3n propia, no para distribuci\u00f3n o reventa.'
+                            ? 'Declaro que toda la información proporcionada es verdadera, correcta y completa. Entiendo que Ancestro Inc. se basa en mis respuestas para determinar mi elegibilidad bajo la Regla 506(b) de la Regulación D. Los valores a adquirir son valores restringidos y no pueden ser ofrecidos, vendidos o transferidos excepto conforme a una exención aplicable. Adquiero los valores para inversión propia, no para distribución o reventa.'
                             : 'I declare that all information provided is true, correct, and complete. I understand that Ancestro Inc. relies on my responses to determine eligibility under Rule 506(b) of Regulation D. The securities to be acquired are restricted securities and may not be offered, sold, or transferred except pursuant to an applicable exemption. I am acquiring the securities for my own account for investment purposes only, not for distribution or resale.'}
                         </p>
                         <label className={`form-declaration-check${formErrors.declarationAccepted ? ' form-declaration-check--error' : ''}`}>
                           <input type="checkbox" checked={formData.declarationAccepted} onChange={e => { setFormData(d => ({ ...d, declarationAccepted: e.target.checked })); setFormErrors(err => ({ ...err, declarationAccepted: false })); }} />
-                          <span>{lang === 'es' ? 'Acepto la declaraci\u00f3n jurada' : 'I accept the sworn declaration'}</span>
+                          <span>{lang === 'es' ? 'Acepto la declaración jurada' : 'I accept the sworn declaration'}</span>
                         </label>
                       </div>
+
+                      {/* Signature */}
+                      <div className="sig-section">
+                        <label className="form-label">{lang === 'es' ? 'Firma' : 'Signature'} *</label>
+                        <div className="sig-tabs">
+                          <button type="button" className={`sig-tab${formData.signatureType === 'type' ? ' sig-tab--active' : ''}`} onClick={() => { setFormData(d => ({ ...d, signatureType: 'type', signatureData: '' })); clearCanvas(); }}>
+                            {lang === 'es' ? 'Escribir' : 'Type'}
+                          </button>
+                          <button type="button" className={`sig-tab${formData.signatureType === 'draw' ? ' sig-tab--active' : ''}`} onClick={() => { setFormData(d => ({ ...d, signatureType: 'draw', signatureData: '' })); setTimeout(initCanvas, 50); }}>
+                            {lang === 'es' ? 'Dibujar' : 'Draw'}
+                          </button>
+                        </div>
+
+                        {formData.signatureType === 'type' ? (
+                          <div className="sig-type-wrap">
+                            <input
+                              type="text"
+                              placeholder={lang === 'es' ? 'Escriba su nombre completo' : 'Type your full name'}
+                              className={`form-input sig-type-input${formErrors.signatureData ? ' has-error' : ''}`}
+                              value={formData.signatureData}
+                              onChange={e => { setFormData(d => ({ ...d, signatureData: e.target.value })); setFormErrors(err => ({ ...err, signatureData: false })); }}
+                            />
+                            {formData.signatureData && (
+                              <div className="sig-preview">
+                                <span className="sig-preview-text">{formData.signatureData}</span>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className={`sig-draw-wrap${formErrors.signatureData ? ' sig-draw-wrap--error' : ''}`}>
+                            <canvas
+                              ref={signatureCanvasRef}
+                              className="sig-canvas"
+                              onMouseDown={startDraw}
+                              onMouseMove={draw}
+                              onMouseUp={endDraw}
+                              onMouseLeave={endDraw}
+                              onTouchStart={startDraw}
+                              onTouchMove={draw}
+                              onTouchEnd={endDraw}
+                            />
+                            <button type="button" className="sig-clear" onClick={clearCanvas}>
+                              {lang === 'es' ? 'Limpiar' : 'Clear'}
+                            </button>
+                          </div>
+                        )}
+                        {formErrors.signatureData && <p className="form-error-msg">{lang === 'es' ? 'La firma es obligatoria' : 'Signature is required'}</p>}
+                      </div>
+
                       <div className="form-nav-row">
                         <button type="button" className="form-btn-back" onClick={() => setFormStep(3)}>&larr; {lang === 'es' ? 'Anterior' : 'Back'}</button>
                         <button type="submit" className="form-submit form-submit--final" disabled={submitting}>
-                          <span className="form-submit-text">{submitting ? (lang === 'es' ? 'Enviando...' : 'Sending...') : (lang === 'es' ? 'Enviar Solicitud' : 'Submit Application')}</span>
+                          <span className="form-submit-text">{submitting ? (lang === 'es' ? 'Enviando...' : 'Sending...') : (lang === 'es' ? 'Firmar y Enviar' : 'Sign & Submit')}</span>
                           <svg className="form-submit-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
                         </button>
                       </div>
@@ -2268,6 +2386,22 @@ export default function InvestPage({ lang }: InvestPageProps) {
         .form-btn-back:hover{background:rgba(255,255,255,0.1)}
         .form-submit--final{background:linear-gradient(135deg,#22c55e,#16a34a)}
         .form-submit--final:hover{background:linear-gradient(135deg,#16a34a,#15803d);box-shadow:0 6px 20px rgba(34,197,94,0.3)}
+
+        /* Signature */
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
+        .sig-section{margin-bottom:16px}
+        .sig-tabs{display:flex;gap:4px;margin:8px 0 12px}
+        .sig-tab{padding:8px 18px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:none;color:rgba(255,255,255,0.5);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s}
+        .sig-tab--active{border-color:rgba(248,176,59,0.4);background:rgba(248,176,59,0.08);color:#f8b03b}
+        .sig-type-wrap{display:flex;flex-direction:column;gap:12px}
+        .sig-type-input{font-size:16px}
+        .sig-preview{padding:16px 20px;border:1px solid rgba(255,255,255,0.06);border-radius:10px;background:rgba(255,255,255,0.02);text-align:center;min-height:60px;display:flex;align-items:center;justify-content:center}
+        .sig-preview-text{font-family:'Dancing Script','Segoe Script','Brush Script MT',cursive;font-size:32px;color:#f8b03b;user-select:none}
+        .sig-draw-wrap{position:relative;border:1px solid rgba(255,255,255,0.1);border-radius:10px;overflow:hidden;background:rgba(255,255,255,0.02)}
+        .sig-draw-wrap--error{border-color:#ef4444}
+        .sig-canvas{width:100%;height:150px;cursor:crosshair;touch-action:none;display:block}
+        .sig-clear{position:absolute;top:8px;right:8px;padding:4px 12px;border:1px solid rgba(255,255,255,0.15);border-radius:6px;background:rgba(0,0,0,0.4);color:rgba(255,255,255,0.5);font-size:11px;font-family:inherit;cursor:pointer;transition:all 0.2s}
+        .sig-clear:hover{background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.3);color:#ef4444}
 
         @media (max-width: 640px) {
           .final-cta { padding: 56px 20px 40px; }

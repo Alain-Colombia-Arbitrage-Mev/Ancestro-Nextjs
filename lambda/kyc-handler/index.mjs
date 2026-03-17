@@ -53,6 +53,7 @@ async function handleInvestForm(payload) {
     isPep, pepDetails,
     isUsCitizen, usTaxId,
     declarationAccepted,
+    signatureType, signatureData,
   } = payload;
 
   if (!name || !email || !amount) {
@@ -78,8 +79,9 @@ async function handleInvestForm(payload) {
          is_pep, pep_details,
          is_us_citizen, us_tax_id,
          declaration_accepted, accreditation_status,
-         form_source, follow_up_status, assigned_to, submission_date, department_notified)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,NOW(),$24)`,
+         form_source, follow_up_status, assigned_to, submission_date, department_notified,
+         signature_type, signature_data, signed_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,NOW(),$24,$25,$26,$27)`,
       [
         `${name} - ${amount} - ${new Date().toISOString().split('T')[0]}`,
         name, email, phone || '', amount, message || '',
@@ -90,6 +92,7 @@ async function handleInvestForm(payload) {
         isUsCitizen || false, usTaxId || '',
         declarationAccepted || false, accreditationStatus,
         'invest-page', 'New', '', 'Investor Relations',
+        signatureType || null, signatureData || null, signatureData ? new Date() : null,
       ]
     );
 

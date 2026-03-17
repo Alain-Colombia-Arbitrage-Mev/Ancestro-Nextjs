@@ -15,6 +15,7 @@ export async function POST(req: NextRequest) {
       isPep, pepDetails,
       isUsCitizen, usTaxId,
       declarationAccepted,
+      signatureType, signatureData,
     } = data;
 
     if (!name || !email || !amount) {
@@ -73,7 +74,9 @@ export async function POST(req: NextRequest) {
         ...(pepDetails && { 'PEP Details': pepDetails }),
         'Is US Citizen': isUsCitizen || false,
         ...(usTaxId && { 'US Tax ID': usTaxId }),
-        // Status
+        // Signature & Status
+        ...(signatureType && { 'Signature Type': signatureType === 'draw' ? 'Draw' : 'Type' }),
+        ...(signatureType === 'type' && signatureData && { 'Signature Text': signatureData }),
         'Declaration Accepted': declarationAccepted || false,
         'Accreditation Status': accreditationStatus,
         'Form Source': 'Investment Web Form',
