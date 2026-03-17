@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
         ...(usTaxId && { 'US Tax ID': usTaxId }),
         // Signature & Status
         ...(signatureType && { 'Signature Type': signatureType === 'draw' ? 'Draw' : 'Type' }),
-        ...(signatureType === 'type' && signatureData && { 'Signature Text': signatureData }),
+        ...(signatureData && { 'Signature Text': signatureData }),
         'Declaration Accepted': declarationAccepted || false,
         'Accreditation Status': accreditationStatus,
         'Form Source': 'Investment Web Form',

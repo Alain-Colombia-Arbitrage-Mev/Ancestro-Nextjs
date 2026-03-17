@@ -293,7 +293,21 @@ export default function InvestPage({ lang }: InvestPageProps) {
     setOpenPanels((prev) => ({ ...prev, [id]: !prev[id] }));
   }, []);
 
-  if (!unlocked) return <AccessGate onUnlock={() => setUnlocked(true)} />;
+  // Signature canvas init (must be before early return to keep hook order stable)
+  const initCanvas = useCallback(() => {
+    const canvas = signatureCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * 2;
+    canvas.height = rect.height * 2;
+    ctx.scale(2, 2);
+    ctx.strokeStyle = '#f8b03b';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  }, []);
 
   const naturalPersonCriteria = [
     { key: 'incomeIndividual', label: lang === 'es' ? 'Ingreso individual > USD $200,000 en los últimos 2 años' : 'Individual income > USD $200,000 in each of the last 2 years' },
@@ -357,21 +371,6 @@ export default function InvestPage({ lang }: InvestPageProps) {
   };
 
   // Signature canvas helpers
-  const initCanvas = useCallback(() => {
-    const canvas = signatureCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * 2;
-    canvas.height = rect.height * 2;
-    ctx.scale(2, 2);
-    ctx.strokeStyle = '#f8b03b';
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-  }, []);
-
   const getCanvasPos = (e: React.MouseEvent | React.TouchEvent) => {
     const canvas = signatureCanvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
@@ -401,10 +400,6 @@ export default function InvestPage({ lang }: InvestPageProps) {
 
   const endDraw = () => {
     isDrawingRef.current = false;
-    const canvas = signatureCanvasRef.current;
-    if (canvas) {
-      setFormData(d => ({ ...d, signatureData: canvas.toDataURL('image/png') }));
-    }
   };
 
   const clearCanvas = () => {
@@ -426,17 +421,39 @@ export default function InvestPage({ lang }: InvestPageProps) {
       setFormErrors({ declarationAccepted: true });
       return;
     }
-    if (!formData.signatureData.trim()) {
+    // For drawn signatures, get data from canvas
+    let finalSignatureData = formData.signatureData;
+    if (formData.signatureType === 'draw') {
+      const canvas = signatureCanvasRef.current;
+      finalSignatureData = canvas ? canvas.toDataURL('image/png') : '';
+    }
+    if (!finalSignatureData.trim()) {
       setFormErrors({ signatureData: true });
       return;
     }
 
     setSubmitting(true);
     try {
+      // If drawn signature, upload to R2 first
+      let signatureUrl = finalSignatureData;
+      if (formData.signatureType === 'draw' && finalSignatureData.startsWith('data:')) {
+        const uploadRes = await fetch('/api/upload-signature', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ signatureBase64: finalSignatureData, email: formData.email }),
+        });
+        if (uploadRes.ok) {
+          const { url } = await uploadRes.json();
+          signatureUrl = url;
+        } else {
+          console.error('Signature upload failed, saving base64 as fallback');
+        }
+      }
+
       const res = await fetch('/api/invest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, signatureData: signatureUrl }),
       });
       if (!res.ok) throw new Error('Server error');
       setSubmitted(true);
@@ -445,6 +462,8 @@ export default function InvestPage({ lang }: InvestPageProps) {
       alert('Error submitting form. Please try again.');
     }
   };
+
+  if (!unlocked) return <AccessGate onUnlock={() => setUnlocked(true)} />;
 
   return (
     <>
