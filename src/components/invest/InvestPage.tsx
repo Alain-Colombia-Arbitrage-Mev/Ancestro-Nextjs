@@ -184,11 +184,36 @@ export default function InvestPage({ lang }: InvestPageProps) {
 
   /* KYC state */
   const [kycStatus, setKycStatus] = useState<KycStatus>('not_started');
+  const kycPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Fetch KYC status on mount
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
     if (token) fetchKycStatus(token).then(setKycStatus);
   }, []);
+
+  // Poll KYC status when pending (every 5s, max 60 attempts = 5 min)
+  useEffect(() => {
+    if (kycStatus !== 'pending') {
+      if (kycPollRef.current) { clearInterval(kycPollRef.current); kycPollRef.current = null; }
+      return;
+    }
+    let attempts = 0;
+    kycPollRef.current = setInterval(async () => {
+      attempts++;
+      const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
+      if (!token || attempts > 60) {
+        if (kycPollRef.current) clearInterval(kycPollRef.current);
+        return;
+      }
+      const status = await fetchKycStatus(token);
+      if (status !== 'pending') {
+        setKycStatus(status);
+        if (kycPollRef.current) clearInterval(kycPollRef.current);
+      }
+    }, 5000);
+    return () => { if (kycPollRef.current) clearInterval(kycPollRef.current); };
+  }, [kycStatus]);
 
   /* accordion state */
   const [openPanels, setOpenPanels] = useState<Record<string, boolean>>({});
