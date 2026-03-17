@@ -16,15 +16,7 @@ export default function Navbar({ lang }: NavbarProps) {
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
-  const navItems = [
-    { label: t(lang, 'nav.energy'), href: '#energy', key: 'energy' },
-    { label: t(lang, 'nav.charging'), href: '#charging', key: 'charging' },
-    { label: t(lang, 'nav.vehicles'), href: '#vehicles', key: 'vehicles' },
-    { label: t(lang, 'nav.team'), href: `/${lang}/team`, key: 'team' },
-    { label: t(lang, 'nav.join'), href: `/${lang}/join`, key: 'join' },
-    { label: t(lang, 'nav.waitlist'), href: `/${lang}/waitlist`, key: 'waitlist' },
-    { label: t(lang, 'nav.contact'), href: `/${lang}/contact`, key: 'contact' },
-  ];
+  const navItems: { label: string; href: string; key: string }[] = [];
 
   const languages = [
     { code: 'es', name: 'Español', flag: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><mask id="fes"><circle cx="256" cy="256" r="256" fill="#fff"/></mask><g mask="url(#fes)"><path fill="#ffda44" d="M0 128h512v256H0z"/><path fill="#d80027" d="M0 0h512v128H0zm0 384h512v128H0z"/></g></svg> },
@@ -68,7 +60,7 @@ export default function Navbar({ lang }: NavbarProps) {
 
   async function handleLogout() {
     await logout();
-    window.location.href = `/${lang}`;
+    window.location.href = `/${lang}/invest`;
   }
 
   // Get current route without lang prefix for language switching
@@ -78,7 +70,7 @@ export default function Navbar({ lang }: NavbarProps) {
     <>
       <nav className="navbar">
         <div className="navbar-inner">
-          <Link href={`/${lang}`} className="logo">
+          <Link href={`/${lang}/invest`} className="logo">
             <img src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/logo.svg`} alt="Ancestro Logo" className="logo-img" width={200} height={40} />
           </Link>
 
