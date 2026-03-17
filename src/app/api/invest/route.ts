@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
         'Date of Birth': dateOfBirth || '',
         'Address': address || '',
         'Citizenship': citizenship || '',
-        'Investor Type': investorType || 'individual',
+        'Investor Type': investorType ? investorType.charAt(0).toUpperCase() + investorType.slice(1) : 'Individual',
         // Accreditation
         ...(accreditationCriteria?.includes('incomeIndividual') && { 'Income Individual 200K': true }),
         ...(accreditationCriteria?.includes('incomeJoint') && { 'Income Joint 300K': true }),
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
         ...(entityCriteria?.includes('entityAssets') && { 'Entity Assets 5M': true }),
         ...(entityCriteria?.includes('allAccredited') && { 'Entity All Accredited': true }),
         // AML
-        'Source of Funds': sourceOfFunds || '',
+        'Source of Funds': { salary: 'Salary', business: 'Business', investments: 'Investments', inheritance: 'Inheritance', savings: 'Savings', realEstate: 'Real Estate', other: 'Other' }[sourceOfFunds] || sourceOfFunds || '',
         ...(sourceOfFundsOther && { 'Source Other Detail': sourceOfFundsOther }),
         'Is PEP': isPep || false,
         ...(pepDetails && { 'PEP Details': pepDetails }),
