@@ -76,8 +76,8 @@ export default function InvestorOnboarding({ lang, onVerified }: InvestorOnboard
 
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
-    if (token) fetchKycStatus(token).then((s) => {
-      setKycStatus(s);
+    if (token) fetchKycStatus(token).then((result) => {
+      if (result !== null) setKycStatus(result.status);
     });
     // Check if AML was already submitted in this session
     if (typeof window !== 'undefined' && sessionStorage.getItem('aml_completed') === '1') {
@@ -97,9 +97,9 @@ export default function InvestorOnboarding({ lang, onVerified }: InvestorOnboard
     const interval = setInterval(async () => {
       const token = localStorage.getItem('ancestro:token');
       if (!token) return;
-      const s = await fetchKycStatus(token);
-      if (s !== 'pending') {
-        setKycStatus(s);
+      const result = await fetchKycStatus(token);
+      if (result !== null && result.status !== 'pending') {
+        setKycStatus(result.status);
         clearInterval(interval);
         setPolling(false);
       }

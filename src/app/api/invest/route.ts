@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
       isUsCitizen, usTaxId,
       declarationAccepted,
       signatureType, signatureData,
+      visitorId,
     } = data;
 
     if (!name || !email || !amount) {
@@ -83,10 +84,14 @@ export async function POST(req: NextRequest) {
         'Follow-Up Status': 'New',
         'Submission Date': new Date().toISOString(),
         'Department Notified': 'Investment',
+        ...(visitorId && { 'Visitor ID': visitorId }),
       }),
     ]);
 
-    // Log failures but don't fail the request if one destination fails
+    // Log results for debugging
+    console.log('[Invest API] Lambda:', lambdaResult.status, lambdaResult.status === 'rejected' ? lambdaResult.reason?.message : 'OK');
+    console.log('[Invest API] Airtable:', airtableResult.status, airtableResult.status === 'rejected' ? airtableResult.reason?.message : 'OK');
+
     if (lambdaResult.status === 'rejected') {
       console.error('[Invest API] Lambda failed:', lambdaResult.reason);
     }
