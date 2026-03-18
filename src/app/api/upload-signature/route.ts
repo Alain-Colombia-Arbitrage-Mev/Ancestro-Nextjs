@@ -51,8 +51,9 @@ export async function POST(req: NextRequest) {
 
     const publicUrl = `${R2_PUBLIC_URL}/${key}`;
     return NextResponse.json({ url: publicUrl });
-  } catch (err) {
-    console.error('[Upload Signature]', err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('[Upload Signature] Unhandled error:', message);
+    return NextResponse.json({ error: `Internal server error: ${message}` }, { status: 500 });
   }
 }
