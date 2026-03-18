@@ -84,7 +84,6 @@ export async function POST(req: NextRequest) {
         'Follow-Up Status': 'New',
         'Submission Date': new Date().toISOString(),
         'Department Notified': 'Investment',
-        ...(visitorId && { 'Visitor ID': visitorId }),
       }),
     ]);
 
