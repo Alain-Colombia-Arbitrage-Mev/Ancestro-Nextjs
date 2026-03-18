@@ -1,3 +1,4 @@
+// Signature upload to Cloudflare R2
 import { NextRequest, NextResponse } from 'next/server';
 
 const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID || '';
