@@ -710,59 +710,6 @@ export default function InvestPage({ lang }: InvestPageProps) {
         </div>
       </section>
 
-      {/* ═══════════ ACCORDION / DEEP DIVE ═══════════ */}
-      <section className="accordion-section" id="deep-dive">
-        <div className="accordion-container">
-          <span className="accordion-label">DEEP DIVE</span>
-          <h2 className="accordion-heading">Explore the Details</h2>
-
-          <div className="accordion-panels">
-            {deepDivePanels.map((panel, i) => (
-              <div key={panel.id} className={`panel ${openPanels[panel.id] ? 'panel--open' : ''}`}>
-                <button
-                  className="panel-trigger"
-                  onClick={() => togglePanel(panel.id)}
-                  aria-expanded={!!openPanels[panel.id]}
-                  aria-controls={`panel-content-${panel.id}`}
-                  type="button"
-                >
-                  <span className="panel-number">{String(i + 1).padStart(2, '0')}</span>
-                  <span className="panel-title">{panel.title}</span>
-                  <svg
-                    className="panel-chevron"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
-                </button>
-                {openPanels[panel.id] && (
-                  <div className="panel-content" id={`panel-content-${panel.id}`}>
-                    <p className="panel-text">{panel.content}</p>
-                    {panel.items && panel.items.length > 0 && (
-                      <ul className="panel-list">
-                        {panel.items.map((item) => (
-                          <li key={item.label}>
-                            <strong>{item.label}</strong>
-                            <span>{item.desc}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ═══════════ INVEST NUMBERS ═══════════ */}
       <section className="invest-numbers" id="buy-stock">
         <div className="numbers-container">
@@ -1238,6 +1185,59 @@ export default function InvestPage({ lang }: InvestPageProps) {
                 invest@ancestro.com
               </a>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ ACCORDION / DEEP DIVE ═══════════ */}
+      <section className="accordion-section" id="deep-dive">
+        <div className="accordion-container">
+          <span className="accordion-label">DEEP DIVE</span>
+          <h2 className="accordion-heading">Explore the Details</h2>
+
+          <div className="accordion-panels">
+            {deepDivePanels.map((panel, i) => (
+              <div key={panel.id} className={`panel ${openPanels[panel.id] ? 'panel--open' : ''}`}>
+                <button
+                  className="panel-trigger"
+                  onClick={() => togglePanel(panel.id)}
+                  aria-expanded={!!openPanels[panel.id]}
+                  aria-controls={`panel-content-${panel.id}`}
+                  type="button"
+                >
+                  <span className="panel-number">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="panel-title">{panel.title}</span>
+                  <svg
+                    className="panel-chevron"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </button>
+                {openPanels[panel.id] && (
+                  <div className="panel-content" id={`panel-content-${panel.id}`}>
+                    <p className="panel-text">{panel.content}</p>
+                    {panel.items && panel.items.length > 0 && (
+                      <ul className="panel-list">
+                        {panel.items.map((item) => (
+                          <li key={item.label}>
+                            <strong>{item.label}</strong>
+                            <span>{item.desc}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </section>
