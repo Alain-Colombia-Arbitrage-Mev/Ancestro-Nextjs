@@ -269,6 +269,11 @@ export default function InvestPage({ lang }: InvestPageProps) {
         setKycStatus('pending');
         saveKycStatusToStorage('pending');
       }
+      // Auto-scroll to the investment form after returning from MetaMap
+      setTimeout(() => {
+        const el = document.getElementById('invest');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 500);
       return;
     }
 
@@ -277,6 +282,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
       // Always verify with server — server is source of truth
       fetchKycStatus(token).then(result => {
         if (result !== null) {
+          const previousStatus = cached || 'not_started';
           // Only update if server responded successfully
           setKycStatus(result.status);
           saveKycStatusToStorage(result.status);
@@ -284,6 +290,16 @@ export default function InvestPage({ lang }: InvestPageProps) {
           // Pre-fill form with profile data when KYC is verified
           if (result.status === 'verified' && result.profile) {
             prefillFormFromProfile(result.profile);
+          }
+          // Auto-scroll to investment form if:
+          // - URL has #invest hash, OR
+          // - Server status advanced (user completed MetaMap but flag wasn't detected)
+          const statusAdvanced = previousStatus === 'not_started' && (result.status === 'verified' || result.status === 'pending');
+          if (result.status === 'verified' && (window.location.hash === '#invest' || statusAdvanced)) {
+            setTimeout(() => {
+              const el = document.getElementById('invest');
+              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 500);
           }
         }
         // If null (fetch failed), keep cached status
@@ -311,6 +327,11 @@ export default function InvestPage({ lang }: InvestPageProps) {
         setKycStatus(result.status);
         if (result.status === 'verified' && result.profile) {
           prefillFormFromProfile(result.profile);
+          // Auto-scroll to investment form when KYC is approved
+          setTimeout(() => {
+            const el = document.getElementById('invest');
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 300);
         }
         if (kycPollRef.current) clearInterval(kycPollRef.current);
       }
@@ -532,7 +553,18 @@ export default function InvestPage({ lang }: InvestPageProps) {
       if (formData.isPep && !formData.pepDetails.trim()) errors.pepDetails = true;
       if (formData.isUsCitizen && !formData.usTaxId.trim()) errors.usTaxId = true;
     }
+    if (formStep === 4) {
+      if (!formData.declarationAccepted) errors.declarationAccepted = true;
+      if (!formData.signatureData.trim()) errors.signatureData = true;
+    }
     setFormErrors(errors);
+    // Scroll to first field with error
+    if (Object.keys(errors).length > 0) {
+      setTimeout(() => {
+        const firstErrorEl = document.querySelector('.has-error, .form-declaration-check--error, .sig-draw-wrap--error, .form-error-msg');
+        if (firstErrorEl) firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
+    }
     return Object.keys(errors).length === 0;
   };
 
@@ -583,20 +615,15 @@ export default function InvestPage({ lang }: InvestPageProps) {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.declarationAccepted) {
-      setFormErrors({ declarationAccepted: true });
-      return;
-    }
-    // For drawn signatures, get data from canvas
+    // For drawn signatures, get data from canvas before validation
     let finalSignatureData = formData.signatureData;
     if (formData.signatureType === 'draw') {
       const canvas = signatureCanvasRef.current;
       finalSignatureData = canvas ? canvas.toDataURL('image/png') : '';
+      // Update formData so validateFormStep can check it
+      if (finalSignatureData) setFormData(d => ({ ...d, signatureData: finalSignatureData }));
     }
-    if (!finalSignatureData.trim()) {
-      setFormErrors({ signatureData: true });
-      return;
-    }
+    if (!validateFormStep()) return;
 
     setSubmitting(true);
     try {
@@ -870,6 +897,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
 
           {/* Contact Form */}
           <div
+            id="invest"
             className={`invest-form-wrap ${ctaVisible ? 'is-visible' : ''}`}
             style={{ transitionDelay: ctaVisible ? `${4 * 180}ms` : '0ms' }}
           >
@@ -985,10 +1013,12 @@ export default function InvestPage({ lang }: InvestPageProps) {
                         <div className="form-group">
                           <label className="form-label">{lang === 'es' ? 'Nombre Completo' : 'Full Name'} *</label>
                           <input type="text" autoComplete="name" placeholder="John Doe" className={`form-input ${formErrors.name ? 'has-error' : ''}`} value={formData.name} onChange={e => { setFormData(d => ({ ...d, name: e.target.value })); setFormErrors(err => ({ ...err, name: false })); }} />
+                          {formErrors.name && <p className="form-error-msg">{lang === 'es' ? 'El nombre es obligatorio' : 'Name is required'}</p>}
                         </div>
                         <div className="form-group">
                           <label className="form-label">Email *</label>
                           <input type="email" autoComplete="email" placeholder="john@company.com" className={`form-input ${formErrors.email ? 'has-error' : ''}`} value={formData.email} onChange={e => { setFormData(d => ({ ...d, email: e.target.value })); setFormErrors(err => ({ ...err, email: false })); }} />
+                          {formErrors.email && <p className="form-error-msg">{lang === 'es' ? 'Ingresa un email valido' : 'Enter a valid email'}</p>}
                         </div>
                       </div>
                       <div className="form-row">
@@ -999,16 +1029,19 @@ export default function InvestPage({ lang }: InvestPageProps) {
                         <div className="form-group">
                           <label className="form-label">{lang === 'es' ? 'Fecha de Nacimiento' : 'Date of Birth'} *</label>
                           <input type="date" className={`form-input ${formErrors.dateOfBirth ? 'has-error' : ''}`} value={formData.dateOfBirth} onChange={e => { setFormData(d => ({ ...d, dateOfBirth: e.target.value })); setFormErrors(err => ({ ...err, dateOfBirth: false })); }} style={{ colorScheme: 'dark' }} />
+                          {formErrors.dateOfBirth && <p className="form-error-msg">{lang === 'es' ? 'La fecha de nacimiento es obligatoria' : 'Date of birth is required'}</p>}
                         </div>
                       </div>
                       <div className="form-group form-group--full">
                         <label className="form-label">{lang === 'es' ? 'Direcci\u00f3n de Residencia' : 'Residence Address'} *</label>
                         <input type="text" autoComplete="street-address" placeholder={lang === 'es' ? 'Calle, Ciudad, Pa\u00eds' : 'Street, City, Country'} className={`form-input ${formErrors.address ? 'has-error' : ''}`} value={formData.address} onChange={e => { setFormData(d => ({ ...d, address: e.target.value })); setFormErrors(err => ({ ...err, address: false })); }} />
+                        {formErrors.address && <p className="form-error-msg">{lang === 'es' ? 'La direccion es obligatoria' : 'Address is required'}</p>}
                       </div>
                       <div className="form-row">
                         <div className="form-group">
                           <label className="form-label">{lang === 'es' ? 'Ciudadan\u00eda / Pa\u00eds' : 'Citizenship / Country'} *</label>
                           <input type="text" placeholder={lang === 'es' ? 'Ej: Colombia' : 'e.g. United States'} className={`form-input ${formErrors.citizenship ? 'has-error' : ''}`} value={formData.citizenship} onChange={e => { setFormData(d => ({ ...d, citizenship: e.target.value })); setFormErrors(err => ({ ...err, citizenship: false })); }} />
+                          {formErrors.citizenship && <p className="form-error-msg">{lang === 'es' ? 'La ciudadania es obligatoria' : 'Citizenship is required'}</p>}
                         </div>
                         <div className="form-group">
                           <label className="form-label">{lang === 'es' ? 'Rango de Inversi\u00f3n' : 'Investment Range'} *</label>
@@ -1016,6 +1049,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
                             <option value="" disabled>{lang === 'es' ? 'Seleccionar rango' : 'Select range'}</option>
                             {investmentTiers.map(tier => (<option key={tier.value} value={tier.value}>{tier.label}</option>))}
                           </select>
+                          {formErrors.amount && <p className="form-error-msg">{lang === 'es' ? 'Selecciona un rango de inversion' : 'Select an investment range'}</p>}
                         </div>
                       </div>
                       <div className="form-row">
@@ -1125,11 +1159,12 @@ export default function InvestPage({ lang }: InvestPageProps) {
                         <label className="form-label">{lang === 'es' ? 'Origen de los fondos a invertir' : 'Source of funds to be invested'} *</label>
                         <div className="form-chip-row form-chip-wrap">
                           {fundSourceOptions.map(s => (
-                            <button key={s.key} type="button" className={`form-chip${formData.sourceOfFunds === s.key ? ' form-chip--active' : ''}`} onClick={() => { setFormData(d => ({ ...d, sourceOfFunds: s.key })); setFormErrors(err => ({ ...err, sourceOfFunds: false })); }}>
+                            <button key={s.key} type="button" className={`form-chip${formData.sourceOfFunds === s.key ? ' form-chip--active' : ''}${formErrors.sourceOfFunds ? ' form-chip--error' : ''}`} onClick={() => { setFormData(d => ({ ...d, sourceOfFunds: s.key })); setFormErrors(err => ({ ...err, sourceOfFunds: false })); }}>
                               {s.label}
                             </button>
                           ))}
                         </div>
+                        {formErrors.sourceOfFunds && <p className="form-error-msg">{lang === 'es' ? 'Selecciona el origen de los fondos' : 'Select the source of funds'}</p>}
                         {formData.sourceOfFunds === 'other' && (
                           <input type="text" placeholder={lang === 'es' ? 'Especifique el origen' : 'Specify the source'} className={`form-input ${formErrors.sourceOfFundsOther ? 'has-error' : ''}`} value={formData.sourceOfFundsOther} onChange={e => { setFormData(d => ({ ...d, sourceOfFundsOther: e.target.value })); setFormErrors(err => ({ ...err, sourceOfFundsOther: false })); }} style={{ marginTop: 8 }} />
                         )}
@@ -1141,9 +1176,10 @@ export default function InvestPage({ lang }: InvestPageProps) {
                           <button type="button" className={`form-toggle${formData.isPep ? ' form-toggle--warn' : ''}`} onClick={() => setFormData(d => ({ ...d, isPep: true }))}>{lang === 'es' ? 'S\u00ed' : 'Yes'}</button>
                           <button type="button" className={`form-toggle${!formData.isPep ? ' form-toggle--active' : ''}`} onClick={() => setFormData(d => ({ ...d, isPep: false }))}>{lang === 'es' ? 'No' : 'No'}</button>
                         </div>
-                        {formData.isPep && (
+                        {formData.isPep && (<>
                           <textarea rows={2} placeholder={lang === 'es' ? 'Describa la relaci\u00f3n pol\u00edtica' : 'Describe the political relationship'} className={`form-input form-textarea ${formErrors.pepDetails ? 'has-error' : ''}`} value={formData.pepDetails} onChange={e => { setFormData(d => ({ ...d, pepDetails: e.target.value })); setFormErrors(err => ({ ...err, pepDetails: false })); }} />
-                        )}
+                          {formErrors.pepDetails && <p className="form-error-msg">{lang === 'es' ? 'Describe la relacion politica' : 'Describe the political relationship'}</p>}
+                        </>)}
                       </div>
                       <div className="form-group">
                         <label className="form-label">{lang === 'es' ? '\u00bfEs ciudadano o residente fiscal de EE.UU.?' : 'Are you a US citizen or tax resident?'} *</label>
@@ -1151,9 +1187,10 @@ export default function InvestPage({ lang }: InvestPageProps) {
                           <button type="button" className={`form-toggle${formData.isUsCitizen ? ' form-toggle--active' : ''}`} onClick={() => setFormData(d => ({ ...d, isUsCitizen: true }))}>{lang === 'es' ? 'S\u00ed' : 'Yes'}</button>
                           <button type="button" className={`form-toggle${!formData.isUsCitizen ? ' form-toggle--active' : ''}`} onClick={() => setFormData(d => ({ ...d, isUsCitizen: false }))}>{lang === 'es' ? 'No' : 'No'}</button>
                         </div>
-                        {formData.isUsCitizen && (
+                        {formData.isUsCitizen && (<>
                           <input type="text" placeholder="SSN / ITIN" className={`form-input ${formErrors.usTaxId ? 'has-error' : ''}`} value={formData.usTaxId} onChange={e => { setFormData(d => ({ ...d, usTaxId: e.target.value })); setFormErrors(err => ({ ...err, usTaxId: false })); }} />
-                        )}
+                          {formErrors.usTaxId && <p className="form-error-msg">{lang === 'es' ? 'El SSN/ITIN es obligatorio para ciudadanos de EE.UU.' : 'SSN/ITIN is required for US citizens'}</p>}
+                        </>)}
                       </div>
                       <div className="form-nav-row">
                         <button type="button" className="form-btn-back" onClick={() => setFormStep(2)}>&larr; {lang === 'es' ? 'Anterior' : 'Back'}</button>
@@ -2439,6 +2476,18 @@ export default function InvestPage({ lang }: InvestPageProps) {
 
         .form-input.has-error {
           border-color: rgba(248, 113, 113, 0.6);
+          animation: fieldShake 0.4s ease;
+        }
+
+        .form-chip--error {
+          border-color: rgba(248, 113, 113, 0.4) !important;
+        }
+
+        @keyframes fieldShake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-4px); }
+          50% { transform: translateX(4px); }
+          75% { transform: translateX(-4px); }
         }
 
         .form-select {
