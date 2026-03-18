@@ -478,7 +478,8 @@ export default function InvestPage({ lang }: InvestPageProps) {
           const { url } = await uploadRes.json();
           signatureUrl = url;
         } else {
-          console.error('Signature upload failed, saving base64 as fallback');
+          const errBody = await uploadRes.text().catch(() => '');
+          console.error('Signature upload failed:', uploadRes.status, errBody);
         }
       }
 
