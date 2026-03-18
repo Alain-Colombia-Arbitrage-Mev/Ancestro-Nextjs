@@ -39,18 +39,15 @@ export default function MetaMapButton({ userId, userEmail, onStarted, onFinished
   }, []);
 
   useEffect(() => {
-    function handleStarted() { onStarted?.(); }
     function handleFinished() { onFinished?.(); }
     function handleExited() { onExited?.(); }
-    window.addEventListener('mati:loaded', handleStarted);
     window.addEventListener('mati:userFinishedSdk', handleFinished);
     window.addEventListener('mati:exitedSdk', handleExited);
     return () => {
-      window.removeEventListener('mati:loaded', handleStarted);
       window.removeEventListener('mati:userFinishedSdk', handleFinished);
       window.removeEventListener('mati:exitedSdk', handleExited);
     };
-  }, [onStarted, onFinished, onExited]);
+  }, [onFinished, onExited]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -62,5 +59,6 @@ export default function MetaMapButton({ userId, userEmail, onStarted, onFinished
     containerRef.current.appendChild(el);
   }, [userId, userEmail]);
 
-  return <div ref={containerRef} className="metamap-btn-container" />;
+  // Capture click on the MetaMap button container — fires onStarted before MetaMap redirects
+  return <div ref={containerRef} className="metamap-btn-container" onClick={() => onStarted?.()} />;
 }
