@@ -253,6 +253,24 @@ export default function InvestPage({ lang }: InvestPageProps) {
     const cached = loadKycStatusFromStorage();
     if (cached) setKycStatus(cached);
 
+    // Detect return from MetaMap redirect (user started KYC, page reloaded)
+    // onFinished event doesn't fire after a full page redirect, so we check the flag
+    const kycStarted = localStorage.getItem('ancestro:kycStarted');
+    if (kycStarted && (!cached || cached === 'not_started')) {
+      const token = localStorage.getItem('ancestro:token');
+      if (!token) {
+        // Anonymous user returning from MetaMap → trust completion
+        setKycStatus('verified');
+        saveKycStatusToStorage('verified');
+        localStorage.removeItem('ancestro:kycStarted');
+      } else {
+        // Logged-in user returning → set pending and poll
+        setKycStatus('pending');
+        saveKycStatusToStorage('pending');
+      }
+      return;
+    }
+
     const token = localStorage.getItem('ancestro:token');
     if (token) {
       // Always verify with server — server is source of truth
@@ -841,14 +859,17 @@ export default function InvestPage({ lang }: InvestPageProps) {
                     <MetaMapButton
                       userId={typeof window !== 'undefined' ? localStorage.getItem('ancestro:userId') || getVisitorId() : 'anonymous'}
                       userEmail={typeof window !== 'undefined' ? localStorage.getItem('ancestro:email') || '' : ''}
+                      onStarted={() => {
+                        // Mark KYC as started so we can detect return from MetaMap redirect
+                        localStorage.setItem('ancestro:kycStarted', '1');
+                      }}
                       onFinished={() => {
+                        localStorage.removeItem('ancestro:kycStarted');
                         const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
                         if (token) {
-                          // Logged-in user: set pending and poll server for verification
                           setKycStatus('pending');
                           markKycPending(token);
                         } else {
-                          // Anonymous user: trust MetaMap completion directly
                           setKycStatus('verified');
                         }
                       }}
@@ -885,7 +906,11 @@ export default function InvestPage({ lang }: InvestPageProps) {
                     <MetaMapButton
                       userId={typeof window !== 'undefined' ? localStorage.getItem('ancestro:userId') || getVisitorId() : 'anonymous'}
                       userEmail={typeof window !== 'undefined' ? localStorage.getItem('ancestro:email') || '' : ''}
+                      onStarted={() => {
+                        localStorage.setItem('ancestro:kycStarted', '1');
+                      }}
                       onFinished={() => {
+                        localStorage.removeItem('ancestro:kycStarted');
                         const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
                         if (token) {
                           setKycStatus('pending');
