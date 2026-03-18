@@ -17,13 +17,7 @@ export default function Navbar({ lang }: NavbarProps) {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   const navItems = [
-    { label: t(lang, 'nav.energy'), href: '#energy', key: 'energy' },
-    { label: t(lang, 'nav.charging'), href: '#charging', key: 'charging' },
-    { label: t(lang, 'nav.vehicles'), href: '#vehicles', key: 'vehicles' },
-    { label: t(lang, 'nav.team'), href: `/${lang}/team`, key: 'team' },
-    { label: t(lang, 'nav.join'), href: `/${lang}/join`, key: 'join' },
-    { label: t(lang, 'nav.waitlist'), href: `/${lang}/waitlist`, key: 'waitlist' },
-    { label: t(lang, 'nav.contact'), href: `/${lang}/contact`, key: 'contact' },
+    { label: lang === 'es' ? 'Invertir' : 'Invest', href: `/${lang}/invest`, key: 'invest' },
   ];
 
   const languages = [
@@ -68,7 +62,7 @@ export default function Navbar({ lang }: NavbarProps) {
 
   async function handleLogout() {
     await logout();
-    window.location.href = `/${lang}`;
+    window.location.href = `/${lang}/invest`;
   }
 
   // Get current route without lang prefix for language switching
@@ -78,7 +72,7 @@ export default function Navbar({ lang }: NavbarProps) {
     <>
       <nav className="navbar">
         <div className="navbar-inner">
-          <Link href={`/${lang}`} className="logo">
+          <Link href={`/${lang}/invest`} className="logo">
             <img src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/logo.svg`} alt="Ancestro Logo" className="logo-img" width={200} height={40} />
           </Link>
 
@@ -135,10 +129,6 @@ export default function Navbar({ lang }: NavbarProps) {
                   </svg>
                 </button>
                 <div className={`nav-user-dropdown ${userDropdownOpen ? 'active' : ''}`}>
-                  <Link href={`/${lang}/dashboard`} className="nav-dropdown-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    {t(lang, 'auth.dashboard')}
-                  </Link>
                   <button className="nav-dropdown-item nav-dropdown-logout" onClick={handleLogout}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                     {t(lang, 'auth.logout')}
@@ -195,10 +185,6 @@ export default function Navbar({ lang }: NavbarProps) {
 
             {user ? (
               <div className="mobile-cta" style={{display:'block'}}>
-                <Link href={`/${lang}/dashboard`} className="mobile-nav-link" style={{opacity:1,transform:'none'}} onClick={closeMenu}>
-                  {t(lang, 'auth.dashboard')}
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                </Link>
                 <button className="mobile-logout-btn" onClick={handleLogout}>{t(lang, 'auth.logout')}</button>
               </div>
             ) : null}
