@@ -7,13 +7,18 @@ const R2_PUBLIC_URL = 'https://assets.ancestro.ai';
 
 export async function POST(req: NextRequest) {
   try {
-    const { signatureBase64, email } = await req.json();
+    const body = await req.json();
+    const { signatureBase64, email } = body;
+
+    console.log(`[Upload Signature] email=${email}, base64Length=${signatureBase64?.length || 0}`);
 
     if (!signatureBase64 || !email) {
+      console.error('[Upload Signature] Missing fields:', { hasBase64: !!signatureBase64, hasEmail: !!email });
       return NextResponse.json({ error: 'Missing signature or email' }, { status: 400 });
     }
 
     if (!R2_ACCOUNT_ID || !R2_API_TOKEN) {
+      console.error('[Upload Signature] R2 not configured');
       return NextResponse.json({ error: 'R2 not configured' }, { status: 500 });
     }
 
