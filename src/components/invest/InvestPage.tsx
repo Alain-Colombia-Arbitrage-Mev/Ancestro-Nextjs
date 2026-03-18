@@ -225,14 +225,8 @@ function loadKycStatusFromStorage(): KycStatus | null {
 /* ── Component ── */
 
 export default function InvestPage({ lang }: InvestPageProps) {
-  /* access gate */
-  const [unlocked, setUnlocked] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && sessionStorage.getItem('invest_access') === '1') {
-      setUnlocked(true);
-    }
-  }, []);
+  /* access gate disabled in AML branch */
+  const unlocked = true;
 
   /* KYC disabled in AML branch — form is always accessible */
   const kycStatus: KycStatus = 'verified';
@@ -502,7 +496,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
     }
   };
 
-  if (!unlocked) return <AccessGate onUnlock={() => setUnlocked(true)} />;
+  /* Access gate disabled in AML branch — page always renders */
 
   return (
     <>

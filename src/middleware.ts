@@ -29,6 +29,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(`/${locale}${pathname}`, request.url));
   }
 
+  // AML branch: redirect all pages to /invest (keep auth pages and API routes)
+  const allowedPaths = ['/invest', '/login', '/register', '/verify', '/forgot-password', '/reset-password'];
+  const localePrefix = pathname.split('/')[1]; // e.g. 'en', 'es'
+  const pathWithoutLocale = pathname.replace(`/${localePrefix}`, '') || '/';
+
+  if (pathnameHasLocale && !allowedPaths.includes(pathWithoutLocale) && pathWithoutLocale !== '/invest') {
+    return NextResponse.redirect(new URL(`/${localePrefix}/invest`, request.url));
+  }
+
   return NextResponse.next();
 }
 
