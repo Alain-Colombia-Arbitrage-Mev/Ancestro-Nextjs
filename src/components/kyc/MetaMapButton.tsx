@@ -39,15 +39,18 @@ export default function MetaMapButton({ userId, userEmail, onStarted, onFinished
   }, []);
 
   useEffect(() => {
+    function handleStarted() { onStarted?.(); }
     function handleFinished() { onFinished?.(); }
     function handleExited() { onExited?.(); }
+    window.addEventListener('mati:loaded', handleStarted);
     window.addEventListener('mati:userFinishedSdk', handleFinished);
     window.addEventListener('mati:exitedSdk', handleExited);
     return () => {
+      window.removeEventListener('mati:loaded', handleStarted);
       window.removeEventListener('mati:userFinishedSdk', handleFinished);
       window.removeEventListener('mati:exitedSdk', handleExited);
     };
-  }, [onFinished, onExited]);
+  }, [onStarted, onFinished, onExited]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -57,7 +60,6 @@ export default function MetaMapButton({ userId, userEmail, onStarted, onFinished
     el.setAttribute('metadata', JSON.stringify({ userId, email: userEmail }));
     containerRef.current.innerHTML = '';
     containerRef.current.appendChild(el);
-    onStarted?.();
   }, [userId, userEmail]);
 
   return <div ref={containerRef} className="metamap-btn-container" />;

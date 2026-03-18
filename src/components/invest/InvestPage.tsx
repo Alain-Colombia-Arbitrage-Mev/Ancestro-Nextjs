@@ -255,14 +255,15 @@ export default function InvestPage({ lang }: InvestPageProps) {
 
     // Detect return from MetaMap redirect (user started KYC, page reloaded)
     // onFinished event doesn't fire after a full page redirect, so we check the flag
+    // kycStarted flag takes priority over any cached status
     const kycStarted = localStorage.getItem('ancestro:kycStarted');
-    if (kycStarted && (!cached || cached === 'not_started')) {
+    if (kycStarted) {
+      localStorage.removeItem('ancestro:kycStarted');
       const token = localStorage.getItem('ancestro:token');
       if (!token) {
         // Anonymous user returning from MetaMap → trust completion
         setKycStatus('verified');
         saveKycStatusToStorage('verified');
-        localStorage.removeItem('ancestro:kycStarted');
       } else {
         // Logged-in user returning → set pending and poll
         setKycStatus('pending');
