@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
       declarationAccepted,
       signatureType, signatureData,
       visitorId,
+      investsWithSpouse,
       hasIncomeIndividual, hasIncomeJoint, hasNetWorth,
       hasProfessionalCert, hasInsiderStatus, hasKnowledgeableEmployee,
     } = data;
@@ -83,6 +84,7 @@ export async function POST(req: NextRequest) {
         'Declaration Accepted': declarationAccepted || false,
         'Accreditation Status': accreditationStatus,
         // Accreditation section answers
+        'Invests With Spouse': investsWithSpouse || false,
         'Has Income Individual': hasIncomeIndividual || false,
         'Has Income Joint': hasIncomeJoint || false,
         'Has Net Worth': hasNetWorth || false,

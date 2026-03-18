@@ -250,6 +250,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
     dateOfBirth: '', address: '', citizenship: '', investorType: 'individual',
     accreditationCriteria: [] as string[], entityCriteria: [] as string[],
     // Section-level accreditation (Yes/No per category)
+    investsWithSpouse: false,
     hasIncomeIndividual: false, hasIncomeJoint: false,
     hasNetWorth: false, hasProfessionalCert: false,
     hasInsiderStatus: false, hasKnowledgeableEmployee: false,
@@ -862,6 +863,24 @@ export default function InvestPage({ lang }: InvestPageProps) {
 
                       {formData.investorType !== 'entity' ? (
                         <div className="accreditation-sections">
+                          {/* Spouse/Joint investing question */}
+                          <div className={`accred-card${formData.investsWithSpouse ? ' accred-card--yes' : ''}`}>
+                            <div className="accred-card-title">{lang === 'es' ? 'Inversión Conjunta' : 'Joint Investment'}</div>
+                            <p className="accred-card-question">{lang === 'es'
+                              ? '¿Estás invirtiendo conjuntamente con tu cónyuge o pareja equivalente?'
+                              : 'Are you investing jointly with a spouse or spousal equivalent?'}</p>
+                            <div className="accred-card-toggle">
+                              <button type="button" className={`accred-toggle-btn${formData.investsWithSpouse === false ? ' accred-toggle-btn--active-no' : ''}`}
+                                onClick={() => setFormData(d => ({ ...d, investsWithSpouse: false }))}>
+                                No
+                              </button>
+                              <button type="button" className={`accred-toggle-btn${formData.investsWithSpouse === true ? ' accred-toggle-btn--active-yes' : ''}`}
+                                onClick={() => setFormData(d => ({ ...d, investsWithSpouse: true }))}>
+                                {lang === 'es' ? 'S\u00ed' : 'Yes'}
+                              </button>
+                            </div>
+                          </div>
+
                           {accreditationSections.map(s => (
                             <div key={s.field} className={`accred-card${formData[s.field] ? ' accred-card--yes' : ''}`}>
                               <div className="accred-card-title">{s.title}</div>
