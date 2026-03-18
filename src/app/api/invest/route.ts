@@ -46,13 +46,13 @@ export async function POST(req: NextRequest) {
         'Investment Request': `${name} - ${amount} - ${new Date().toISOString().split('T')[0]}`,
         'Full Name': name,
         'Email': email,
-        'Phone': phone || '',
+        ...(phone && { 'Phone': phone }),
         'Investment Range (USD)': amount,
-        'Message': message || '',
-        // Investor Info
-        'Date of Birth': dateOfBirth || '',
-        'Address': address || '',
-        'Citizenship': citizenship || '',
+        ...(message && { 'Message': message }),
+        // Investor Info — only include non-empty values (Airtable rejects empty dates/strings for typed fields)
+        ...(dateOfBirth && { 'Date of Birth': dateOfBirth }),
+        ...(address && { 'Address': address }),
+        ...(citizenship && { 'Citizenship': citizenship }),
         'Investor Type': investorType ? investorType.charAt(0).toUpperCase() + investorType.slice(1) : 'Individual',
         // Accreditation
         ...(accreditationCriteria?.includes('incomeIndividual') && { 'Income Individual 200K': true }),
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
         ...(entityCriteria?.includes('entityAssets') && { 'Entity Assets 5M': true }),
         ...(entityCriteria?.includes('allAccredited') && { 'Entity All Accredited': true }),
         // AML
-        'Source of Funds': ({ salary: 'Salary', business: 'Business', investments: 'Investments', inheritance: 'Inheritance', savings: 'Savings', realEstate: 'Real Estate', other: 'Other' } as Record<string, string>)[sourceOfFunds as string] || sourceOfFunds || '',
+        ...(sourceOfFunds && { 'Source of Funds': ({ salary: 'Salary', business: 'Business', investments: 'Investments', inheritance: 'Inheritance', savings: 'Savings', realEstate: 'Real Estate', other: 'Other' } as Record<string, string>)[sourceOfFunds as string] || sourceOfFunds }),
         ...(sourceOfFundsOther && { 'Source Other Detail': sourceOfFundsOther }),
         'Is PEP': isPep || false,
         ...(pepDetails && { 'PEP Details': pepDetails }),
