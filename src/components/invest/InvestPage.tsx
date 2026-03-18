@@ -335,6 +335,10 @@ export default function InvestPage({ lang }: InvestPageProps) {
     // AML / SEC 501(a) fields
     dateOfBirth: '', address: '', citizenship: '', investorType: 'individual',
     accreditationCriteria: [] as string[], entityCriteria: [] as string[],
+    // Section-level accreditation (Yes/No per category)
+    hasIncomeIndividual: false, hasIncomeJoint: false,
+    hasNetWorth: false, hasProfessionalCert: false,
+    hasInsiderStatus: false, hasKnowledgeableEmployee: false,
     sourceOfFunds: '', sourceOfFundsOther: '',
     isPep: false, pepDetails: '',
     isUsCitizen: false, usTaxId: '',
@@ -449,13 +453,37 @@ export default function InvestPage({ lang }: InvestPageProps) {
     ctx.lineJoin = 'round';
   }, []);
 
-  const naturalPersonCriteria = [
-    { key: 'incomeIndividual', label: lang === 'es' ? 'Ingreso individual > USD $200,000 en los últimos 2 años' : 'Individual income > USD $200,000 in each of the last 2 years' },
-    { key: 'incomeJoint', label: lang === 'es' ? 'Ingreso conjunto > USD $300,000 en los últimos 2 años' : 'Joint income > USD $300,000 in each of the last 2 years' },
-    { key: 'netWorth', label: lang === 'es' ? 'Patrimonio neto > USD $1,000,000 (excl. residencia)' : 'Net worth > USD $1,000,000 (excl. primary residence)' },
-    { key: 'professional', label: lang === 'es' ? 'Licencia Serie 7, 65, 82 u otra certificación SEC' : 'Series 7, 65, 82 license or SEC-designated certification' },
-    { key: 'insider', label: lang === 'es' ? 'Director, ejecutivo o socio general de Ancestro Inc.' : 'Director, executive officer, or general partner of Ancestro Inc.' },
-    { key: 'knowledgeable', label: lang === 'es' ? 'Empleado calificado de un fondo privado' : 'Knowledgeable employee of a private fund' },
+  const accreditationSections = [
+    { field: 'hasIncomeIndividual' as const,
+      title: lang === 'es' ? 'A. Prueba de Ingresos (Individual)' : 'A. Income Test (Individual)',
+      question: lang === 'es'
+        ? '¿Tu ingreso individual superó los USD $200,000 anuales en los últimos 2 años fiscales?'
+        : 'Did your individual income exceed USD $200,000/year in each of the last 2 fiscal years?' },
+    { field: 'hasIncomeJoint' as const,
+      title: lang === 'es' ? 'A. Prueba de Ingresos (Conjunto)' : 'A. Income Test (Joint)',
+      question: lang === 'es'
+        ? '¿Tu ingreso conjunto con tu cónyuge superó los USD $300,000 anuales en los últimos 2 años fiscales?'
+        : 'Did your joint income with your spouse exceed USD $300,000/year in each of the last 2 fiscal years?' },
+    { field: 'hasNetWorth' as const,
+      title: lang === 'es' ? 'B. Patrimonio Neto' : 'B. Net Worth',
+      question: lang === 'es'
+        ? '¿Tu patrimonio neto (individual o conjunto) supera USD $1,000,000, excluyendo tu residencia principal?'
+        : 'Does your net worth (individual or joint) exceed USD $1,000,000, excluding your primary residence?' },
+    { field: 'hasProfessionalCert' as const,
+      title: lang === 'es' ? 'C. Certificaciones Profesionales' : 'C. Professional Certifications',
+      question: lang === 'es'
+        ? '¿Posees una licencia vigente Serie 7, Serie 65, Serie 82, u otra certificación financiera reconocida por la SEC?'
+        : 'Do you hold a current Series 7, Series 65, Series 82 license, or other SEC-recognized financial certification?' },
+    { field: 'hasInsiderStatus' as const,
+      title: lang === 'es' ? 'D. Estado de Insider / Ejecutivo' : 'D. Insider / Executive Status',
+      question: lang === 'es'
+        ? '¿Eres director, CEO, ejecutivo o socio general de alguna compañía?'
+        : 'Are you a director, CEO, executive officer, or general partner of any company?' },
+    { field: 'hasKnowledgeableEmployee' as const,
+      title: lang === 'es' ? 'E. Empleado Calificado' : 'E. Knowledgeable Employee',
+      question: lang === 'es'
+        ? '¿Eres empleado calificado de un fondo privado de inversión?'
+        : 'Are you a knowledgeable employee of a private investment fund?' },
   ];
   const entityCriteriaOptions = [
     { key: 'bank', label: lang === 'es' ? 'Banco, corredor, aseguradora o compañía de inversión registrada' : 'Bank, broker-dealer, insurance company, or registered investment company' },
@@ -493,7 +521,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
       if (!formData.citizenship.trim()) errors.citizenship = true;
     }
     if (formStep === 2) {
-      if (formData.investorType !== 'entity' && formData.accreditationCriteria.length === 0) errors.accreditationCriteria = true;
+      // Natural persons: no mandatory selection, all questions are informational
       if (formData.investorType === 'entity' && formData.entityCriteria.length === 0) errors.entityCriteria = true;
     }
     if (formStep === 3) {
@@ -1016,25 +1044,49 @@ export default function InvestPage({ lang }: InvestPageProps) {
                     <div className="form-step-anim">
                       <h4 className="form-section-title">
                         {formData.investorType !== 'entity'
-                          ? (lang === 'es' ? 'Criterios de Acreditaci\u00f3n \u2014 Personas Naturales' : 'Accreditation Criteria \u2014 Natural Persons')
+                          ? (lang === 'es' ? 'Criterios de Acreditaci\u00f3n' : 'Accreditation Criteria')
                           : (lang === 'es' ? 'Criterios de Acreditaci\u00f3n \u2014 Entidades' : 'Accreditation Criteria \u2014 Entities')}
                       </h4>
-                      <p className="form-hint">{lang === 'es' ? 'Seleccione todos los criterios que apliquen:' : 'Check all that apply:'}</p>
-                      <div className="form-checks">
-                        {(formData.investorType !== 'entity' ? naturalPersonCriteria : entityCriteriaOptions).map(c => {
-                          const field = formData.investorType !== 'entity' ? 'accreditationCriteria' : 'entityCriteria';
-                          const checked = formData[field].includes(c.key);
-                          return (
-                            <label key={c.key} className={`form-check-item${checked ? ' form-check-item--active' : ''}`}>
-                              <input type="checkbox" checked={checked} onChange={() => toggleArrayItem(field, c.key)} />
-                              <span>{c.label}</span>
-                            </label>
-                          );
-                        })}
-                      </div>
-                      {(formErrors.accreditationCriteria || formErrors.entityCriteria) && (
-                        <p className="form-error-msg">{lang === 'es' ? 'Seleccione al menos un criterio' : 'Select at least one criterion'}</p>
+
+                      {formData.investorType !== 'entity' ? (
+                        <div className="accreditation-sections">
+                          {accreditationSections.map(s => (
+                            <div key={s.field} className={`accred-card${formData[s.field] ? ' accred-card--yes' : ''}`}>
+                              <div className="accred-card-title">{s.title}</div>
+                              <p className="accred-card-question">{s.question}</p>
+                              <div className="accred-card-toggle">
+                                <button type="button" className={`accred-toggle-btn${formData[s.field] === false ? ' accred-toggle-btn--active-no' : ''}`}
+                                  onClick={() => setFormData(d => ({ ...d, [s.field]: false }))}>
+                                  No
+                                </button>
+                                <button type="button" className={`accred-toggle-btn${formData[s.field] === true ? ' accred-toggle-btn--active-yes' : ''}`}
+                                  onClick={() => setFormData(d => ({ ...d, [s.field]: true }))}>
+                                  {lang === 'es' ? 'S\u00ed' : 'Yes'}
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <>
+                          <p className="form-hint">{lang === 'es' ? 'Seleccione todos los criterios que apliquen:' : 'Check all that apply:'}</p>
+                          <div className="form-checks">
+                            {entityCriteriaOptions.map(c => {
+                              const checked = formData.entityCriteria.includes(c.key);
+                              return (
+                                <label key={c.key} className={`form-check-item${checked ? ' form-check-item--active' : ''}`}>
+                                  <input type="checkbox" checked={checked} onChange={() => toggleArrayItem('entityCriteria', c.key)} />
+                                  <span>{c.label}</span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                          {formErrors.entityCriteria && (
+                            <p className="form-error-msg">{lang === 'es' ? 'Seleccione al menos un criterio' : 'Select at least one criterion'}</p>
+                          )}
+                        </>
                       )}
+
                       <div className="form-nav-row">
                         <button type="button" className="form-btn-back" onClick={() => setFormStep(1)}>&larr; {lang === 'es' ? 'Anterior' : 'Back'}</button>
                         <button type="button" className="form-submit" onClick={handleFormNext}>
@@ -2550,6 +2602,18 @@ export default function InvestPage({ lang }: InvestPageProps) {
         .form-chip:hover{border-color:rgba(255,255,255,0.2)}
         .form-chip--active{border-color:rgba(248,176,59,0.4);background:rgba(248,176,59,0.06);color:#f8b03b}
         .form-checks{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+        .form-check-section{font-size:13px;font-weight:700;color:rgba(248,176,59,0.9);padding:10px 0 4px;margin-top:8px;border-bottom:1px solid rgba(248,176,59,0.15)}
+        .form-check-section:first-child{margin-top:0}
+        .accreditation-sections{display:flex;flex-direction:column;gap:12px}
+        .accred-card{padding:16px;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:rgba(255,255,255,0.02);transition:all 0.2s}
+        .accred-card--yes{border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.04)}
+        .accred-card-title{font-size:13px;font-weight:700;color:rgba(248,176,59,0.9);margin-bottom:8px}
+        .accred-card-question{font-size:13px;color:rgba(255,255,255,0.7);line-height:1.5;margin:0 0 12px}
+        .accred-card-toggle{display:flex;gap:8px}
+        .accred-toggle-btn{flex:1;padding:8px 16px;border:1px solid rgba(255,255,255,0.12);border-radius:8px;background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.5);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s}
+        .accred-toggle-btn:hover{border-color:rgba(255,255,255,0.25)}
+        .accred-toggle-btn--active-yes{border-color:rgba(34,197,94,0.5);background:rgba(34,197,94,0.15);color:#22c55e}
+        .accred-toggle-btn--active-no{border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7)}
         .form-check-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid rgba(255,255,255,0.06);border-radius:10px;cursor:pointer;font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5;transition:all 0.2s}
         .form-check-item input{width:16px;height:16px;accent-color:#f8b03b;margin-top:1px;flex-shrink:0}
         .form-check-item:hover{border-color:rgba(255,255,255,0.15)}

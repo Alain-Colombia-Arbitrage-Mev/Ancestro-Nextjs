@@ -17,6 +17,8 @@ export async function POST(req: NextRequest) {
       declarationAccepted,
       signatureType, signatureData,
       visitorId,
+      hasIncomeIndividual, hasIncomeJoint, hasNetWorth,
+      hasProfessionalCert, hasInsiderStatus, hasKnowledgeableEmployee,
     } = data;
 
     if (!name || !email || !amount) {
@@ -80,6 +82,13 @@ export async function POST(req: NextRequest) {
         ...(signatureData && !signatureData.startsWith('data:') && { 'Signature Text': signatureData }),
         'Declaration Accepted': declarationAccepted || false,
         'Accreditation Status': accreditationStatus,
+        // Accreditation section answers
+        'Has Income Individual': hasIncomeIndividual || false,
+        'Has Income Joint': hasIncomeJoint || false,
+        'Has Net Worth': hasNetWorth || false,
+        'Has Professional Cert': hasProfessionalCert || false,
+        'Has Insider Status': hasInsiderStatus || false,
+        'Has Knowledgeable Employee': hasKnowledgeableEmployee || false,
         'Form Source': 'Investment Web Form',
         'Follow-Up Status': 'New',
         'Submission Date': new Date().toISOString(),
