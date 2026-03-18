@@ -7,29 +7,26 @@ interface AirtableRecord {
 
 export async function createAirtableRecord(tableId: string, fields: Record<string, unknown>): Promise<boolean> {
   if (!AIRTABLE_TOKEN || !AIRTABLE_BASE_ID) {
-    console.warn('[Airtable] Missing token or base ID, skipping');
-    return false;
+    throw new Error('[Airtable] Missing AIRTABLE_TOKEN or AIRTABLE_BASE_ID');
   }
 
-  try {
-    const res = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tableId}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${AIRTABLE_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ records: [{ fields }] } as { records: AirtableRecord[] }),
-    });
-
-    if (!res.ok) {
-      const err = await res.text();
-      console.error('[Airtable] Error:', res.status, err);
-      return false;
-    }
-
-    return true;
-  } catch (err) {
-    console.error('[Airtable] Request failed:', err);
-    return false;
+  if (!tableId) {
+    throw new Error('[Airtable] Missing tableId (AIRTABLE_INVEST_FORM)');
   }
+
+  const res = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tableId}`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${AIRTABLE_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ records: [{ fields }] } as { records: AirtableRecord[] }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`[Airtable] ${res.status}: ${err}`);
+  }
+
+  return true;
 }

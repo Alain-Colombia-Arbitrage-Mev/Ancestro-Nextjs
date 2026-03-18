@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { fetchKycStatus, markKycPending, type KycStatus } from '@/lib/kyc';
+import { fetchKycStatus, markKycPending, type KycStatus, type KycProfile } from '@/lib/kyc';
 import MetaMapButton from '@/components/kyc/MetaMapButton';
 
 
@@ -170,6 +170,59 @@ function AccessGate({ onUnlock }: { onUnlock: () => void }) {
   );
 }
 
+/* ── LocalStorage helpers ── */
+const FORM_STORAGE_KEY = 'ancestro:investForm';
+const FORM_STEP_KEY = 'ancestro:investFormStep';
+const KYC_STATUS_KEY = 'ancestro:kycStatus';
+const VISITOR_ID_KEY = 'ancestro:visitorId';
+
+/** Get or create a persistent visitor ID (UUID v4) for anonymous users */
+function getVisitorId(): string {
+  try {
+    const existing = localStorage.getItem(VISITOR_ID_KEY);
+    if (existing) return existing;
+    const id = crypto.randomUUID();
+    localStorage.setItem(VISITOR_ID_KEY, id);
+    return id;
+  } catch {
+    return crypto.randomUUID();
+  }
+}
+
+function saveFormToStorage(data: Record<string, unknown>, step: number) {
+  try {
+    localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(FORM_STEP_KEY, String(step));
+  } catch { /* storage full or unavailable */ }
+}
+
+function loadFormFromStorage() {
+  try {
+    const raw = localStorage.getItem(FORM_STORAGE_KEY);
+    const step = localStorage.getItem(FORM_STEP_KEY);
+    return { data: raw ? JSON.parse(raw) : null, step: step ? parseInt(step, 10) : 1 };
+  } catch { return { data: null, step: 1 }; }
+}
+
+function clearFormStorage() {
+  try {
+    localStorage.removeItem(FORM_STORAGE_KEY);
+    localStorage.removeItem(FORM_STEP_KEY);
+  } catch { /* ignore */ }
+}
+
+function saveKycStatusToStorage(status: KycStatus) {
+  try { localStorage.setItem(KYC_STATUS_KEY, status); } catch { /* ignore */ }
+}
+
+function loadKycStatusFromStorage(): KycStatus | null {
+  try {
+    const s = localStorage.getItem(KYC_STATUS_KEY);
+    if (s === 'verified' || s === 'pending' || s === 'rejected' || s === 'not_started') return s;
+    return null;
+  } catch { return null; }
+}
+
 /* ── Component ── */
 
 export default function InvestPage({ lang }: InvestPageProps) {
@@ -182,33 +235,64 @@ export default function InvestPage({ lang }: InvestPageProps) {
     }
   }, []);
 
-  /* KYC state */
+  /* KYC state — restore from localStorage first, then fetch from server */
   const [kycStatus, setKycStatus] = useState<KycStatus>('not_started');
   const kycPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Fetch KYC status on mount
+  // Persist KYC status whenever it changes
   useEffect(() => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
-    if (token) fetchKycStatus(token).then(setKycStatus);
+    if (typeof window !== 'undefined' && kycStatus !== 'not_started') {
+      saveKycStatusToStorage(kycStatus);
+    }
+  }, [kycStatus]);
+
+  // Fetch KYC status on mount — restore cached status first, then verify with server
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    // Restore cached KYC status immediately (covers page close & reopen)
+    const cached = loadKycStatusFromStorage();
+    if (cached) setKycStatus(cached);
+
+    const token = localStorage.getItem('ancestro:token');
+    if (token) {
+      // Always verify with server — server is source of truth
+      fetchKycStatus(token).then(result => {
+        if (result !== null) {
+          // Only update if server responded successfully
+          setKycStatus(result.status);
+          saveKycStatusToStorage(result.status);
+
+          // Pre-fill form with profile data when KYC is verified
+          if (result.status === 'verified' && result.profile) {
+            prefillFormFromProfile(result.profile);
+          }
+        }
+        // If null (fetch failed), keep cached status
+      });
+    }
   }, []);
 
-  // Poll KYC status when pending (every 5s, max 60 attempts = 5 min)
+  // Poll KYC status when pending + user is logged in (every 5s, max 60 attempts = 5 min)
   useEffect(() => {
     if (kycStatus !== 'pending') {
       if (kycPollRef.current) { clearInterval(kycPollRef.current); kycPollRef.current = null; }
       return;
     }
+    const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
+    if (!token) return; // Anonymous users don't poll — MetaMap onFinished sets verified directly
     let attempts = 0;
     kycPollRef.current = setInterval(async () => {
       attempts++;
-      const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
-      if (!token || attempts > 60) {
+      if (attempts > 60) {
         if (kycPollRef.current) clearInterval(kycPollRef.current);
         return;
       }
-      const status = await fetchKycStatus(token);
-      if (status !== 'pending') {
-        setKycStatus(status);
+      const result = await fetchKycStatus(token);
+      if (result !== null && result.status !== 'pending') {
+        setKycStatus(result.status);
+        if (result.status === 'verified' && result.profile) {
+          prefillFormFromProfile(result.profile);
+        }
         if (kycPollRef.current) clearInterval(kycPollRef.current);
       }
     }, 5000);
@@ -226,9 +310,8 @@ export default function InvestPage({ lang }: InvestPageProps) {
   const finalCtaRef = useRef<HTMLElement>(null);
   const [ctaVisible, setCtaVisible] = useState(false);
 
-  /* form state */
-  const [formStep, setFormStep] = useState(1);
-  const [formData, setFormData] = useState({
+  /* form state — restore from localStorage */
+  const defaultFormData = {
     // Basic invest fields
     name: '', email: '', phone: '', amount: '', message: '',
     // AML / SEC 501(a) fields
@@ -241,7 +324,46 @@ export default function InvestPage({ lang }: InvestPageProps) {
     // Signature
     signatureType: 'type' as 'draw' | 'type',
     signatureData: '',
-  });
+  };
+  const [formStep, setFormStep] = useState(1);
+  const [formData, setFormData] = useState(defaultFormData);
+  const formInitRef = useRef(false);
+
+  // Restore form data from localStorage on mount
+  useEffect(() => {
+    if (typeof window === 'undefined' || formInitRef.current) return;
+    formInitRef.current = true;
+    const { data, step } = loadFormFromStorage();
+    if (data) {
+      setFormData(prev => ({ ...prev, ...data }));
+      setFormStep(step);
+    }
+  }, []);
+
+  // Save form data to localStorage on every change (after initial load)
+  useEffect(() => {
+    if (!formInitRef.current) return;
+    saveFormToStorage(formData, formStep);
+  }, [formData, formStep]);
+
+  // Pre-fill form with profile data from KYC (only fills empty fields)
+  const prefillFormFromProfile = useCallback((profile: KycProfile) => {
+    setFormData(prev => ({
+      ...prev,
+      name: prev.name || profile.fullName || '',
+      email: prev.email || profile.email || '',
+      phone: prev.phone || profile.phone || '',
+      citizenship: prev.citizenship || profile.citizenship || '',
+      investorType: prev.investorType || profile.investorType || 'individual',
+      sourceOfFunds: prev.sourceOfFunds || profile.sourceOfFunds || '',
+      sourceOfFundsOther: prev.sourceOfFundsOther || profile.sourceOfFundsOther || '',
+      isPep: prev.isPep || profile.isPep || false,
+      pepDetails: prev.pepDetails || profile.pepDetails || '',
+      isUsCitizen: prev.isUsCitizen || profile.isUsCitizen || false,
+      usTaxId: prev.usTaxId || profile.usTaxId || '',
+    }));
+  }, []);
+
   const signatureCanvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawingRef = useRef(false);
   const [formErrors, setFormErrors] = useState<Record<string, boolean>>({});
@@ -413,10 +535,6 @@ export default function InvestPage({ lang }: InvestPageProps) {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (kycStatus !== 'verified') {
-      alert(lang === 'es' ? 'Debes completar la verificación de identidad antes de invertir.' : 'You must complete identity verification before investing.');
-      return;
-    }
     if (!formData.declarationAccepted) {
       setFormErrors({ declarationAccepted: true });
       return;
@@ -453,13 +571,14 @@ export default function InvestPage({ lang }: InvestPageProps) {
       const res = await fetch('/api/invest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, signatureData: signatureUrl }),
+        body: JSON.stringify({ ...formData, signatureData: signatureUrl, visitorId: typeof window !== 'undefined' ? getVisitorId() : undefined }),
       });
       if (!res.ok) throw new Error('Server error');
+      clearFormStorage();
       setSubmitted(true);
     } catch {
       setSubmitting(false);
-      alert('Error submitting form. Please try again.');
+      alert(lang === 'es' ? 'Error al enviar el formulario. Tu información ha sido guardada. Intenta nuevamente.' : 'Error submitting form. Your information has been saved. Please try again.');
     }
   };
 
@@ -773,12 +892,18 @@ export default function InvestPage({ lang }: InvestPageProps) {
                     </div>
                     <p className="kyc-gate-text">{lang === 'es' ? 'Paso 1: Verifica tu identidad con MetaMap' : 'Step 1: Verify your identity with MetaMap'}</p>
                     <MetaMapButton
-                      userId={typeof window !== 'undefined' ? localStorage.getItem('ancestro:userId') || 'anonymous' : 'anonymous'}
+                      userId={typeof window !== 'undefined' ? localStorage.getItem('ancestro:userId') || getVisitorId() : 'anonymous'}
                       userEmail={typeof window !== 'undefined' ? localStorage.getItem('ancestro:email') || '' : ''}
                       onFinished={() => {
-                        setKycStatus('pending');
                         const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
-                        if (token) markKycPending(token);
+                        if (token) {
+                          // Logged-in user: set pending and poll server for verification
+                          setKycStatus('pending');
+                          markKycPending(token);
+                        } else {
+                          // Anonymous user: trust MetaMap completion directly
+                          setKycStatus('verified');
+                        }
                       }}
                     />
                   </div>
@@ -791,7 +916,16 @@ export default function InvestPage({ lang }: InvestPageProps) {
                     <p className="kyc-gate-text">{lang === 'es' ? 'Verificación en proceso. Te notificaremos cuando esté aprobada.' : 'Verification in progress. We\'ll notify you when approved.'}</p>
                     <button type="button" className="kyc-gate-refresh" onClick={() => {
                       const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
-                      if (token) fetchKycStatus(token).then(setKycStatus);
+                      if (token) {
+                        fetchKycStatus(token).then(result => {
+                          if (result !== null) {
+                            setKycStatus(result.status);
+                            if (result.status === 'verified' && result.profile) {
+                              prefillFormFromProfile(result.profile);
+                            }
+                          }
+                        });
+                      }
                     }}>{lang === 'es' ? 'Verificar estado' : 'Check status'}</button>
                   </div>
                 )}
@@ -802,12 +936,16 @@ export default function InvestPage({ lang }: InvestPageProps) {
                     </div>
                     <p className="kyc-gate-text">{lang === 'es' ? 'Verificación rechazada. Intenta nuevamente o contacta soporte.' : 'Verification rejected. Try again or contact support.'}</p>
                     <MetaMapButton
-                      userId={typeof window !== 'undefined' ? localStorage.getItem('ancestro:userId') || 'anonymous' : 'anonymous'}
+                      userId={typeof window !== 'undefined' ? localStorage.getItem('ancestro:userId') || getVisitorId() : 'anonymous'}
                       userEmail={typeof window !== 'undefined' ? localStorage.getItem('ancestro:email') || '' : ''}
                       onFinished={() => {
-                        setKycStatus('pending');
                         const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
-                        if (token) markKycPending(token);
+                        if (token) {
+                          setKycStatus('pending');
+                          markKycPending(token);
+                        } else {
+                          setKycStatus('verified');
+                        }
                       }}
                     />
                   </div>
