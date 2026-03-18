@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
         ...(dateOfBirth && { 'Date of Birth': dateOfBirth }),
         ...(address && { 'Address': address }),
         ...(citizenship && { 'Citizenship': citizenship }),
-        'Investor Type': investorType ? investorType.charAt(0).toUpperCase() + investorType.slice(1) : 'Individual',
+        ...(investorType && { 'Investor Type': ({ individual: 'Individual', joint: 'Joint', entity: 'Entity' } as Record<string, string>)[investorType as string] || investorType }),
         // Accreditation
         ...(accreditationCriteria?.includes('incomeIndividual') && { 'Income Individual 200K': true }),
         ...(accreditationCriteria?.includes('incomeJoint') && { 'Income Joint 300K': true }),
