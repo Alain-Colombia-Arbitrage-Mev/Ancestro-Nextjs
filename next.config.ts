@@ -2,6 +2,17 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  serverExternalPackages: ['pg'],
+  env: {
+    R2_ACCOUNT_ID: process.env.R2_ACCOUNT_ID,
+    R2_API_TOKEN: process.env.R2_API_TOKEN,
+    AIRTABLE_TOKEN: process.env.AIRTABLE_TOKEN,
+    AIRTABLE_BASE_ID: process.env.AIRTABLE_BASE_ID,
+    AIRTABLE_INVEST_FORM: process.env.AIRTABLE_INVEST_FORM,
+    AIRTABLE_CONTACT_FORM: process.env.AIRTABLE_CONTACT_FORM,
+    AIRTABLE_WAITLIST_FORM: process.env.AIRTABLE_WAITLIST_FORM,
+    LAMBDA_WEBHOOK_URL: process.env.LAMBDA_WEBHOOK_URL,
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
