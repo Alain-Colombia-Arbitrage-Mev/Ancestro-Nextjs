@@ -189,6 +189,30 @@ function getVisitorId(): string {
   }
 }
 
+/** Get the real users.id from the stored user JSON, or fall back to visitorId */
+function getStoredUserId(): string {
+  try {
+    const raw = localStorage.getItem('ancestro:user');
+    if (raw) {
+      const user = JSON.parse(raw);
+      if (user?.id) return user.id;
+    }
+  } catch { /* ignore */ }
+  return getVisitorId();
+}
+
+/** Get the user's email from the stored user JSON */
+function getStoredUserEmail(): string {
+  try {
+    const raw = localStorage.getItem('ancestro:user');
+    if (raw) {
+      const user = JSON.parse(raw);
+      if (user?.email) return user.email;
+    }
+  } catch { /* ignore */ }
+  return '';
+}
+
 function saveFormToStorage(data: Record<string, unknown>, step: number) {
   try {
     localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(data));
@@ -918,8 +942,8 @@ export default function InvestPage({ lang }: InvestPageProps) {
                     </div>
                     <p className="kyc-gate-text">{lang === 'es' ? 'Paso 1: Verifica tu identidad con MetaMap' : 'Step 1: Verify your identity with MetaMap'}</p>
                     <MetaMapButton
-                      userId={typeof window !== 'undefined' ? localStorage.getItem('ancestro:userId') || getVisitorId() : 'anonymous'}
-                      userEmail={typeof window !== 'undefined' ? localStorage.getItem('ancestro:email') || '' : ''}
+                      userId={typeof window !== 'undefined' ? getStoredUserId() : 'anonymous'}
+                      userEmail={typeof window !== 'undefined' ? getStoredUserEmail() : ''}
                       onStarted={() => {
                         // Mark KYC as started so we can detect return from MetaMap redirect
                         localStorage.setItem('ancestro:kycStarted', '1');
@@ -965,8 +989,8 @@ export default function InvestPage({ lang }: InvestPageProps) {
                     </div>
                     <p className="kyc-gate-text">{lang === 'es' ? 'Verificación rechazada. Intenta nuevamente o contacta soporte.' : 'Verification rejected. Try again or contact support.'}</p>
                     <MetaMapButton
-                      userId={typeof window !== 'undefined' ? localStorage.getItem('ancestro:userId') || getVisitorId() : 'anonymous'}
-                      userEmail={typeof window !== 'undefined' ? localStorage.getItem('ancestro:email') || '' : ''}
+                      userId={typeof window !== 'undefined' ? getStoredUserId() : 'anonymous'}
+                      userEmail={typeof window !== 'undefined' ? getStoredUserEmail() : ''}
                       onStarted={() => {
                         localStorage.setItem('ancestro:kycStarted', '1');
                       }}
