@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
 const METAMAP_CLIENT_ID = process.env.NEXT_PUBLIC_METAMAP_CLIENT_ID || '69aae9199ba166886f37fad6';
 const METAMAP_FLOW_ID = process.env.NEXT_PUBLIC_METAMAP_FLOW_ID || '69aae9199ba166886f37fad4';
@@ -24,6 +24,7 @@ declare global {
 export default function MetaMapButton({ userId, userEmail, onStarted, onFinished, onExited }: MetaMapButtonProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const scriptLoaded = useRef(false);
+  const startedFired = useRef(false);
 
   useEffect(() => {
     if (scriptLoaded.current) return;
@@ -49,6 +50,14 @@ export default function MetaMapButton({ userId, userEmail, onStarted, onFinished
     };
   }, [onFinished, onExited]);
 
+  // Fire onStarted reliably — the MetaMap web component uses Shadow DOM
+  // so click events may not bubble to the container. We use multiple strategies:
+  const fireStarted = useCallback(() => {
+    if (startedFired.current) return;
+    startedFired.current = true;
+    onStarted?.();
+  }, [onStarted]);
+
   useEffect(() => {
     if (!containerRef.current) return;
     const el = document.createElement('metamap-button');
@@ -57,8 +66,35 @@ export default function MetaMapButton({ userId, userEmail, onStarted, onFinished
     el.setAttribute('metadata', JSON.stringify({ userId, email: userEmail }));
     containerRef.current.innerHTML = '';
     containerRef.current.appendChild(el);
-    onStarted?.();
-  }, [userId, userEmail]);
 
-  return <div ref={containerRef} className="metamap-btn-container" />;
+    // Strategy 1: Listen on the metamap-button element directly (capture phase)
+    el.addEventListener('click', fireStarted, { capture: true });
+    // Strategy 2: pointerdown fires before click and before any redirect
+    el.addEventListener('pointerdown', fireStarted, { capture: true });
+
+    return () => {
+      el.removeEventListener('click', fireStarted, { capture: true });
+      el.removeEventListener('pointerdown', fireStarted, { capture: true });
+    };
+  }, [userId, userEmail, fireStarted]);
+
+  // Strategy 3: visibilitychange — fires when MetaMap opens new tab/redirects
+  useEffect(() => {
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'hidden' && containerRef.current) {
+        onStarted?.();
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [onStarted]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="metamap-btn-container"
+      // Strategy 4: pointerdown on container (fires before click, before redirect)
+      onPointerDown={fireStarted}
+    />
+  );
 }
