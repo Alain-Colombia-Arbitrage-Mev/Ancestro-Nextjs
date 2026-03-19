@@ -269,11 +269,12 @@ export default function InvestPage({ lang }: InvestPageProps) {
         setKycStatus('pending');
         saveKycStatusToStorage('pending');
       }
-      // Auto-scroll to the investment form after returning from MetaMap
+      // Force CTA section visible so the form is rendered before scrolling
+      setCtaVisible(true);
       setTimeout(() => {
         const el = document.getElementById('invest');
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 500);
+      }, 300);
       return;
     }
 
@@ -295,11 +296,12 @@ export default function InvestPage({ lang }: InvestPageProps) {
           // - URL has #invest hash, OR
           // - Server status advanced (user completed MetaMap but flag wasn't detected)
           const statusAdvanced = previousStatus === 'not_started' && (result.status === 'verified' || result.status === 'pending');
-          if (result.status === 'verified' && (window.location.hash === '#invest' || statusAdvanced)) {
+          if (window.location.hash === '#invest' || statusAdvanced) {
+            setCtaVisible(true);
             setTimeout(() => {
               const el = document.getElementById('invest');
               if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 500);
+            }, 300);
           }
         }
         // If null (fetch failed), keep cached status
@@ -328,10 +330,11 @@ export default function InvestPage({ lang }: InvestPageProps) {
         if (result.status === 'verified' && result.profile) {
           prefillFormFromProfile(result.profile);
           // Auto-scroll to investment form when KYC is approved
+          setCtaVisible(true);
           setTimeout(() => {
             const el = document.getElementById('invest');
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 300);
+          }, 200);
         }
         if (kycPollRef.current) clearInterval(kycPollRef.current);
       }
@@ -663,7 +666,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
   return (
     <>
       {/* ═══════════ HERO ═══════════ */}
-      <section className="invest-hero">
+      <section className="invest-hero" id="hero">
         <div className="hero-bg">
           <div className="hero-gradient"></div>
           <div className="hero-grid-lines"></div>
@@ -728,7 +731,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
       </section>
 
       {/* ═══════════ THESIS ═══════════ */}
-      <section className="invest-thesis">
+      <section className="invest-thesis" id="thesis">
         <div className="thesis-container">
           <span className="thesis-label">THE THESIS</span>
           <h2 className="thesis-heading">Two converging crises. One platform.</h2>
@@ -897,11 +900,10 @@ export default function InvestPage({ lang }: InvestPageProps) {
 
           {/* Contact Form */}
           <div
-            id="invest"
             className={`invest-form-wrap ${ctaVisible ? 'is-visible' : ''}`}
             style={{ transitionDelay: ctaVisible ? `${4 * 180}ms` : '0ms' }}
           >
-            <div className="invest-form-card">
+            <div id="invest" className="invest-form-card">
               <div className="invest-form-header">
                 <h3 className="invest-form-title">{lang === 'es' ? 'Solicitud de Inversión' : 'Investment Application'}</h3>
                 <p className="invest-form-subtitle">{lang === 'es' ? 'Verifica tu identidad para acceder al formulario de inversión.' : 'Verify your identity to access the investment form.'}</p>
