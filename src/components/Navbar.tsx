@@ -70,7 +70,7 @@ export default function Navbar({ lang }: NavbarProps) {
     <>
       <nav className="navbar">
         <div className="navbar-inner">
-          <Link href={`/${lang}/invest`} className="logo">
+          <Link href={`/${lang}`} className="logo">
             <img src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/logo.svg`} alt="Ancestro Logo" className="logo-img" width={200} height={40} />
           </Link>
 
