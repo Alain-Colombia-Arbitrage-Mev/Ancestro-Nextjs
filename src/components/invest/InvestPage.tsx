@@ -250,6 +250,10 @@ function loadKycStatusFromStorage(): KycStatus | null {
 /* ── Component ── */
 
 export default function InvestPage({ lang }: InvestPageProps) {
+  /* hydration guard — prevents server/client mismatch for localStorage-dependent UI */
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
   /* access gate */
   const [unlocked, setUnlocked] = useState(false);
 
@@ -654,27 +658,47 @@ export default function InvestPage({ lang }: InvestPageProps) {
 
     setSubmitting(true);
     try {
-      // If drawn signature, upload to R2 first
+      // If drawn signature, upload to R2 first (retry once on failure)
       let signatureUrl = finalSignatureData;
       if (formData.signatureType === 'draw' && finalSignatureData.startsWith('data:')) {
-        const uploadRes = await fetch('/api/upload-signature', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ signatureBase64: finalSignatureData, email: formData.email }),
-        });
-        if (uploadRes.ok) {
-          const { url } = await uploadRes.json();
-          signatureUrl = url;
-        } else {
-          const errBody = await uploadRes.text().catch(() => '');
-          console.error('Signature upload failed:', uploadRes.status, errBody);
+        for (let attempt = 0; attempt < 2; attempt++) {
+          try {
+            const uploadRes = await fetch('/api/upload-signature', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ signatureBase64: finalSignatureData, email: formData.email }),
+            });
+            if (uploadRes.ok) {
+              const { url } = await uploadRes.json();
+              signatureUrl = url;
+              break;
+            } else {
+              const errBody = await uploadRes.text().catch(() => '');
+              console.error(`Signature upload attempt ${attempt + 1} failed:`, uploadRes.status, errBody);
+            }
+          } catch (uploadErr) {
+            console.error(`Signature upload attempt ${attempt + 1} error:`, uploadErr);
+          }
+        }
+        // If upload failed, warn but continue — the base64 will be filtered by the API
+        if (signatureUrl.startsWith('data:')) {
+          console.warn('Signature upload failed after retries, submitting without signature image');
         }
       }
+
+      // Build accreditationCriteria from boolean toggle fields
+      const accreditationCriteria: string[] = [];
+      if (formData.hasIncomeIndividual) accreditationCriteria.push('incomeIndividual');
+      if (formData.hasIncomeJoint) accreditationCriteria.push('incomeJoint');
+      if (formData.hasNetWorth) accreditationCriteria.push('netWorth');
+      if (formData.hasProfessionalCert) accreditationCriteria.push('professional');
+      if (formData.hasInsiderStatus) accreditationCriteria.push('insider');
+      if (formData.hasKnowledgeableEmployee) accreditationCriteria.push('knowledgeable');
 
       const res = await fetch('/api/invest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, signatureData: signatureUrl, visitorId: typeof window !== 'undefined' ? getVisitorId() : undefined }),
+        body: JSON.stringify({ ...formData, accreditationCriteria, signatureData: signatureUrl, visitorId: typeof window !== 'undefined' ? getVisitorId() : undefined }),
       });
       if (!res.ok) throw new Error('Server error');
       clearFormStorage();
@@ -689,6 +713,8 @@ export default function InvestPage({ lang }: InvestPageProps) {
 
   return (
     <>
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" />
       {/* ═══════════ HERO ═══════════ */}
       <section className="invest-hero" id="hero">
         <div className="hero-bg">
@@ -1017,16 +1043,23 @@ export default function InvestPage({ lang }: InvestPageProps) {
               </div>
 
               {/* Investment Form — only when KYC verified */}
-              {kycStatus === 'verified' && !submitted ? (
+              {mounted && kycStatus === 'verified' && !submitted ? (
                 <form className="invest-form" onSubmit={handleFormSubmit} noValidate>
                   {/* Progress bar */}
                   <div className="form-progress">
-                    {[1, 2, 3, 4].map(s => (
-                      <div key={s} className={`form-progress-step${formStep >= s ? ' active' : ''}${formStep > s ? ' done' : ''}`}>
-                        <div className="form-progress-num">{formStep > s ? '\u2713' : s}</div>
-                        <span className="form-progress-label">
-                          {s === 1 ? (lang === 'es' ? 'Info' : 'Info') : s === 2 ? (lang === 'es' ? 'Acreditaci\u00f3n' : 'Accreditation') : s === 3 ? 'AML' : (lang === 'es' ? 'Firma' : 'Sign')}
-                        </span>
+                    {[1, 2, 3, 4].map((s, idx) => (
+                      <div key={s} className="form-progress-item">
+                        <div className={`form-progress-step${formStep >= s ? ' active' : ''}${formStep > s ? ' done' : ''}`}>
+                          <div className="form-progress-num">
+                            {formStep > s ? (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            ) : s}
+                          </div>
+                          <span className="form-progress-label">
+                            {s === 1 ? (lang === 'es' ? 'Info' : 'Info') : s === 2 ? (lang === 'es' ? 'Acreditaci\u00f3n' : 'Accreditation') : s === 3 ? 'AML' : (lang === 'es' ? 'Firma' : 'Sign')}
+                          </span>
+                        </div>
+                        {idx < 3 && <div className={`form-progress-line${formStep > s ? ' done' : ''}`} />}
                       </div>
                     ))}
                   </div>
@@ -1034,6 +1067,15 @@ export default function InvestPage({ lang }: InvestPageProps) {
                   {/* Step 1: Basic Info + Investment */}
                   {formStep === 1 && (
                     <div className="form-step-anim">
+                      <div className="step-header">
+                        <div className="step-header-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                        <div className="step-header-text">
+                          <h4 className="step-header-title">{lang === 'es' ? 'Informacion Personal' : 'Personal Information'}</h4>
+                          <p className="step-header-desc">{lang === 'es' ? 'Proporcione sus datos basicos y preferencias de inversion.' : 'Provide your basic details and investment preferences.'}</p>
+                        </div>
+                      </div>
                       <div className="form-row">
                         <div className="form-group">
                           <label className="form-label">{lang === 'es' ? 'Nombre Completo' : 'Full Name'} *</label>
@@ -1103,19 +1145,68 @@ export default function InvestPage({ lang }: InvestPageProps) {
                   {/* Step 2: Accreditation Criteria */}
                   {formStep === 2 && (
                     <div className="form-step-anim">
-                      <h4 className="form-section-title">
-                        {formData.investorType !== 'entity'
-                          ? (lang === 'es' ? 'Criterios de Acreditaci\u00f3n' : 'Accreditation Criteria')
-                          : (lang === 'es' ? 'Criterios de Acreditaci\u00f3n \u2014 Entidades' : 'Accreditation Criteria \u2014 Entities')}
-                      </h4>
+                      <div className="step-header">
+                        <div className="step-header-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <div className="step-header-text">
+                          <h4 className="step-header-title">
+                            {formData.investorType !== 'entity'
+                              ? (lang === 'es' ? 'Criterios de Acreditacion' : 'Accreditation Criteria')
+                              : (lang === 'es' ? 'Criterios de Acreditacion -- Entidades' : 'Accreditation Criteria -- Entities')}
+                          </h4>
+                          <p className="step-header-desc">{lang === 'es' ? 'Seleccione los criterios que apliquen a su perfil de inversionista.' : 'Select the criteria that apply to your investor profile.'}</p>
+                        </div>
+                      </div>
 
                       {formData.investorType !== 'entity' ? (
+                        <>
+                        <div className="accred-intro">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                          <p>{lang === 'es'
+                            ? 'Segun la Regla 501(a) de la SEC, un inversionista acreditado debe cumplir al menos uno de los siguientes criterios.'
+                            : 'Under SEC Rule 501(a), an accredited investor must meet at least one of the following criteria.'}</p>
+                        </div>
                         <div className="accreditation-sections">
-                          {/* Spouse/Joint investing question */}
+                          {/* Reordered: Income Individual, Income Joint, Net Worth, Professional Cert, Insider, Knowledgeable Employee, then Spouse */}
+                          {(() => {
+                            const accredIcons: Record<string, React.ReactNode> = {
+                              hasIncomeIndividual: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
+                              hasIncomeJoint: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
+                              hasNetWorth: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>,
+                              hasProfessionalCert: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>,
+                              hasInsiderStatus: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/></svg>,
+                              hasKnowledgeableEmployee: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+                            };
+                            return accreditationSections.map(s => (
+                              <div key={s.field} className={`accred-card${formData[s.field] ? ' accred-card--yes' : ''}`}>
+                                <div className="accred-card-title">
+                                  <span className="accred-card-icon">{accredIcons[s.field]}</span>
+                                  {s.title}
+                                </div>
+                                <p className="accred-card-question">{s.question}</p>
+                                <div className="accred-card-toggle">
+                                  <button type="button" className={`accred-toggle-btn${formData[s.field] === false ? ' accred-toggle-btn--active-no' : ''}`}
+                                    onClick={() => setFormData(d => ({ ...d, [s.field]: false }))}>
+                                    No
+                                  </button>
+                                  <button type="button" className={`accred-toggle-btn${formData[s.field] === true ? ' accred-toggle-btn--active-yes' : ''}`}
+                                    onClick={() => setFormData(d => ({ ...d, [s.field]: true }))}>
+                                    {lang === 'es' ? 'S\u00ed' : 'Yes'}
+                                  </button>
+                                </div>
+                              </div>
+                            ));
+                          })()}
+
+                          {/* Invests With Spouse - placed after income questions */}
                           <div className={`accred-card${formData.investsWithSpouse ? ' accred-card--yes' : ''}`}>
-                            <div className="accred-card-title">{lang === 'es' ? 'Inversión Conjunta' : 'Joint Investment'}</div>
+                            <div className="accred-card-title">
+                              <span className="accred-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                              {lang === 'es' ? 'Inversion Conjunta' : 'Joint Investment'}
+                            </div>
                             <p className="accred-card-question">{lang === 'es'
-                              ? '¿Estás invirtiendo conjuntamente con tu cónyuge o pareja equivalente?'
+                              ? '¿Estas invirtiendo conjuntamente con tu conyuge o pareja equivalente?'
                               : 'Are you investing jointly with a spouse or spousal equivalent?'}</p>
                             <div className="accred-card-toggle">
                               <button type="button" className={`accred-toggle-btn${formData.investsWithSpouse === false ? ' accred-toggle-btn--active-no' : ''}`}
@@ -1128,24 +1219,8 @@ export default function InvestPage({ lang }: InvestPageProps) {
                               </button>
                             </div>
                           </div>
-
-                          {accreditationSections.map(s => (
-                            <div key={s.field} className={`accred-card${formData[s.field] ? ' accred-card--yes' : ''}`}>
-                              <div className="accred-card-title">{s.title}</div>
-                              <p className="accred-card-question">{s.question}</p>
-                              <div className="accred-card-toggle">
-                                <button type="button" className={`accred-toggle-btn${formData[s.field] === false ? ' accred-toggle-btn--active-no' : ''}`}
-                                  onClick={() => setFormData(d => ({ ...d, [s.field]: false }))}>
-                                  No
-                                </button>
-                                <button type="button" className={`accred-toggle-btn${formData[s.field] === true ? ' accred-toggle-btn--active-yes' : ''}`}
-                                  onClick={() => setFormData(d => ({ ...d, [s.field]: true }))}>
-                                  {lang === 'es' ? 'S\u00ed' : 'Yes'}
-                                </button>
-                              </div>
-                            </div>
-                          ))}
                         </div>
+                        </>
                       ) : (
                         <>
                           <p className="form-hint">{lang === 'es' ? 'Seleccione todos los criterios que apliquen:' : 'Check all that apply:'}</p>
@@ -1179,10 +1254,25 @@ export default function InvestPage({ lang }: InvestPageProps) {
                   {/* Step 3: AML Due Diligence */}
                   {formStep === 3 && (
                     <div className="form-step-anim">
-                      <h4 className="form-section-title">{lang === 'es' ? 'Debida Diligencia (AML)' : 'Due Diligence (AML)'}</h4>
-                      <div className="form-group">
-                        <label className="form-label">{lang === 'es' ? 'Origen de los fondos a invertir' : 'Source of funds to be invested'} *</label>
-                        <div className="form-chip-row form-chip-wrap">
+                      <div className="step-header">
+                        <div className="step-header-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        </div>
+                        <div className="step-header-text">
+                          <h4 className="step-header-title">{lang === 'es' ? 'Debida Diligencia (AML)' : 'Due Diligence (AML)'}</h4>
+                          <p className="step-header-desc">{lang === 'es' ? 'Informacion requerida para el cumplimiento regulatorio anti-lavado.' : 'Required information for anti-money laundering regulatory compliance.'}</p>
+                        </div>
+                      </div>
+
+                      {/* Source of Funds Card */}
+                      <div className="aml-card">
+                        <div className="aml-card-header">
+                          <div className="aml-card-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                          </div>
+                          <label className="form-label" style={{ margin: 0 }}>{lang === 'es' ? 'Origen de los fondos a invertir' : 'Source of funds to be invested'} *</label>
+                        </div>
+                        <div className="form-chip-row form-chip-wrap" style={{ marginTop: 12 }}>
                           {fundSourceOptions.map(s => (
                             <button key={s.key} type="button" className={`form-chip${formData.sourceOfFunds === s.key ? ' form-chip--active' : ''}${formErrors.sourceOfFunds ? ' form-chip--error' : ''}`} onClick={() => { setFormData(d => ({ ...d, sourceOfFunds: s.key })); setFormErrors(err => ({ ...err, sourceOfFunds: false })); }}>
                               {s.label}
@@ -1194,9 +1284,16 @@ export default function InvestPage({ lang }: InvestPageProps) {
                           <input type="text" placeholder={lang === 'es' ? 'Especifique el origen' : 'Specify the source'} className={`form-input ${formErrors.sourceOfFundsOther ? 'has-error' : ''}`} value={formData.sourceOfFundsOther} onChange={e => { setFormData(d => ({ ...d, sourceOfFundsOther: e.target.value })); setFormErrors(err => ({ ...err, sourceOfFundsOther: false })); }} style={{ marginTop: 8 }} />
                         )}
                       </div>
-                      <div className="form-group">
-                        <label className="form-label">{lang === 'es' ? '\u00bfEs usted o alg\u00fan familiar cercano una Persona Pol\u00edticamente Expuesta (PEP)?' : 'Are you or any close relative a Politically Exposed Person (PEP)?'} *</label>
-                        <p className="form-hint">{lang === 'es' ? 'Funcionarios p\u00fablicos, diplom\u00e1ticos, militares de alto rango, ejecutivos de empresas estatales.' : 'Public officials, diplomats, senior military officers, state enterprise executives.'}</p>
+
+                      {/* PEP Card */}
+                      <div className="aml-card">
+                        <div className="aml-card-header">
+                          <div className="aml-card-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                          </div>
+                          <label className="form-label" style={{ margin: 0 }}>{lang === 'es' ? '\u00bfEs usted o alg\u00fan familiar cercano una Persona Pol\u00edticamente Expuesta (PEP)?' : 'Are you or any close relative a Politically Exposed Person (PEP)?'} *</label>
+                        </div>
+                        <p className="form-hint" style={{ marginTop: 8 }}>{lang === 'es' ? 'Funcionarios p\u00fablicos, diplom\u00e1ticos, militares de alto rango, ejecutivos de empresas estatales.' : 'Public officials, diplomats, senior military officers, state enterprise executives.'}</p>
                         <div className="form-toggle-row">
                           <button type="button" className={`form-toggle${formData.isPep ? ' form-toggle--warn' : ''}`} onClick={() => setFormData(d => ({ ...d, isPep: true }))}>{lang === 'es' ? 'S\u00ed' : 'Yes'}</button>
                           <button type="button" className={`form-toggle${!formData.isPep ? ' form-toggle--active' : ''}`} onClick={() => setFormData(d => ({ ...d, isPep: false }))}>{lang === 'es' ? 'No' : 'No'}</button>
@@ -1206,9 +1303,16 @@ export default function InvestPage({ lang }: InvestPageProps) {
                           {formErrors.pepDetails && <p className="form-error-msg">{lang === 'es' ? 'Describe la relacion politica' : 'Describe the political relationship'}</p>}
                         </>)}
                       </div>
-                      <div className="form-group">
-                        <label className="form-label">{lang === 'es' ? '\u00bfEs ciudadano o residente fiscal de EE.UU.?' : 'Are you a US citizen or tax resident?'} *</label>
-                        <div className="form-toggle-row">
+
+                      {/* US Citizen Card */}
+                      <div className="aml-card">
+                        <div className="aml-card-header">
+                          <div className="aml-card-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                          </div>
+                          <label className="form-label" style={{ margin: 0 }}>{lang === 'es' ? '\u00bfEs ciudadano o residente fiscal de EE.UU.?' : 'Are you a US citizen or tax resident?'} *</label>
+                        </div>
+                        <div className="form-toggle-row" style={{ marginTop: 12 }}>
                           <button type="button" className={`form-toggle${formData.isUsCitizen ? ' form-toggle--active' : ''}`} onClick={() => setFormData(d => ({ ...d, isUsCitizen: true }))}>{lang === 'es' ? 'S\u00ed' : 'Yes'}</button>
                           <button type="button" className={`form-toggle${!formData.isUsCitizen ? ' form-toggle--active' : ''}`} onClick={() => setFormData(d => ({ ...d, isUsCitizen: false }))}>{lang === 'es' ? 'No' : 'No'}</button>
                         </div>
@@ -1230,7 +1334,74 @@ export default function InvestPage({ lang }: InvestPageProps) {
                   {/* Step 4: Declaration, Signature & Submit */}
                   {formStep === 4 && (
                     <div className="form-step-anim">
-                      <h4 className="form-section-title">{lang === 'es' ? 'Declaración Jurada y Firma' : 'Sworn Declaration & Signature'}</h4>
+                      <div className="step-header">
+                        <div className="step-header-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        </div>
+                        <div className="step-header-text">
+                          <h4 className="step-header-title">{lang === 'es' ? 'Declaracion Jurada y Firma' : 'Sworn Declaration & Signature'}</h4>
+                          <p className="step-header-desc">{lang === 'es' ? 'Revise su informacion, acepte la declaracion y firme para completar.' : 'Review your information, accept the declaration, and sign to complete.'}</p>
+                        </div>
+                      </div>
+
+                      {/* Review Summary Panel */}
+                      <div className="review-summary">
+                        <div className="review-summary-title">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                          {lang === 'es' ? 'Resumen de su solicitud' : 'Application Summary'}
+                        </div>
+                        <div className="review-summary-grid">
+                          <div className="review-item">
+                            <span className="review-item-label">{lang === 'es' ? 'Nombre' : 'Name'}</span>
+                            <span className="review-item-value">{formData.name || '--'}</span>
+                          </div>
+                          <div className="review-item">
+                            <span className="review-item-label">Email</span>
+                            <span className="review-item-value">{formData.email || '--'}</span>
+                          </div>
+                          <div className="review-item">
+                            <span className="review-item-label">{lang === 'es' ? 'Rango de Inversion' : 'Investment Range'}</span>
+                            <span className="review-item-value">{formData.amount ? investmentTiers.find(t => t.value === formData.amount)?.label || formData.amount : '--'}</span>
+                          </div>
+                          <div className="review-item">
+                            <span className="review-item-label">{lang === 'es' ? 'Tipo de Inversionista' : 'Investor Type'}</span>
+                            <span className="review-item-value" style={{ textTransform: 'capitalize' }}>{formData.investorType}</span>
+                          </div>
+                        </div>
+                        {/* Accreditation criteria selected */}
+                        {(() => {
+                          const selected: string[] = [];
+                          if (formData.hasIncomeIndividual) selected.push(lang === 'es' ? 'Ingresos Individual' : 'Income (Individual)');
+                          if (formData.hasIncomeJoint) selected.push(lang === 'es' ? 'Ingresos Conjunto' : 'Income (Joint)');
+                          if (formData.hasNetWorth) selected.push(lang === 'es' ? 'Patrimonio Neto' : 'Net Worth');
+                          if (formData.hasProfessionalCert) selected.push(lang === 'es' ? 'Certificacion Profesional' : 'Professional Certification');
+                          if (formData.hasInsiderStatus) selected.push(lang === 'es' ? 'Estado Insider' : 'Insider Status');
+                          if (formData.hasKnowledgeableEmployee) selected.push(lang === 'es' ? 'Empleado Calificado' : 'Knowledgeable Employee');
+                          return selected.length > 0 ? (
+                            <div className="review-section">
+                              <span className="review-item-label">{lang === 'es' ? 'Criterios de Acreditacion' : 'Accreditation Criteria'}</span>
+                              <div className="review-tags">
+                                {selected.map(s => <span key={s} className="review-tag">{s}</span>)}
+                              </div>
+                            </div>
+                          ) : null;
+                        })()}
+                        <div className="review-summary-grid" style={{ marginTop: 8 }}>
+                          <div className="review-item">
+                            <span className="review-item-label">{lang === 'es' ? 'Origen de Fondos' : 'Source of Funds'}</span>
+                            <span className="review-item-value">{formData.sourceOfFunds ? (fundSourceOptions.find(o => o.key === formData.sourceOfFunds)?.label || formData.sourceOfFunds) : '--'}</span>
+                          </div>
+                          <div className="review-item">
+                            <span className="review-item-label">PEP</span>
+                            <span className="review-item-value">{formData.isPep ? (lang === 'es' ? 'Si' : 'Yes') : 'No'}</span>
+                          </div>
+                          <div className="review-item">
+                            <span className="review-item-label">{lang === 'es' ? 'Ciudadano EE.UU.' : 'US Citizen'}</span>
+                            <span className="review-item-value">{formData.isUsCitizen ? (lang === 'es' ? 'Si' : 'Yes') : 'No'}</span>
+                          </div>
+                        </div>
+                      </div>
+
                       <div className="form-declaration">
                         <p className="form-declaration-text">
                           {lang === 'es'
@@ -2678,16 +2849,30 @@ export default function InvestPage({ lang }: InvestPageProps) {
         .metamap-btn-container{display:flex;justify-content:center}
 
         /* Multi-step form additions */
-        .form-progress{display:flex;justify-content:center;gap:8px;margin-bottom:20px}
-        .form-progress-step{display:flex;align-items:center;gap:6px;opacity:0.3;transition:opacity 0.2s}
-        .form-progress-step.active{opacity:1}
-        .form-progress-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5)}
-        .form-progress-step.active .form-progress-num{background:rgba(248,176,59,0.2);color:#f8b03b}
-        .form-progress-step.done .form-progress-num{background:rgba(34,197,94,0.2);color:#22c55e}
-        .form-progress-label{font-size:11px;color:rgba(255,255,255,0.5);display:none}
-        @media(min-width:600px){.form-progress-label{display:block}}
-        .form-step-anim{animation:formStepFade 0.3s ease}
-        @keyframes formStepFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+        .form-progress{display:flex;justify-content:center;align-items:center;margin-bottom:28px;padding:0 8px}
+        .form-progress-item{display:flex;align-items:center;flex:1}
+        .form-progress-item:last-child{flex:0}
+        .form-progress-step{display:flex;flex-direction:column;align-items:center;gap:6px;opacity:0.35;transition:opacity 0.3s,transform 0.3s;position:relative;z-index:1}
+        .form-progress-step.active{opacity:1;transform:scale(1.05)}
+        .form-progress-step.done{opacity:1}
+        .form-progress-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);border:2px solid rgba(255,255,255,0.1);transition:all 0.3s}
+        .form-progress-step.active .form-progress-num{background:rgba(248,176,59,0.15);color:#f8b03b;border-color:rgba(248,176,59,0.5);box-shadow:0 0 12px rgba(248,176,59,0.15)}
+        .form-progress-step.done .form-progress-num{background:rgba(34,197,94,0.15);color:#22c55e;border-color:rgba(34,197,94,0.5)}
+        .form-progress-label{font-size:10px;color:rgba(255,255,255,0.5);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap}
+        .form-progress-step.active .form-progress-label{color:#f8b03b}
+        .form-progress-step.done .form-progress-label{color:rgba(34,197,94,0.7)}
+        .form-progress-line{flex:1;height:2px;background:rgba(255,255,255,0.08);margin:0 6px;margin-bottom:20px;border-radius:1px;transition:background 0.3s}
+        .form-progress-line.done{background:rgba(34,197,94,0.4)}
+
+        /* Step Headers */
+        .step-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.06)}
+        .step-header-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(248,176,59,0.1);color:#f8b03b;flex-shrink:0;border:1px solid rgba(248,176,59,0.15)}
+        .step-header-text{display:flex;flex-direction:column;gap:4px}
+        .step-header-title{font-size:16px;font-weight:700;color:#fff;margin:0}
+        .step-header-desc{font-size:12px;color:rgba(255,255,255,0.4);line-height:1.5;margin:0}
+
+        .form-step-anim{animation:formStepFade 0.35s ease}
+        @keyframes formStepFade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
         .form-section-title{font-size:15px;font-weight:700;color:#fff;margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06)}
         .form-hint{font-size:12px;color:rgba(255,255,255,0.35);line-height:1.5;margin:0 0 12px}
         .form-chip-row{display:flex;gap:8px;flex-wrap:wrap}
@@ -2698,10 +2883,20 @@ export default function InvestPage({ lang }: InvestPageProps) {
         .form-checks{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
         .form-check-section{font-size:13px;font-weight:700;color:rgba(248,176,59,0.9);padding:10px 0 4px;margin-top:8px;border-bottom:1px solid rgba(248,176,59,0.15)}
         .form-check-section:first-child{margin-top:0}
+
+        /* Accreditation intro */
+        .accred-intro{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;background:rgba(248,176,59,0.04);border:1px solid rgba(248,176,59,0.12);border-radius:10px;margin-bottom:16px}
+        .accred-intro svg{color:rgba(248,176,59,0.7);flex-shrink:0;margin-top:2px}
+        .accred-intro p{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;margin:0}
+
+        /* Accreditation cards */
         .accreditation-sections{display:flex;flex-direction:column;gap:12px}
-        .accred-card{padding:16px;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:rgba(255,255,255,0.02);transition:all 0.2s}
+        .accred-card{padding:16px;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:rgba(255,255,255,0.02);transition:all 0.25s}
+        .accred-card:hover{border-color:rgba(255,255,255,0.14)}
         .accred-card--yes{border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.04)}
-        .accred-card-title{font-size:13px;font-weight:700;color:rgba(248,176,59,0.9);margin-bottom:8px}
+        .accred-card-title{font-size:13px;font-weight:700;color:rgba(248,176,59,0.9);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+        .accred-card-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(248,176,59,0.08);color:rgba(248,176,59,0.8);flex-shrink:0}
+        .accred-card--yes .accred-card-icon{background:rgba(34,197,94,0.1);color:rgba(34,197,94,0.8)}
         .accred-card-question{font-size:13px;color:rgba(255,255,255,0.7);line-height:1.5;margin:0 0 12px}
         .accred-card-toggle{display:flex;gap:8px}
         .accred-toggle-btn{flex:1;padding:8px 16px;border:1px solid rgba(255,255,255,0.12);border-radius:8px;background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.5);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s}
@@ -2712,6 +2907,26 @@ export default function InvestPage({ lang }: InvestPageProps) {
         .form-check-item input{width:16px;height:16px;accent-color:#f8b03b;margin-top:1px;flex-shrink:0}
         .form-check-item:hover{border-color:rgba(255,255,255,0.15)}
         .form-check-item--active{border-color:rgba(248,176,59,0.3);background:rgba(248,176,59,0.04);color:#fff}
+
+        /* AML cards */
+        .aml-card{padding:18px;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:rgba(255,255,255,0.02);margin-bottom:16px;transition:all 0.25s}
+        .aml-card:hover{border-color:rgba(255,255,255,0.14)}
+        .aml-card:last-of-type{margin-bottom:0}
+        .aml-card-header{display:flex;align-items:center;gap:12px}
+        .aml-card-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(248,176,59,0.08);color:rgba(248,176,59,0.7);flex-shrink:0;border:1px solid rgba(248,176,59,0.1)}
+
+        /* Review Summary */
+        .review-summary{padding:18px;border:1px solid rgba(248,176,59,0.2);border-radius:12px;background:rgba(248,176,59,0.03);margin-bottom:20px}
+        .review-summary-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:rgba(248,176,59,0.9);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(248,176,59,0.1)}
+        .review-summary-title svg{color:rgba(248,176,59,0.7)}
+        .review-summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .review-item{display:flex;flex-direction:column;gap:2px}
+        .review-item-label{font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.05em}
+        .review-item-value{font-size:13px;color:rgba(255,255,255,0.8);font-weight:500}
+        .review-section{margin-top:10px;padding-top:10px;border-top:1px solid rgba(248,176,59,0.08)}
+        .review-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+        .review-tag{display:inline-flex;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(34,197,94,0.1);color:rgba(34,197,94,0.8);border:1px solid rgba(34,197,94,0.15)}
+
         .form-toggle-row{display:flex;gap:8px;margin-bottom:8px}
         .form-toggle{padding:8px 20px;border:1px solid rgba(255,255,255,0.1);border-radius:10px;background:none;color:rgba(255,255,255,0.5);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s}
         .form-toggle--active{border-color:rgba(34,197,94,0.4);background:rgba(34,197,94,0.08);color:#22c55e}
@@ -2729,7 +2944,6 @@ export default function InvestPage({ lang }: InvestPageProps) {
         .form-submit--final:hover{background:linear-gradient(135deg,#16a34a,#15803d);box-shadow:0 6px 20px rgba(34,197,94,0.3)}
 
         /* Signature */
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
         .sig-section{margin-bottom:16px}
         .sig-tabs{display:flex;gap:4px;margin:8px 0 12px}
         .sig-tab{padding:8px 18px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:none;color:rgba(255,255,255,0.5);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s}
@@ -2753,6 +2967,11 @@ export default function InvestPage({ lang }: InvestPageProps) {
           .form-footer { flex-direction: column; gap: 8px; }
           .form-footer-sep { display: none; }
           .form-alt-actions { flex-direction: column; gap: 8px; }
+          .form-progress-label { font-size: 9px; }
+          .form-progress-num { width: 28px; height: 28px; font-size: 11px; }
+          .form-progress-line { margin: 0 4px; }
+          .step-header-icon { width: 36px; height: 36px; }
+          .review-summary-grid { grid-template-columns: 1fr; gap: 8px; }
         }
 
         @media (max-width: 420px) {
@@ -2762,6 +2981,13 @@ export default function InvestPage({ lang }: InvestPageProps) {
           .invest-form-card { padding: 22px 14px; }
           .form-submit { padding: 14px 20px; font-size: 0.9375rem; }
           .form-footer-item { white-space: normal; font-size: 0.75rem; }
+          .form-progress { padding: 0 2px; }
+          .form-progress-num { width: 26px; height: 26px; font-size: 10px; }
+          .form-progress-label { font-size: 8px; }
+          .step-header { gap: 10px; }
+          .step-header-title { font-size: 14px; }
+          .aml-card { padding: 14px; }
+          .review-summary { padding: 14px; }
         }
       `}</style>
     </>

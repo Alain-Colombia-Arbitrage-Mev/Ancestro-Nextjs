@@ -81,6 +81,7 @@ export async function POST(req: NextRequest) {
         // Signature & Status
         ...(signatureType && { 'Signature Type': signatureType === 'draw' ? 'Draw' : 'Type' }),
         ...(signatureData && !signatureData.startsWith('data:') && { 'Signature Text': signatureData }),
+        ...(signatureData && signatureData.startsWith('data:') && { 'Signature Text': '[signature-pending-upload]' }),
         'Declaration Accepted': declarationAccepted || false,
         'Accreditation Status': accreditationStatus,
         // Accreditation section answers
