@@ -671,10 +671,19 @@ export default function InvestPage({ lang }: InvestPageProps) {
         }
       }
 
+      // Build accreditationCriteria from boolean toggle fields
+      const accreditationCriteria: string[] = [];
+      if (formData.hasIncomeIndividual) accreditationCriteria.push('incomeIndividual');
+      if (formData.hasIncomeJoint) accreditationCriteria.push('incomeJoint');
+      if (formData.hasNetWorth) accreditationCriteria.push('netWorth');
+      if (formData.hasProfessionalCert) accreditationCriteria.push('professional');
+      if (formData.hasInsiderStatus) accreditationCriteria.push('insider');
+      if (formData.hasKnowledgeableEmployee) accreditationCriteria.push('knowledgeable');
+
       const res = await fetch('/api/invest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, signatureData: signatureUrl, visitorId: typeof window !== 'undefined' ? getVisitorId() : undefined }),
+        body: JSON.stringify({ ...formData, accreditationCriteria, signatureData: signatureUrl, visitorId: typeof window !== 'undefined' ? getVisitorId() : undefined }),
       });
       if (!res.ok) throw new Error('Server error');
       clearFormStorage();
