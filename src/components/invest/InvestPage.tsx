@@ -255,7 +255,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
   useEffect(() => { setMounted(true); }, []);
 
   /* access gate */
-  const [unlocked, setUnlocked] = useState(true);
+  const [unlocked, setUnlocked] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && sessionStorage.getItem('invest_access') === '1') {
@@ -736,7 +736,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
     }
   };
 
-  /* Access gate disabled in AML branch — page always renders */
+  if (!unlocked) return <AccessGate onUnlock={() => setUnlocked(true)} />;
 
   return (
     <>
@@ -983,13 +983,94 @@ export default function InvestPage({ lang }: InvestPageProps) {
             <div id="invest" className="invest-form-card">
               <div className="invest-form-header">
                 <h3 className="invest-form-title">{lang === 'es' ? 'Solicitud de Inversión' : 'Investment Application'}</h3>
-                <p className="invest-form-subtitle">{lang === 'es' ? 'Completa el formulario para iniciar tu proceso de inversión.' : 'Complete the form to begin your investment process.'}</p>
+                <p className="invest-form-subtitle">{lang === 'es' ? 'Verifica tu identidad para acceder al formulario de inversión.' : 'Verify your identity to access the investment form.'}</p>
               </div>
 
-              {/* KYC gate disabled in AML branch — form always visible */}
+              {/* KYC Verification Gate */}
+              <div className="kyc-gate">
+                {kycStatus === 'not_started' && (
+                  <div className="kyc-gate-step">
+                    <div className="kyc-gate-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(248,176,59,0.8)" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <p className="kyc-gate-text">{lang === 'es' ? 'Paso 1: Verifica tu identidad con MetaMap' : 'Step 1: Verify your identity with MetaMap'}</p>
+                    <MetaMapButton
+                      userId={typeof window !== 'undefined' ? getStoredUserId() : 'anonymous'}
+                      userEmail={typeof window !== 'undefined' ? getStoredUserEmail() : ''}
+                      onStarted={() => {
+                        localStorage.setItem('ancestro:kycStarted', '1');
+                      }}
+                      onFinished={() => {
+                        localStorage.removeItem('ancestro:kycStarted');
+                        const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
+                        if (token) {
+                          setKycStatus('pending');
+                          markKycPending(token);
+                        } else {
+                          setKycStatus('verified');
+                        }
+                      }}
+                    />
+                  </div>
+                )}
+                {kycStatus === 'pending' && (
+                  <div className="kyc-gate-step kyc-gate-step--pending">
+                    <div className="kyc-gate-icon kyc-gate-icon--pending">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <p className="kyc-gate-text">{lang === 'es' ? 'Verificación en proceso. Te notificaremos cuando esté aprobada.' : 'Verification in progress. We\'ll notify you when approved.'}</p>
+                    <button type="button" className="kyc-gate-refresh" onClick={() => {
+                      const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
+                      if (token) {
+                        fetchKycStatus(token).then(result => {
+                          if (result !== null) {
+                            setKycStatus(result.status);
+                            if (result.status === 'verified' && result.profile) {
+                              prefillFormFromProfile(result.profile);
+                            }
+                          }
+                        });
+                      }
+                    }}>{lang === 'es' ? 'Verificar estado' : 'Check status'}</button>
+                  </div>
+                )}
+                {kycStatus === 'rejected' && (
+                  <div className="kyc-gate-step kyc-gate-step--rejected">
+                    <div className="kyc-gate-icon kyc-gate-icon--rejected">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    </div>
+                    <p className="kyc-gate-text">{lang === 'es' ? 'Verificación rechazada. Intenta nuevamente o contacta soporte.' : 'Verification rejected. Try again or contact support.'}</p>
+                    <MetaMapButton
+                      userId={typeof window !== 'undefined' ? getStoredUserId() : 'anonymous'}
+                      userEmail={typeof window !== 'undefined' ? getStoredUserEmail() : ''}
+                      onStarted={() => {
+                        localStorage.setItem('ancestro:kycStarted', '1');
+                      }}
+                      onFinished={() => {
+                        localStorage.removeItem('ancestro:kycStarted');
+                        const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
+                        if (token) {
+                          setKycStatus('pending');
+                          markKycPending(token);
+                        } else {
+                          setKycStatus('verified');
+                        }
+                      }}
+                    />
+                  </div>
+                )}
+                {kycStatus === 'verified' && (
+                  <div className="kyc-gate-step kyc-gate-step--verified">
+                    <div className="kyc-gate-icon kyc-gate-icon--verified">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    <p className="kyc-gate-text">{lang === 'es' ? 'Identidad verificada. Completa el formulario de inversión.' : 'Identity verified. Complete the investment form below.'}</p>
+                  </div>
+                )}
+              </div>
 
-              {/* Investment Form */}
-              {mounted && !submitted ? (
+              {/* Investment Form — only when KYC verified */}
+              {mounted && kycStatus === 'verified' && !submitted ? (
                 <form className="invest-form" onSubmit={handleFormSubmit} noValidate>
                   {/* Progress bar */}
                   <div className="form-progress">
