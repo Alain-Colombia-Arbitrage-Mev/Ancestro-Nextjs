@@ -255,7 +255,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
   useEffect(() => { setMounted(true); }, []);
 
   /* access gate */
-  const [unlocked, setUnlocked] = useState(false);
+  const [unlocked, setUnlocked] = useState(true);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && sessionStorage.getItem('invest_access') === '1') {
@@ -388,14 +388,14 @@ export default function InvestPage({ lang }: InvestPageProps) {
     // AML / SEC 501(a) fields
     dateOfBirth: '', address: '', citizenship: '', investorType: 'individual',
     accreditationCriteria: [] as string[], entityCriteria: [] as string[],
-    // Section-level accreditation (Yes/No per category)
-    investsWithSpouse: false,
-    hasIncomeIndividual: false, hasIncomeJoint: false,
-    hasNetWorth: false, hasProfessionalCert: false,
-    hasInsiderStatus: false, hasKnowledgeableEmployee: false,
+    // Section-level accreditation (Yes/No per category — null = not answered yet)
+    investsWithSpouse: null as boolean | null,
+    hasIncomeIndividual: null as boolean | null, hasIncomeJoint: null as boolean | null,
+    hasNetWorth: null as boolean | null, hasProfessionalCert: null as boolean | null,
+    hasInsiderStatus: null as boolean | null, hasKnowledgeableEmployee: null as boolean | null,
     sourceOfFunds: '', sourceOfFundsOther: '',
-    isPep: false, pepDetails: '',
-    isUsCitizen: false, usTaxId: '',
+    isPep: null as boolean | null, pepDetails: '',
+    isUsCitizen: null as boolean | null, usTaxId: '',
     declarationAccepted: false,
     // Signature
     signatureType: 'type' as 'draw' | 'type',
@@ -575,14 +575,26 @@ export default function InvestPage({ lang }: InvestPageProps) {
       if (!formData.citizenship.trim()) errors.citizenship = true;
     }
     if (formStep === 2) {
-      // Natural persons: no mandatory selection, all questions are informational
-      if (formData.investorType === 'entity' && formData.entityCriteria.length === 0) errors.entityCriteria = true;
+      if (formData.investorType !== 'entity') {
+        // All accreditation questions are mandatory (must explicitly select Yes or No)
+        if (formData.hasIncomeIndividual === null) errors.hasIncomeIndividual = true;
+        if (formData.hasIncomeJoint === null) errors.hasIncomeJoint = true;
+        if (formData.hasNetWorth === null) errors.hasNetWorth = true;
+        if (formData.hasProfessionalCert === null) errors.hasProfessionalCert = true;
+        if (formData.hasInsiderStatus === null) errors.hasInsiderStatus = true;
+        if (formData.hasKnowledgeableEmployee === null) errors.hasKnowledgeableEmployee = true;
+        if (formData.investsWithSpouse === null) errors.investsWithSpouse = true;
+      } else {
+        if (formData.entityCriteria.length === 0) errors.entityCriteria = true;
+      }
     }
     if (formStep === 3) {
       if (!formData.sourceOfFunds) errors.sourceOfFunds = true;
       if (formData.sourceOfFunds === 'other' && !formData.sourceOfFundsOther.trim()) errors.sourceOfFundsOther = true;
-      if (formData.isPep && !formData.pepDetails.trim()) errors.pepDetails = true;
-      if (formData.isUsCitizen && !formData.usTaxId.trim()) errors.usTaxId = true;
+      if (formData.isPep === null) errors.isPep = true;
+      if (formData.isPep === true && !formData.pepDetails.trim()) errors.pepDetails = true;
+      if (formData.isUsCitizen === null) errors.isUsCitizen = true;
+      if (formData.isUsCitizen === true && !formData.usTaxId.trim()) errors.usTaxId = true;
     }
     if (formStep === 4) {
       if (!formData.declarationAccepted) errors.declarationAccepted = true;
@@ -592,15 +604,30 @@ export default function InvestPage({ lang }: InvestPageProps) {
     // Scroll to first field with error
     if (Object.keys(errors).length > 0) {
       setTimeout(() => {
-        const firstErrorEl = document.querySelector('.has-error, .form-declaration-check--error, .sig-draw-wrap--error, .form-error-msg');
+        const firstErrorEl = document.querySelector('.has-error, .form-declaration-check--error, .sig-draw-wrap--error, .form-error-msg, .accred-card--error, .aml-card--error');
         if (firstErrorEl) firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 50);
     }
     return Object.keys(errors).length === 0;
   };
 
+  const scrollToForm = () => {
+    setTimeout(() => {
+      const card = document.getElementById('invest');
+      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  };
+
   const handleFormNext = () => {
-    if (validateFormStep()) setFormStep(s => s + 1);
+    if (validateFormStep()) {
+      setFormStep(s => s + 1);
+      scrollToForm();
+    }
+  };
+
+  const handleFormBack = (step: number) => {
+    setFormStep(step);
+    scrollToForm();
   };
 
   // Signature canvas helpers
@@ -959,91 +986,10 @@ export default function InvestPage({ lang }: InvestPageProps) {
                 <p className="invest-form-subtitle">{lang === 'es' ? 'Completa el formulario para iniciar tu proceso de inversión.' : 'Complete the form to begin your investment process.'}</p>
               </div>
 
-              {/* KYC Verification Gate */}
-              <div className="kyc-gate">
-                {kycStatus === 'not_started' && (
-                  <div className="kyc-gate-step">
-                    <div className="kyc-gate-icon">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(248,176,59,0.8)" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    </div>
-                    <p className="kyc-gate-text">{lang === 'es' ? 'Paso 1: Verifica tu identidad con MetaMap' : 'Step 1: Verify your identity with MetaMap'}</p>
-                    <MetaMapButton
-                      userId={typeof window !== 'undefined' ? getStoredUserId() : 'anonymous'}
-                      userEmail={typeof window !== 'undefined' ? getStoredUserEmail() : ''}
-                      onStarted={() => {
-                        localStorage.setItem('ancestro:kycStarted', '1');
-                      }}
-                      onFinished={() => {
-                        localStorage.removeItem('ancestro:kycStarted');
-                        const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
-                        if (token) {
-                          setKycStatus('pending');
-                          markKycPending(token);
-                        } else {
-                          setKycStatus('verified');
-                        }
-                      }}
-                    />
-                  </div>
-                )}
-                {kycStatus === 'pending' && (
-                  <div className="kyc-gate-step kyc-gate-step--pending">
-                    <div className="kyc-gate-icon kyc-gate-icon--pending">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    </div>
-                    <p className="kyc-gate-text">{lang === 'es' ? 'Verificación en proceso. Te notificaremos cuando esté aprobada.' : 'Verification in progress. We\'ll notify you when approved.'}</p>
-                    <button type="button" className="kyc-gate-refresh" onClick={() => {
-                      const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
-                      if (token) {
-                        fetchKycStatus(token).then(result => {
-                          if (result !== null) {
-                            setKycStatus(result.status);
-                            if (result.status === 'verified' && result.profile) {
-                              prefillFormFromProfile(result.profile);
-                            }
-                          }
-                        });
-                      }
-                    }}>{lang === 'es' ? 'Verificar estado' : 'Check status'}</button>
-                  </div>
-                )}
-                {kycStatus === 'rejected' && (
-                  <div className="kyc-gate-step kyc-gate-step--rejected">
-                    <div className="kyc-gate-icon kyc-gate-icon--rejected">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-                    </div>
-                    <p className="kyc-gate-text">{lang === 'es' ? 'Verificación rechazada. Intenta nuevamente o contacta soporte.' : 'Verification rejected. Try again or contact support.'}</p>
-                    <MetaMapButton
-                      userId={typeof window !== 'undefined' ? getStoredUserId() : 'anonymous'}
-                      userEmail={typeof window !== 'undefined' ? getStoredUserEmail() : ''}
-                      onStarted={() => {
-                        localStorage.setItem('ancestro:kycStarted', '1');
-                      }}
-                      onFinished={() => {
-                        localStorage.removeItem('ancestro:kycStarted');
-                        const token = typeof window !== 'undefined' ? localStorage.getItem('ancestro:token') : null;
-                        if (token) {
-                          setKycStatus('pending');
-                          markKycPending(token);
-                        } else {
-                          setKycStatus('verified');
-                        }
-                      }}
-                    />
-                  </div>
-                )}
-                {kycStatus === 'verified' && (
-                  <div className="kyc-gate-step kyc-gate-step--verified">
-                    <div className="kyc-gate-icon kyc-gate-icon--verified">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    </div>
-                    <p className="kyc-gate-text">{lang === 'es' ? 'Identidad verificada. Completa el formulario de inversión.' : 'Identity verified. Complete the investment form below.'}</p>
-                  </div>
-                )}
-              </div>
+              {/* KYC gate disabled in AML branch — form always visible */}
 
-              {/* Investment Form — only when KYC verified */}
-              {mounted && kycStatus === 'verified' && !submitted ? (
+              {/* Investment Form */}
+              {mounted && !submitted ? (
                 <form className="invest-form" onSubmit={handleFormSubmit} noValidate>
                   {/* Progress bar */}
                   <div className="form-progress">
@@ -1179,45 +1125,47 @@ export default function InvestPage({ lang }: InvestPageProps) {
                               hasKnowledgeableEmployee: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
                             };
                             return accreditationSections.map(s => (
-                              <div key={s.field} className={`accred-card${formData[s.field] ? ' accred-card--yes' : ''}`}>
+                              <div key={s.field} className={`accred-card${formData[s.field] === true ? ' accred-card--yes' : ''}${formErrors[s.field] ? ' accred-card--error' : ''}`}>
                                 <div className="accred-card-title">
                                   <span className="accred-card-icon">{accredIcons[s.field]}</span>
-                                  {s.title}
+                                  {s.title} <span className="aq-req">*</span>
                                 </div>
                                 <p className="accred-card-question">{s.question}</p>
                                 <div className="accred-card-toggle">
                                   <button type="button" className={`accred-toggle-btn${formData[s.field] === false ? ' accred-toggle-btn--active-no' : ''}`}
-                                    onClick={() => setFormData(d => ({ ...d, [s.field]: false }))}>
+                                    onClick={() => { setFormData(d => ({ ...d, [s.field]: false })); setFormErrors(err => ({ ...err, [s.field]: false })); }}>
                                     No
                                   </button>
                                   <button type="button" className={`accred-toggle-btn${formData[s.field] === true ? ' accred-toggle-btn--active-yes' : ''}`}
-                                    onClick={() => setFormData(d => ({ ...d, [s.field]: true }))}>
+                                    onClick={() => { setFormData(d => ({ ...d, [s.field]: true })); setFormErrors(err => ({ ...err, [s.field]: false })); }}>
                                     {lang === 'es' ? 'S\u00ed' : 'Yes'}
                                   </button>
                                 </div>
+                                {formErrors[s.field] && <p className="form-error-msg">{lang === 'es' ? 'Este campo es obligatorio' : 'This field is required'}</p>}
                               </div>
                             ));
                           })()}
 
                           {/* Invests With Spouse - placed after income questions */}
-                          <div className={`accred-card${formData.investsWithSpouse ? ' accred-card--yes' : ''}`}>
+                          <div className={`accred-card${formData.investsWithSpouse === true ? ' accred-card--yes' : ''}${formErrors.investsWithSpouse ? ' accred-card--error' : ''}`}>
                             <div className="accred-card-title">
                               <span className="accred-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
-                              {lang === 'es' ? 'Inversion Conjunta' : 'Joint Investment'}
+                              {lang === 'es' ? 'Inversion Conjunta' : 'Joint Investment'} <span className="aq-req">*</span>
                             </div>
                             <p className="accred-card-question">{lang === 'es'
                               ? '¿Estas invirtiendo conjuntamente con tu conyuge o pareja equivalente?'
                               : 'Are you investing jointly with a spouse or spousal equivalent?'}</p>
                             <div className="accred-card-toggle">
                               <button type="button" className={`accred-toggle-btn${formData.investsWithSpouse === false ? ' accred-toggle-btn--active-no' : ''}`}
-                                onClick={() => setFormData(d => ({ ...d, investsWithSpouse: false }))}>
+                                onClick={() => { setFormData(d => ({ ...d, investsWithSpouse: false })); setFormErrors(err => ({ ...err, investsWithSpouse: false })); }}>
                                 No
                               </button>
                               <button type="button" className={`accred-toggle-btn${formData.investsWithSpouse === true ? ' accred-toggle-btn--active-yes' : ''}`}
-                                onClick={() => setFormData(d => ({ ...d, investsWithSpouse: true }))}>
+                                onClick={() => { setFormData(d => ({ ...d, investsWithSpouse: true })); setFormErrors(err => ({ ...err, investsWithSpouse: false })); }}>
                                 {lang === 'es' ? 'S\u00ed' : 'Yes'}
                               </button>
                             </div>
+                            {formErrors.investsWithSpouse && <p className="form-error-msg">{lang === 'es' ? 'Este campo es obligatorio' : 'This field is required'}</p>}
                           </div>
                         </div>
                         </>
@@ -1242,7 +1190,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
                       )}
 
                       <div className="form-nav-row">
-                        <button type="button" className="form-btn-back" onClick={() => setFormStep(1)}>&larr; {lang === 'es' ? 'Anterior' : 'Back'}</button>
+                        <button type="button" className="form-btn-back" onClick={() => handleFormBack(1)}>&larr; {lang === 'es' ? 'Anterior' : 'Back'}</button>
                         <button type="button" className="form-submit" onClick={handleFormNext}>
                           <span className="form-submit-text">{lang === 'es' ? 'Siguiente' : 'Next'}</span>
                           <svg className="form-submit-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
@@ -1286,7 +1234,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
                       </div>
 
                       {/* PEP Card */}
-                      <div className="aml-card">
+                      <div className={`aml-card${formErrors.isPep ? ' aml-card--error' : ''}`}>
                         <div className="aml-card-header">
                           <div className="aml-card-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
@@ -1295,17 +1243,18 @@ export default function InvestPage({ lang }: InvestPageProps) {
                         </div>
                         <p className="form-hint" style={{ marginTop: 8 }}>{lang === 'es' ? 'Funcionarios p\u00fablicos, diplom\u00e1ticos, militares de alto rango, ejecutivos de empresas estatales.' : 'Public officials, diplomats, senior military officers, state enterprise executives.'}</p>
                         <div className="form-toggle-row">
-                          <button type="button" className={`form-toggle${formData.isPep ? ' form-toggle--warn' : ''}`} onClick={() => setFormData(d => ({ ...d, isPep: true }))}>{lang === 'es' ? 'S\u00ed' : 'Yes'}</button>
-                          <button type="button" className={`form-toggle${!formData.isPep ? ' form-toggle--active' : ''}`} onClick={() => setFormData(d => ({ ...d, isPep: false }))}>{lang === 'es' ? 'No' : 'No'}</button>
+                          <button type="button" className={`form-toggle${formData.isPep === true ? ' form-toggle--warn' : ''}`} onClick={() => { setFormData(d => ({ ...d, isPep: true })); setFormErrors(err => ({ ...err, isPep: false })); }}>{lang === 'es' ? 'S\u00ed' : 'Yes'}</button>
+                          <button type="button" className={`form-toggle${formData.isPep === false ? ' form-toggle--active' : ''}`} onClick={() => { setFormData(d => ({ ...d, isPep: false })); setFormErrors(err => ({ ...err, isPep: false })); }}>{lang === 'es' ? 'No' : 'No'}</button>
                         </div>
-                        {formData.isPep && (<>
+                        {formErrors.isPep && <p className="form-error-msg">{lang === 'es' ? 'Este campo es obligatorio' : 'This field is required'}</p>}
+                        {formData.isPep === true && (<>
                           <textarea rows={2} placeholder={lang === 'es' ? 'Describa la relaci\u00f3n pol\u00edtica' : 'Describe the political relationship'} className={`form-input form-textarea ${formErrors.pepDetails ? 'has-error' : ''}`} value={formData.pepDetails} onChange={e => { setFormData(d => ({ ...d, pepDetails: e.target.value })); setFormErrors(err => ({ ...err, pepDetails: false })); }} />
                           {formErrors.pepDetails && <p className="form-error-msg">{lang === 'es' ? 'Describe la relacion politica' : 'Describe the political relationship'}</p>}
                         </>)}
                       </div>
 
                       {/* US Citizen Card */}
-                      <div className="aml-card">
+                      <div className={`aml-card${formErrors.isUsCitizen ? ' aml-card--error' : ''}`}>
                         <div className="aml-card-header">
                           <div className="aml-card-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
@@ -1313,16 +1262,17 @@ export default function InvestPage({ lang }: InvestPageProps) {
                           <label className="form-label" style={{ margin: 0 }}>{lang === 'es' ? '\u00bfEs ciudadano o residente fiscal de EE.UU.?' : 'Are you a US citizen or tax resident?'} *</label>
                         </div>
                         <div className="form-toggle-row" style={{ marginTop: 12 }}>
-                          <button type="button" className={`form-toggle${formData.isUsCitizen ? ' form-toggle--active' : ''}`} onClick={() => setFormData(d => ({ ...d, isUsCitizen: true }))}>{lang === 'es' ? 'S\u00ed' : 'Yes'}</button>
-                          <button type="button" className={`form-toggle${!formData.isUsCitizen ? ' form-toggle--active' : ''}`} onClick={() => setFormData(d => ({ ...d, isUsCitizen: false }))}>{lang === 'es' ? 'No' : 'No'}</button>
+                          <button type="button" className={`form-toggle${formData.isUsCitizen === true ? ' form-toggle--active' : ''}`} onClick={() => { setFormData(d => ({ ...d, isUsCitizen: true })); setFormErrors(err => ({ ...err, isUsCitizen: false })); }}>{lang === 'es' ? 'S\u00ed' : 'Yes'}</button>
+                          <button type="button" className={`form-toggle${formData.isUsCitizen === false ? ' form-toggle--active' : ''}`} onClick={() => { setFormData(d => ({ ...d, isUsCitizen: false })); setFormErrors(err => ({ ...err, isUsCitizen: false })); }}>{lang === 'es' ? 'No' : 'No'}</button>
                         </div>
-                        {formData.isUsCitizen && (<>
+                        {formErrors.isUsCitizen && <p className="form-error-msg">{lang === 'es' ? 'Este campo es obligatorio' : 'This field is required'}</p>}
+                        {formData.isUsCitizen === true && (<>
                           <input type="text" placeholder="SSN / ITIN" className={`form-input ${formErrors.usTaxId ? 'has-error' : ''}`} value={formData.usTaxId} onChange={e => { setFormData(d => ({ ...d, usTaxId: e.target.value })); setFormErrors(err => ({ ...err, usTaxId: false })); }} />
                           {formErrors.usTaxId && <p className="form-error-msg">{lang === 'es' ? 'El SSN/ITIN es obligatorio para ciudadanos de EE.UU.' : 'SSN/ITIN is required for US citizens'}</p>}
                         </>)}
                       </div>
                       <div className="form-nav-row">
-                        <button type="button" className="form-btn-back" onClick={() => setFormStep(2)}>&larr; {lang === 'es' ? 'Anterior' : 'Back'}</button>
+                        <button type="button" className="form-btn-back" onClick={() => handleFormBack(2)}>&larr; {lang === 'es' ? 'Anterior' : 'Back'}</button>
                         <button type="button" className="form-submit" onClick={handleFormNext}>
                           <span className="form-submit-text">{lang === 'es' ? 'Siguiente' : 'Next'}</span>
                           <svg className="form-submit-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
@@ -1463,7 +1413,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
                       </div>
 
                       <div className="form-nav-row">
-                        <button type="button" className="form-btn-back" onClick={() => setFormStep(3)}>&larr; {lang === 'es' ? 'Anterior' : 'Back'}</button>
+                        <button type="button" className="form-btn-back" onClick={() => handleFormBack(3)}>&larr; {lang === 'es' ? 'Anterior' : 'Back'}</button>
                         <button type="submit" className="form-submit form-submit--final" disabled={submitting}>
                           <span className="form-submit-text">{submitting ? (lang === 'es' ? 'Enviando...' : 'Sending...') : (lang === 'es' ? 'Firmar y Enviar' : 'Sign & Submit')}</span>
                           <svg className="form-submit-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
@@ -2894,6 +2844,8 @@ export default function InvestPage({ lang }: InvestPageProps) {
         .accred-card{padding:16px;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:rgba(255,255,255,0.02);transition:all 0.25s}
         .accred-card:hover{border-color:rgba(255,255,255,0.14)}
         .accred-card--yes{border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.04)}
+        .accred-card--error{border-color:rgba(239,68,68,0.5);background:rgba(239,68,68,0.04)}
+        .aq-req{color:#f8b03b}
         .accred-card-title{font-size:13px;font-weight:700;color:rgba(248,176,59,0.9);margin-bottom:8px;display:flex;align-items:center;gap:8px}
         .accred-card-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(248,176,59,0.08);color:rgba(248,176,59,0.8);flex-shrink:0}
         .accred-card--yes .accred-card-icon{background:rgba(34,197,94,0.1);color:rgba(34,197,94,0.8)}
@@ -2910,6 +2862,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
 
         /* AML cards */
         .aml-card{padding:18px;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:rgba(255,255,255,0.02);margin-bottom:16px;transition:all 0.25s}
+        .aml-card--error{border-color:rgba(239,68,68,0.5);background:rgba(239,68,68,0.04)}
         .aml-card:hover{border-color:rgba(255,255,255,0.14)}
         .aml-card:last-of-type{margin-bottom:0}
         .aml-card-header{display:flex;align-items:center;gap:12px}

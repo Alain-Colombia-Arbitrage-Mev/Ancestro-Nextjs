@@ -117,30 +117,30 @@ describe('Airtable field mapping for invest form', () => {
       'Citizenship': formData.citizenship,
       'Investor Type': 'Individual',
       'Source of Funds': sourceOfFundsMap[formData.sourceOfFunds] || formData.sourceOfFunds,
-      'Is PEP': formData.isPep,
-      'Is US Citizen': formData.isUsCitizen,
+      'Is PEP': formData.isPep ? 'Yes' : 'No',
+      'Is US Citizen': formData.isUsCitizen ? 'Yes' : 'No',
       'US Tax ID': formData.usTaxId,
       'Signature Type': formData.signatureType === 'draw' ? 'Draw' : 'Type',
       'Signature Text': formData.signatureData,
-      'Declaration Accepted': formData.declarationAccepted,
-      'Accreditation Status': (formData.isPep || formData.isUsCitizen) ? 'Requires Review' : 'Pending',
+      'Declaration Accepted': formData.declarationAccepted ? 'Yes' : 'No',
+      'Accreditation Status': (formData.isPep === true || formData.isUsCitizen === true) ? 'Requires Review' : 'Pending',
       'Form Source': 'Investment Web Form',
       'Follow-Up Status': 'New',
     };
 
     // Accreditation criteria flags
-    if (formData.accreditationCriteria.includes('incomeIndividual')) fields['Income Individual 200K'] = true;
-    if (formData.accreditationCriteria.includes('netWorth')) fields['Net Worth 1M'] = true;
+    fields['Has Income Individual'] = formData.accreditationCriteria.includes('incomeIndividual') ? 'Yes' : 'No';
+    fields['Has Net Worth'] = formData.accreditationCriteria.includes('netWorth') ? 'Yes' : 'No';
 
     expect(fields['Full Name']).toBe('John Doe');
     expect(fields['Email']).toBe('john@example.com');
     expect(fields['Investment Range (USD)']).toBe('20,000-50,000');
     expect(fields['Source of Funds']).toBe('Salary');
-    expect(fields['Is US Citizen']).toBe(true);
+    expect(fields['Is US Citizen']).toBe('Yes');
     expect(fields['US Tax ID']).toBe('123-45-6789');
     expect(fields['Accreditation Status']).toBe('Requires Review'); // US citizen
-    expect(fields['Income Individual 200K']).toBe(true);
-    expect(fields['Net Worth 1M']).toBe(true);
+    expect(fields['Has Income Individual']).toBe('Yes');
+    expect(fields['Has Net Worth']).toBe('Yes');
     expect(fields['Signature Type']).toBe('Type');
     expect(fields['Signature Text']).toBe('John Doe'); // typed, not base64
     expect(fields['Investor Type']).toBe('Individual');
