@@ -357,13 +357,13 @@ export default function InvestPage({ lang }: InvestPageProps) {
         setKycStatus(result.status);
         if (result.status === 'verified' && result.profile) {
           prefillFormFromProfile(result.profile);
-          // Auto-scroll to investment form when KYC is approved
-          setCtaVisible(true);
-          setTimeout(() => {
-            const el = document.getElementById('invest');
-            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 200);
         }
+        // Auto-scroll to investment form when KYC completes (verified or rejected)
+        setCtaVisible(true);
+        setTimeout(() => {
+          const el = document.getElementById('invest');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 200);
         if (kycPollRef.current) clearInterval(kycPollRef.current);
       }
     }, 5000);
@@ -1069,8 +1069,8 @@ export default function InvestPage({ lang }: InvestPageProps) {
                 )}
               </div>
 
-              {/* Investment Form — only when KYC verified */}
-              {mounted && kycStatus === 'verified' && !submitted ? (
+              {/* Investment Form — visible after KYC is completed (any result) */}
+              {mounted && kycStatus !== 'not_started' && !submitted ? (
                 <form className="invest-form" onSubmit={handleFormSubmit} noValidate>
                   {/* Progress bar */}
                   <div className="form-progress">
