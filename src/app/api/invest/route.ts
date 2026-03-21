@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Accreditation status logic
-    const accreditationStatus = (isPep || isUsCitizen) ? 'Requires Review' : 'Pending';
+    const accreditationStatus = (isPep === true || isUsCitizen === true) ? 'Requires Review' : 'Pending';
 
     // Save to Lambda (RDS) and Airtable in parallel
     const [lambdaResult, airtableResult] = await Promise.allSettled([
@@ -57,41 +57,36 @@ export async function POST(req: NextRequest) {
         ...(address && { 'Address': address }),
         ...(citizenship && { 'Citizenship': citizenship }),
         ...(investorType && { 'Investor Type': ({ individual: 'Individual', joint: 'Joint', entity: 'Entity' } as Record<string, string>)[investorType as string] || investorType }),
-        // Accreditation
-        ...(accreditationCriteria?.includes('incomeIndividual') && { 'Income Individual 200K': true }),
-        ...(accreditationCriteria?.includes('incomeJoint') && { 'Income Joint 300K': true }),
-        ...(accreditationCriteria?.includes('netWorth') && { 'Net Worth 1M': true }),
-        ...(accreditationCriteria?.includes('professional') && { 'Professional Cert': true }),
-        ...(accreditationCriteria?.includes('insider') && { 'Company Insider': true }),
-        ...(accreditationCriteria?.includes('knowledgeable') && { 'Knowledgeable Employee': true }),
+        // Accreditation (Yes/No per question)
+        'Has Income Individual': hasIncomeIndividual ? 'Yes' : 'No',
+        'Has Income Joint': hasIncomeJoint ? 'Yes' : 'No',
+        'Has Net Worth': hasNetWorth ? 'Yes' : 'No',
+        'Has Professional Cert': hasProfessionalCert ? 'Yes' : 'No',
+        'Has Insider Status': hasInsiderStatus ? 'Yes' : 'No',
+        'Has Knowledgeable Employee': hasKnowledgeableEmployee ? 'Yes' : 'No',
+        'Invests With Spouse': investsWithSpouse ? 'Yes' : 'No',
         // Entity Accreditation
-        ...(entityCriteria?.includes('bank') && { 'Entity Financial Institution': true }),
-        ...(entityCriteria?.includes('benefitPlan') && { 'Entity Benefit Plan 5M': true }),
-        ...(entityCriteria?.includes('privateFund') && { 'Entity Private Fund 5M': true }),
-        ...(entityCriteria?.includes('familyOffice') && { 'Entity Family Office 5M': true }),
-        ...(entityCriteria?.includes('entityAssets') && { 'Entity Assets 5M': true }),
-        ...(entityCriteria?.includes('allAccredited') && { 'Entity All Accredited': true }),
+        ...(entityCriteria?.includes('bank') && { 'Entity Financial Institution': 'Yes' }),
+        ...(entityCriteria?.includes('benefitPlan') && { 'Entity Benefit Plan 5M': 'Yes' }),
+        ...(entityCriteria?.includes('privateFund') && { 'Entity Private Fund 5M': 'Yes' }),
+        ...(entityCriteria?.includes('familyOffice') && { 'Entity Family Office 5M': 'Yes' }),
+        ...(entityCriteria?.includes('entityAssets') && { 'Entity Assets 5M': 'Yes' }),
+        ...(entityCriteria?.includes('allAccredited') && { 'Entity All Accredited': 'Yes' }),
         // AML
         ...(sourceOfFunds && { 'Source of Funds': ({ salary: 'Salary', business: 'Business', investments: 'Investments', inheritance: 'Inheritance', savings: 'Savings', realEstate: 'Real Estate', other: 'Other' } as Record<string, string>)[sourceOfFunds as string] || sourceOfFunds }),
         ...(sourceOfFundsOther && { 'Source Other Detail': sourceOfFundsOther }),
-        'Is PEP': isPep || false,
+        'Is PEP': isPep ? 'Yes' : 'No',
         ...(pepDetails && { 'PEP Details': pepDetails }),
-        'Is US Citizen': isUsCitizen || false,
+        'Is US Citizen': isUsCitizen ? 'Yes' : 'No',
         ...(usTaxId && { 'US Tax ID': usTaxId }),
         // Signature & Status
         ...(signatureType && { 'Signature Type': signatureType === 'draw' ? 'Draw' : 'Type' }),
         ...(signatureData && !signatureData.startsWith('data:') && { 'Signature Text': signatureData }),
         ...(signatureData && signatureData.startsWith('data:') && { 'Signature Text': '[signature-pending-upload]' }),
-        'Declaration Accepted': declarationAccepted || false,
+        'Declaration Accepted': declarationAccepted ? 'Yes' : 'No',
         'Accreditation Status': accreditationStatus,
-        // Accreditation section answers
-        'Invests With Spouse': investsWithSpouse || false,
-        'Has Income Individual': hasIncomeIndividual || false,
-        'Has Income Joint': hasIncomeJoint || false,
-        'Has Net Worth': hasNetWorth || false,
-        'Has Professional Cert': hasProfessionalCert || false,
-        'Has Insider Status': hasInsiderStatus || false,
-        'Has Knowledgeable Employee': hasKnowledgeableEmployee || false,
+        // Legacy accreditation criteria array (for backwards compatibility)
+        ...(accreditationCriteria?.length > 0 && { 'Accreditation Criteria': accreditationCriteria.join(', ') }),
         'Form Source': 'Investment Web Form',
         'Follow-Up Status': 'New',
         'Submission Date': new Date().toISOString(),
