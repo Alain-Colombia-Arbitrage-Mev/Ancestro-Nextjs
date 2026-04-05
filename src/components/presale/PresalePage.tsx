@@ -38,6 +38,9 @@ function formatInt(n: number): string {
 // ═══════════════════════════════════════════════════
 
 export default function PresalePage({ lang }: { lang: string }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
   // ─── Countdown state ───
   const [countdown, setCountdown] = useState({ days: PRESALE.daysRemaining, hours: 0, minutes: 0, seconds: 0 });
 
@@ -239,21 +242,21 @@ export default function PresalePage({ lang }: { lang: string }) {
           {/* Countdown */}
           <div className="countdown-wrapper">
             <p className="countdown-label">{t(lang, 'presale.hero.countdownLabel')}</p>
-            <div className="countdown">
+            <div className="countdown" suppressHydrationWarning>
               <div className="countdown-item">
-                <span className="countdown-number">{pad(countdown.days)}</span>
+                <span className="countdown-number" suppressHydrationWarning>{mounted ? pad(countdown.days) : '--'}</span>
                 <span className="countdown-text">{t(lang, 'presale.hero.days')}</span>
               </div>
               <div className="countdown-item">
-                <span className="countdown-number">{pad(countdown.hours)}</span>
+                <span className="countdown-number" suppressHydrationWarning>{mounted ? pad(countdown.hours) : '--'}</span>
                 <span className="countdown-text">{t(lang, 'presale.hero.hours')}</span>
               </div>
               <div className="countdown-item">
-                <span className="countdown-number">{pad(countdown.minutes)}</span>
+                <span className="countdown-number" suppressHydrationWarning>{mounted ? pad(countdown.minutes) : '--'}</span>
                 <span className="countdown-text">{t(lang, 'presale.hero.minutes')}</span>
               </div>
               <div className="countdown-item">
-                <span className="countdown-number">{pad(countdown.seconds)}</span>
+                <span className="countdown-number" suppressHydrationWarning>{mounted ? pad(countdown.seconds) : '--'}</span>
                 <span className="countdown-text">{t(lang, 'presale.hero.seconds')}</span>
               </div>
             </div>
@@ -561,7 +564,7 @@ export default function PresalePage({ lang }: { lang: string }) {
               </div>
               <div className="buy-limits">
                 <span>{t(lang, 'presale.buy.min')}: ${PRESALE.minBuy} USD</span>
-                <span>{t(lang, 'presale.buy.max')}: ${PRESALE.maxBuy.toLocaleString()} USD</span>
+                <span>{t(lang, 'presale.buy.max')}: ${formatInt(PRESALE.maxBuy)} USD</span>
               </div>
             </div>
 
@@ -760,26 +763,26 @@ export default function PresalePage({ lang }: { lang: string }) {
             </div>
           </div>
 
-          <div className="bar-countdown">
+          <div className="bar-countdown" suppressHydrationWarning>
             <span className="bar-countdown-label">{t(lang, 'presale.bar.endsIn')}</span>
-            <div className="countdown-numbers">
+            <div className="countdown-numbers" suppressHydrationWarning>
               <div className="countdown-box">
-                <span className="countdown-box-value">{countdown.days}</span>
+                <span className="countdown-box-value" suppressHydrationWarning>{mounted ? countdown.days : '--'}</span>
                 <span className="countdown-unit">d</span>
               </div>
               <span className="countdown-sep">:</span>
               <div className="countdown-box">
-                <span className="countdown-box-value">{pad(countdown.hours)}</span>
+                <span className="countdown-box-value" suppressHydrationWarning>{mounted ? pad(countdown.hours) : '--'}</span>
                 <span className="countdown-unit">h</span>
               </div>
               <span className="countdown-sep">:</span>
               <div className="countdown-box">
-                <span className="countdown-box-value">{pad(countdown.minutes)}</span>
+                <span className="countdown-box-value" suppressHydrationWarning>{mounted ? pad(countdown.minutes) : '--'}</span>
                 <span className="countdown-unit">m</span>
               </div>
               <span className="countdown-sep">:</span>
               <div className="countdown-box">
-                <span className="countdown-box-value">{pad(countdown.seconds)}</span>
+                <span className="countdown-box-value" suppressHydrationWarning>{mounted ? pad(countdown.seconds) : '--'}</span>
                 <span className="countdown-unit">s</span>
               </div>
             </div>
