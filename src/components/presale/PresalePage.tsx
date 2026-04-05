@@ -452,7 +452,7 @@ export default function PresalePage({ lang }: { lang: string }) {
 
         <div className="staking-bonus-banner">
           <span className="bonus-icon-banner">&#x1F381;</span>
-          <span className="bonus-text">{t(lang, 'presale.staking.bonusBanner')}</span>
+          <span className="bonus-text" dangerouslySetInnerHTML={{ __html: t(lang, 'presale.staking.bonusBanner') }} />
         </div>
 
         <div className="staking-grid">
