@@ -255,7 +255,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
   useEffect(() => { setMounted(true); }, []);
 
   /* access gate */
-  const [unlocked, setUnlocked] = useState(true);
+  const [unlocked, setUnlocked] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && sessionStorage.getItem('invest_access') === '1') {
@@ -736,7 +736,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
     }
   };
 
-  /* Access gate disabled in AML branch — page always renders */
+  if (!unlocked) return <AccessGate onUnlock={() => setUnlocked(true)} />;
 
   return (
     <>
