@@ -22,8 +22,6 @@ export default function Navbar({ lang }: NavbarProps) {
     { label: t(lang, 'nav.vehicles'), href: '#vehicles', key: 'vehicles' },
     { label: t(lang, 'nav.team'), href: `/${lang}/team`, key: 'team' },
     { label: t(lang, 'nav.join'), href: `/${lang}/join`, key: 'join' },
-    { label: lang === 'es' ? 'Invertir' : 'Invest', href: `/${lang}/invest`, key: 'invest' },
-    { label: lang === 'es' ? 'Preventa' : 'Presale', href: `/${lang}/presale`, key: 'presale' },
     { label: t(lang, 'nav.waitlist'), href: `/${lang}/waitlist`, key: 'waitlist' },
     { label: t(lang, 'nav.contact'), href: `/${lang}/contact`, key: 'contact' },
   ];
