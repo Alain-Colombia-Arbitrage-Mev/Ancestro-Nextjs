@@ -363,6 +363,14 @@ export const translations = {
     'presale.vesting.noCliffDesc': 'No hay período de espera forzado. Comienza a recibir desde el día 1.',
     'presale.vesting.schedule': 'Cronograma de Vesting',
     'presale.vesting.totalReleased': 'Total liberado después de {months} meses',
+    'presale.vesting.highlight1Title': '15% al Listar',
+    'presale.vesting.highlight1Desc': 'Recibe el 15% de tus tokens inmediatamente cuando ANC se liste en exchanges.',
+    'presale.vesting.highlight2Title': '10 Meses Lineales',
+    'presale.vesting.highlight2Desc': 'El 85% restante se libera gradualmente cada mes. Predecible y transparente.',
+    'presale.vesting.highlight3Title': 'Sin Cliff Period',
+    'presale.vesting.highlight3Desc': 'No hay período de espera forzado. Comienza a recibir desde el día 1.',
+    'presale.vesting.timelineTitle': 'Cronograma de Vesting',
+    'presale.vesting.totalLabel': 'Total Liberado',
 
     // Staking Component UI
     'presale.staking.title': 'Gana Mientras Sostienes',
@@ -372,6 +380,9 @@ export const translations = {
     'presale.staking.apyBase': 'APY Base',
     'presale.staking.presaleBonus': '+{bonus}% Presale Bonus',
     'presale.staking.apyTotal': '= {apy}% APY Total',
+    'presale.staking.bonusBanner': 'Participantes del presale reciben <strong>+5% APY bonus</strong> durante el primer año',
+    'presale.staking.recommended': 'Recomendado',
+    'presale.staking.selectPlan': 'Seleccionar Plan',
 
     // Buy Form Component UI
     'presale.buy.title': 'Participa en el Presale',
@@ -391,6 +402,7 @@ export const translations = {
     'presale.buy.termsAnd': 'y',
     'presale.buy.privacyLink': 'Política de Privacidad',
     'presale.buy.buyButton': 'Comprar {token}',
+    'presale.buy.comingSoon': '¡Próximamente!',
 
     // Staking Calculator Component UI
     'presale.calculator.title': 'Calculadora de Recompensas',
@@ -402,6 +414,9 @@ export const translations = {
     'presale.calculator.monthlyReward': 'Recompensa Mensual',
     'presale.calculator.yearlyReward': 'Recompensa Anual',
     'presale.calculator.usdValue': 'Valor en USD (al precio actual)',
+    'presale.calculator.flexible': 'Flexible (17% APY con bonus)',
+    'presale.calculator.holder': 'Holder (23% APY con bonus)',
+    'presale.calculator.diamond': 'Diamond (33% APY con bonus)',
 
     // Buy Form Extended Info
     'presale.buy.secureTransaction': 'Transacción segura • Smart Contract auditado',
@@ -979,6 +994,14 @@ export const translations = {
     'presale.vesting.noCliffDesc': 'No forced waiting period. Start receiving from day 1.',
     'presale.vesting.schedule': 'Vesting Schedule',
     'presale.vesting.totalReleased': 'Total released after {months} months',
+    'presale.vesting.highlight1Title': '15% at Listing',
+    'presale.vesting.highlight1Desc': 'Receive 15% of your tokens immediately when ANC lists on exchanges.',
+    'presale.vesting.highlight2Title': '10 Linear Months',
+    'presale.vesting.highlight2Desc': 'The remaining 85% is released gradually each month. Predictable and transparent.',
+    'presale.vesting.highlight3Title': 'No Cliff Period',
+    'presale.vesting.highlight3Desc': 'No forced waiting period. Start receiving from day 1.',
+    'presale.vesting.timelineTitle': 'Vesting Schedule',
+    'presale.vesting.totalLabel': 'Total Released',
 
     // Staking Component UI
     'presale.staking.title': 'Earn While You Hold',
@@ -988,6 +1011,9 @@ export const translations = {
     'presale.staking.apyBase': 'Base APY',
     'presale.staking.presaleBonus': '+{bonus}% Presale Bonus',
     'presale.staking.apyTotal': '= {apy}% Total APY',
+    'presale.staking.bonusBanner': 'Presale participants receive <strong>+5% APY bonus</strong> during the first year',
+    'presale.staking.recommended': 'Recommended',
+    'presale.staking.selectPlan': 'Select Plan',
 
     // Buy Form Component UI
     'presale.buy.title': 'Participate in Presale',
@@ -1007,6 +1033,7 @@ export const translations = {
     'presale.buy.termsAnd': 'and',
     'presale.buy.privacyLink': 'Privacy Policy',
     'presale.buy.buyButton': 'Buy {token}',
+    'presale.buy.comingSoon': 'Coming soon!',
 
     // Staking Calculator Component UI
     'presale.calculator.title': 'Rewards Calculator',
@@ -1018,6 +1045,9 @@ export const translations = {
     'presale.calculator.monthlyReward': 'Monthly Reward',
     'presale.calculator.yearlyReward': 'Yearly Reward',
     'presale.calculator.usdValue': 'USD Value (at current price)',
+    'presale.calculator.flexible': 'Flexible (17% APY with bonus)',
+    'presale.calculator.holder': 'Holder (23% APY with bonus)',
+    'presale.calculator.diamond': 'Diamond (33% APY with bonus)',
 
     // Buy Form Extended Info
     'presale.buy.secureTransaction': 'Secure transaction • Audited Smart Contract',
@@ -1592,6 +1622,14 @@ export const translations = {
     'presale.vesting.noCliffDesc': 'Sem período de espera forçado. Comece a receber desde o dia 1.',
     'presale.vesting.schedule': 'Cronograma de Vesting',
     'presale.vesting.totalReleased': 'Total liberado após {months} meses',
+    'presale.vesting.highlight1Title': '15% na Listagem',
+    'presale.vesting.highlight1Desc': 'Receba 15% dos seus tokens imediatamente quando ANC for listado em exchanges.',
+    'presale.vesting.highlight2Title': '10 Meses Lineares',
+    'presale.vesting.highlight2Desc': 'Os 85% restantes são liberados gradualmente a cada mês. Previsível e transparente.',
+    'presale.vesting.highlight3Title': 'Sem Período Cliff',
+    'presale.vesting.highlight3Desc': 'Sem período de espera forçado. Comece a receber desde o dia 1.',
+    'presale.vesting.timelineTitle': 'Cronograma de Vesting',
+    'presale.vesting.totalLabel': 'Total Liberado',
 
     // Staking Component UI
     'presale.staking.title': 'Ganhe Enquanto Mantém',
@@ -1601,6 +1639,9 @@ export const translations = {
     'presale.staking.apyBase': 'APY Base',
     'presale.staking.presaleBonus': '+{bonus}% Bônus Presale',
     'presale.staking.apyTotal': '= {apy}% APY Total',
+    'presale.staking.bonusBanner': 'Participantes do presale recebem <strong>+5% de bônus APY</strong> durante o primeiro ano',
+    'presale.staking.recommended': 'Recomendado',
+    'presale.staking.selectPlan': 'Selecionar Plano',
 
     // Buy Form Component UI
     'presale.buy.title': 'Participe do Presale',
@@ -1620,6 +1661,7 @@ export const translations = {
     'presale.buy.termsAnd': 'e',
     'presale.buy.privacyLink': 'Política de Privacidade',
     'presale.buy.buyButton': 'Comprar {token}',
+    'presale.buy.comingSoon': 'Em breve!',
 
     // Staking Calculator Component UI
     'presale.calculator.title': 'Calculadora de Recompensas',
@@ -1631,6 +1673,9 @@ export const translations = {
     'presale.calculator.monthlyReward': 'Recompensa Mensal',
     'presale.calculator.yearlyReward': 'Recompensa Anual',
     'presale.calculator.usdValue': 'Valor em USD (ao preço atual)',
+    'presale.calculator.flexible': 'Flexível (17% APY com bônus)',
+    'presale.calculator.holder': 'Holder (23% APY com bônus)',
+    'presale.calculator.diamond': 'Diamond (33% APY com bônus)',
 
     // Buy Form Extended Info
     'presale.buy.secureTransaction': 'Transação segura • Smart Contract auditado',
@@ -2208,6 +2253,14 @@ export const translations = {
     'presale.vesting.noCliffDesc': '无强制等待期。从第1天开始接收。',
     'presale.vesting.schedule': '释放时间表',
     'presale.vesting.totalReleased': '{months}个月后总释放量',
+    'presale.vesting.highlight1Title': '上市时释放15%',
+    'presale.vesting.highlight1Desc': '当ANC在交易所上市时，立即收到15%的代币。',
+    'presale.vesting.highlight2Title': '10个月线性释放',
+    'presale.vesting.highlight2Desc': '剩余的85%每月逐步释放。可预测且透明。',
+    'presale.vesting.highlight3Title': '无锁定期',
+    'presale.vesting.highlight3Desc': '无强制等待期。从第1天开始接收。',
+    'presale.vesting.timelineTitle': '释放时间表',
+    'presale.vesting.totalLabel': '总释放量',
 
     // Staking Component UI
     'presale.staking.title': '持有即可赚取',
@@ -2217,6 +2270,9 @@ export const translations = {
     'presale.staking.apyBase': '基础APY',
     'presale.staking.presaleBonus': '+{bonus}%预售奖金',
     'presale.staking.apyTotal': '= {apy}%总APY',
+    'presale.staking.bonusBanner': '预售参与者在第一年获得<strong>+5% APY奖金</strong>',
+    'presale.staking.recommended': '推荐',
+    'presale.staking.selectPlan': '选择计划',
 
     // Buy Form Component UI
     'presale.buy.title': '参与预售',
@@ -2236,6 +2292,7 @@ export const translations = {
     'presale.buy.termsAnd': '和',
     'presale.buy.privacyLink': '隐私政策',
     'presale.buy.buyButton': '购买{token}',
+    'presale.buy.comingSoon': '即将推出！',
 
     // Staking Calculator Component UI
     'presale.calculator.title': '奖励计算器',
@@ -2247,6 +2304,9 @@ export const translations = {
     'presale.calculator.monthlyReward': '月度奖励',
     'presale.calculator.yearlyReward': '年度奖励',
     'presale.calculator.usdValue': 'USD价值（按当前价格）',
+    'presale.calculator.flexible': '灵活（17% APY含奖金）',
+    'presale.calculator.holder': '持有者（23% APY含奖金）',
+    'presale.calculator.diamond': '钻石（33% APY含奖金）',
 
     // Buy Form Extended Info
     'presale.buy.secureTransaction': '安全交易 • 已审计的智能合约',
@@ -2824,6 +2884,14 @@ export const translations = {
     'presale.vesting.noCliffDesc': 'لا توجد فترة انتظار إجبارية. ابدأ الاستلام من اليوم الأول.',
     'presale.vesting.schedule': 'جدول الاستحقاق',
     'presale.vesting.totalReleased': 'المجموع المُصدر بعد {months} شهر',
+    'presale.vesting.highlight1Title': '15% عند الإدراج',
+    'presale.vesting.highlight1Desc': 'احصل على 15% من رموزك فوراً عند إدراج ANC في البورصات.',
+    'presale.vesting.highlight2Title': '10 أشهر خطية',
+    'presale.vesting.highlight2Desc': 'يتم إصدار 85% المتبقية تدريجياً كل شهر. قابل للتنبؤ وشفاف.',
+    'presale.vesting.highlight3Title': 'بدون فترة حظر',
+    'presale.vesting.highlight3Desc': 'لا توجد فترة انتظار إجبارية. ابدأ الاستلام من اليوم الأول.',
+    'presale.vesting.timelineTitle': 'جدول الاستحقاق',
+    'presale.vesting.totalLabel': 'إجمالي المُصدر',
 
     // Staking Component UI
     'presale.staking.title': 'اربح أثناء الاحتفاظ',
@@ -2833,6 +2901,9 @@ export const translations = {
     'presale.staking.apyBase': 'APY الأساسي',
     'presale.staking.presaleBonus': '+{bonus}% مكافأة البيع المسبق',
     'presale.staking.apyTotal': '= {apy}% إجمالي APY',
+    'presale.staking.bonusBanner': 'يحصل المشاركون في البيع المسبق على <strong>+5% مكافأة APY</strong> خلال السنة الأولى',
+    'presale.staking.recommended': 'موصى به',
+    'presale.staking.selectPlan': 'اختر الخطة',
 
     // Buy Form Component UI
     'presale.buy.title': 'شارك في البيع المسبق',
@@ -2852,6 +2923,7 @@ export const translations = {
     'presale.buy.termsAnd': 'و',
     'presale.buy.privacyLink': 'سياسة الخصوصية',
     'presale.buy.buyButton': 'شراء {token}',
+    'presale.buy.comingSoon': 'قريباً!',
 
     // Staking Calculator Component UI
     'presale.calculator.title': 'حاسبة المكافآت',
@@ -2863,6 +2935,9 @@ export const translations = {
     'presale.calculator.monthlyReward': 'المكافأة الشهرية',
     'presale.calculator.yearlyReward': 'المكافأة السنوية',
     'presale.calculator.usdValue': 'القيمة بالدولار (بالسعر الحالي)',
+    'presale.calculator.flexible': 'مرن (17% APY مع المكافأة)',
+    'presale.calculator.holder': 'حامل (23% APY مع المكافأة)',
+    'presale.calculator.diamond': 'ماسي (33% APY مع المكافأة)',
 
     // Buy Form Extended Info
     'presale.buy.secureTransaction': 'معاملة آمنة • عقد ذكي مدقق',
