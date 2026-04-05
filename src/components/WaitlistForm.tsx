@@ -142,12 +142,12 @@ export default function WaitlistForm({ lang }: WaitlistFormProps) {
                 <div className="wl-success-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/><path d="M8 12l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></div>
                 <h3>{t(lang, 'waitlist.success.title')}</h3>
                 <p>{t(lang, 'waitlist.success.message')}</p>
-                <div className="wl-position-badge">{t(lang, 'waitlist.success.position')}: <span>#{Math.floor(Math.random() * 500 + 12848).toLocaleString()}</span></div>
+                <div className="wl-position-badge">{t(lang, 'waitlist.success.position')}: <span>#13,248</span></div>
               </div>
             )}
 
             <div className="waitlist-counter" ref={counterRef}>
-              <span className="counter-number">{counter.toLocaleString()}</span>
+              <span className="counter-number">{counter.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</span>
               <span className="counter-label">{t(lang, 'waitlist.counter')}</span>
             </div>
           </div>

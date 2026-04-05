@@ -149,7 +149,7 @@ export default function DashboardPanel({ lang }: DashboardPanelProps) {
           </div>
           <h1 className="dp-welcome">{t(lang, 'dashboard.welcome')}, <span className="dp-name">{user.name}</span></h1>
           <p className="dp-email">{user.email}</p>
-          <p className="dp-meta">{t(lang, 'dashboard.member')}: {new Date(user.createdAt).toLocaleDateString()}</p>
+          <p className="dp-meta">{t(lang, 'dashboard.member')}: {new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' })}</p>
         </div>
 
         {/* Actions */}

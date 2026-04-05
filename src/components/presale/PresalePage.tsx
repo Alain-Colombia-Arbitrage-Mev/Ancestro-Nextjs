@@ -561,7 +561,7 @@ export default function PresalePage({ lang }: { lang: string }) {
               </div>
               <div className="buy-limits">
                 <span>{t(lang, 'presale.buy.min')}: ${PRESALE.minBuy} USD</span>
-                <span>{t(lang, 'presale.buy.max')}: ${PRESALE.maxBuy.toLocaleString()} USD</span>
+                <span>{t(lang, 'presale.buy.max')}: ${formatInt(PRESALE.maxBuy)} USD</span>
               </div>
             </div>
 
