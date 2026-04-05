@@ -29,6 +29,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(`/${locale}${pathname}`, request.url));
   }
 
+  const allowedPaths = ['/presale', '/login', '/register', '/verify', '/forgot-password', '/reset-password'];
+  const localePrefix = pathname.split('/')[1];
+  const pathWithoutLocale = pathname.replace(`/${localePrefix}`, '') || '/';
+
+  if (pathnameHasLocale && !allowedPaths.includes(pathWithoutLocale)) {
+    return NextResponse.redirect(new URL(`/${localePrefix}/presale`, request.url));
+  }
+
   return NextResponse.next();
 }
 
