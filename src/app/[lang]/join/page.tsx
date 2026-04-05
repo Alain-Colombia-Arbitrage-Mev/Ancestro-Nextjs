@@ -2,6 +2,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import JoinPanel from '@/components/JoinPanel';
 import { t } from '@/i18n/translations';
+import { CDN_URL } from '@/lib/cdn';
 import type { Metadata } from 'next';
 
 interface PageProps { params: Promise<{ lang: string }> }
@@ -22,7 +23,7 @@ export default async function JoinPage({ params }: PageProps) {
       <main id="main-content" role="main">
         <JoinPanel lang={lang} />
       </main>
-      <Footer lang={lang} backgroundImage={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/images/footer-bg.webp`} />
+      <Footer lang={lang} backgroundImage={`${CDN_URL}/images/footer-bg.webp`} />
     </div>
   );
 }

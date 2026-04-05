@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { fetchKycStatus, markKycPending, type KycStatus, type KycProfile } from '@/lib/kyc';
 import MetaMapButton from '@/components/kyc/MetaMapButton';
+import { CDN_URL } from '@/lib/cdn';
 
 
 interface InvestPageProps {
@@ -120,7 +121,7 @@ function AccessGate({ onUnlock }: { onUnlock: () => void }) {
       <div className="access-gate">
         <div className="access-gate-inner">
           <div className="access-gate-logo">
-            <img src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/logo.svg`} alt="Ancestro" width={160} height={32} />
+            <img src={`${CDN_URL}/logo.svg`} alt="Ancestro" width={160} height={32} />
           </div>
           <div className="access-gate-lock">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">

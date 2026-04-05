@@ -7,12 +7,13 @@ import LATAMSection from '@/components/LATAMSection';
 import ShopSection from '@/components/ShopSection';
 import Footer from '@/components/Footer';
 import { t } from '@/i18n/translations';
+import { CDN_URL } from '@/lib/cdn';
 
 interface PageProps { params: Promise<{ lang: string }> }
 
 export default async function HomePage({ params }: PageProps) {
   const { lang } = await params;
-  const cdn = process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
+  const cdn = CDN_URL;
 
   const images = {
     heroBg: `${cdn}/1.webp`,

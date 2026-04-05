@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/lib/auth-context';
+import { CDN_URL } from '@/lib/cdn';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
   title: { default: 'Ancestro', template: '%s | Ancestro' },
   description: "Join LATAM's fastest growing solar + battery subscription network. $0 upfront, day-one savings, available in 18 countries.",
   metadataBase: new URL('https://ancestro.ai'),
-  icons: { icon: `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/favicon.png`, apple: `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/favicon.png` },
+  icons: { icon: `${CDN_URL}/favicon.png`, apple: `${CDN_URL}/favicon.png` },
   openGraph: {
     siteName: 'Ancestro',
     locale: 'es_LA',

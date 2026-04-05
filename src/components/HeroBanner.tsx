@@ -2,7 +2,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 
-const CDN = process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
+import { CDN_URL } from '@/lib/cdn';
+const CDN = CDN_URL;
 
 interface Slide {
   type: 'image' | 'video';

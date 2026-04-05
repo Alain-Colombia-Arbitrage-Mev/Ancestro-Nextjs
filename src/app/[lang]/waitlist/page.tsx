@@ -1,6 +1,7 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WaitlistForm from '@/components/WaitlistForm';
+import { CDN_URL } from '@/lib/cdn';
 
 interface PageProps { params: Promise<{ lang: string }> }
 
@@ -12,7 +13,7 @@ export default async function WaitlistPage({ params }: PageProps) {
       <main id="main-content" role="main">
         <WaitlistForm lang={lang} />
       </main>
-      <Footer lang={lang} backgroundImage={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/images/footer-bg.webp`} />
+      <Footer lang={lang} backgroundImage={`${CDN_URL}/images/footer-bg.webp`} />
     </div>
   );
 }

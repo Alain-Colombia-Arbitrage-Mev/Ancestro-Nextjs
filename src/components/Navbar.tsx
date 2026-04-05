@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { t } from '@/i18n/translations';
 import { useAuth } from '@/lib/auth-context';
+import { CDN_URL } from '@/lib/cdn';
 
 interface NavbarProps {
   lang: string;
@@ -79,7 +80,7 @@ export default function Navbar({ lang }: NavbarProps) {
       <nav className="navbar">
         <div className="navbar-inner">
           <Link href={`/${lang}`} className="logo">
-            <img src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/logo.svg`} alt="Ancestro Logo" className="logo-img" width={200} height={40} />
+            <img src={`${CDN_URL}/logo.svg`} alt="Ancestro Logo" className="logo-img" width={200} height={40} />
           </Link>
 
           {/* Desktop Navigation */}

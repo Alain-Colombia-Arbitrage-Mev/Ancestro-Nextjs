@@ -1,6 +1,7 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import InvestPage from '@/components/invest/InvestPage';
+import { CDN_URL } from '@/lib/cdn';
 
 interface PageProps {
   params: Promise<{ lang: string }>;
@@ -16,7 +17,7 @@ export default async function InvestRoute({ params }: PageProps) {
         <main id="main-content">
           <InvestPage lang={lang} />
         </main>
-        <Footer lang={lang} backgroundImage={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/images/footer-bg.webp`} />
+        <Footer lang={lang} backgroundImage={`${CDN_URL}/images/footer-bg.webp`} />
       </div>
 
       <style>{`

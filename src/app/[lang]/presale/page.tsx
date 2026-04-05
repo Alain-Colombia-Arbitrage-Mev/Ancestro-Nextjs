@@ -2,6 +2,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PresalePage from '@/components/presale/PresalePage';
 import { t } from '@/i18n/translations';
+import { CDN_URL } from '@/lib/cdn';
 import type { Metadata } from 'next';
 
 interface PageProps { params: Promise<{ lang: string }> }
@@ -22,7 +23,7 @@ export default async function Presale({ params }: PageProps) {
       <main id="main-content" role="main" style={{ paddingTop: '79px' }}>
         <PresalePage lang={lang} />
       </main>
-      <Footer lang={lang} backgroundImage={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/images/footer-bg.webp`} />
+      <Footer lang={lang} backgroundImage={`${CDN_URL}/images/footer-bg.webp`} />
 
       <style>{`
         .presale-page{background-color:var(--color-black);min-height:100vh}

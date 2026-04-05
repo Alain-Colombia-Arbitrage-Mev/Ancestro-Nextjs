@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { getAuthErrorMessage, cognitoConfirmNewPassword, getCognitoToken, getCognitoUser } from '@/lib/auth';
 import { t } from '@/i18n/translations';
+import { CDN_URL } from '@/lib/cdn';
 
 interface LoginFormProps {
   lang: string;
@@ -173,7 +174,7 @@ export default function LoginForm({ lang }: LoginFormProps) {
 
       <div className="lf-card">
         <Link href={`/${lang}`} className="lf-logo">
-          <img src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/logo.svg`} alt="Ancestro" width={140} height={28} />
+          <img src={`${CDN_URL}/logo.svg`} alt="Ancestro" width={140} height={28} />
         </Link>
 
         <div className="lf-header">

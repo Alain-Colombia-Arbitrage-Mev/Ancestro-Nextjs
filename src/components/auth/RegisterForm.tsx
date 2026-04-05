@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth-context';
 import { cognitoSignUp, getAuthErrorMessage } from '@/lib/auth';
 import { configureAmplify } from '@/lib/amplify';
 import { t } from '@/i18n/translations';
+import { CDN_URL } from '@/lib/cdn';
 
 interface RegisterFormProps {
   lang: string;
@@ -110,7 +111,7 @@ export default function RegisterForm({ lang }: RegisterFormProps) {
 
       <div className="rf-card">
         <Link href={`/${lang}`} className="rf-logo">
-          <img src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/logo.svg`} alt="Ancestro" width={140} height={28} />
+          <img src={`${CDN_URL}/logo.svg`} alt="Ancestro" width={140} height={28} />
         </Link>
 
         <div className="rf-header">

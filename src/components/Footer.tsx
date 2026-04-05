@@ -1,13 +1,14 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { t } from '@/i18n/translations';
+import { CDN_URL } from '@/lib/cdn';
 
 interface FooterProps {
   lang: string;
   backgroundImage?: string;
 }
 
-const FOOTER_BG = `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/images/footer-bg.webp`;
+const FOOTER_BG = `${CDN_URL}/images/footer-bg.webp`;
 
 export default function Footer({ lang, backgroundImage }: FooterProps) {
   const bg = backgroundImage || FOOTER_BG;
@@ -50,7 +51,7 @@ export default function Footer({ lang, backgroundImage }: FooterProps) {
             <div className="footer-top">
               <div className="footer-brand">
                 <Link href={`/${lang}`} className="footer-logo">
-                  <img src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/logo.svg`} alt="Ancestro" className="footer-logo-img" />
+                  <img src={`${CDN_URL}/logo.svg`} alt="Ancestro" className="footer-logo-img" />
                 </Link>
                 <p className="footer-tagline">{t(lang, 'footer.tagline')}</p>
                 <div className="social-links">
