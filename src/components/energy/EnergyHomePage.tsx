@@ -54,43 +54,6 @@ const latamFlags = [
   'chile', 'argentina', 'bolivia', 'belize', 'ecuador', 'paraguay'
 ];
 
-// Icon components
-function IconPin() {
-  return (
-    <svg width="52" height="74" viewBox="0 0 52 74" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M26 0C11.64 0 0 11.64 0 26c0 19.5 26 48 26 48s26-28.5 26-48C52 11.64 40.36 0 26 0z" fill="#a3a3a3"/>
-      <circle cx="26" cy="26" r="13" fill="#f8b03b"/>
-    </svg>
-  );
-}
-
-function IconSolar() {
-  return (
-    <svg width="74" height="74" viewBox="0 0 74 74" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="6" y="22" width="68" height="52" rx="2" fill="#a3a3a3"/>
-      <circle cx="15" cy="15" r="8" fill="#f8b03b"/>
-      <rect x="13" y="0" width="4" height="6" rx="1" fill="#f8b03b"/>
-      <rect x="13" y="24" width="4" height="6" rx="1" fill="#f8b03b"/>
-      <rect x="0" y="13" width="6" height="4" rx="1" fill="#f8b03b"/>
-      <rect x="24" y="13" width="6" height="4" rx="1" fill="#f8b03b"/>
-      <rect x="3" y="3" width="5" height="5" rx="1" transform="rotate(-45 3 3)" fill="#f8b03b"/>
-      <rect x="22" y="3" width="5" height="5" rx="1" transform="rotate(45 22 3)" fill="#f8b03b"/>
-      <rect x="3" y="22" width="5" height="5" rx="1" transform="rotate(45 3 22)" fill="#f8b03b"/>
-      <rect x="22" y="22" width="5" height="5" rx="1" transform="rotate(-45 22 22)" fill="#f8b03b"/>
-    </svg>
-  );
-}
-
-function IconHelmet() {
-  return (
-    <svg width="93" height="74" viewBox="0 0 93 74" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M46.5 8C25.2 8 8 25.2 8 46.5c0 6 3 10 6 10h65c3 0 6-4 6-10C85 25.2 67.8 8 46.5 8z" fill="#a3a3a3"/>
-      <path d="M46.5 64H6c-2 0-4 2-4 4s2 6 4 6h81c2 0 4-3 4-6s-2-4-4-4H46.5z" fill="#a3a3a3"/>
-      <path d="M73 8l6 30-2 1-6-29 2-2z" fill="#f8b03b" transform="rotate(-21 76 23)"/>
-      <path d="M30 36l6 30-2 1-6-29 2-2z" fill="#f8b03b" transform="rotate(-158 33 51)"/>
-    </svg>
-  );
-}
 
 export default function EnergyHomePage({ lang }: Props) {
   const [activeFlow, setActiveFlow] = useState(0);
@@ -127,9 +90,9 @@ export default function EnergyHomePage({ lang }: Props) {
 
       {/* CLEAN ENERGY HEADLINE */}
       <section className="eh-section eh-clean">
-        <div className="eh-container">
-          <h2 className="eh-h2">{t(lang, 'energyHome.clean.title')}</h2>
-          <p className="eh-lead">{t(lang, 'energyHome.clean.desc')}</p>
+        <div className="eh-container eh-clean-inner">
+          <h2 className="eh-clean-title">{t(lang, 'energyHome.clean.title')}</h2>
+          <p className="eh-clean-desc">{t(lang, 'energyHome.clean.desc')}</p>
         </div>
       </section>
 
@@ -291,33 +254,40 @@ export default function EnergyHomePage({ lang }: Props) {
 
       {/* LATAM SECTION WITH FLAGS + ICONS */}
       <section className="eh-section eh-latam">
-        <img src={`${IMG}/latam-map-bg.webp`} alt="" className="eh-fullbg" />
-        <div className="eh-latam-overlay" />
+        <img src={`${IMG}/latam-map-full.webp`} alt="" className="eh-fullbg" />
         <div className="eh-container eh-latam-content">
-          <h2 className="eh-h2 eh-h2-center">{t(lang, 'energyHome.latam.title')}</h2>
-          <p className="eh-muted eh-muted-center">{t(lang, 'energyHome.latam.desc')}</p>
-          <div className="eh-flags">
-            {latamFlags.map((flag) => (
-              <div key={flag} className="eh-flag">
-                <img src={`${FLAGS}/${flag}.png`} alt={flag} loading="lazy" />
-              </div>
-            ))}
+          <div className="eh-latam-header">
+            <h2 className="eh-latam-title">{t(lang, 'energyHome.latam.title')}</h2>
+            <p className="eh-latam-desc">{t(lang, 'energyHome.latam.desc')}</p>
+            <div className="eh-flags">
+              {latamFlags.map((flag) => (
+                <div key={flag} className="eh-flag">
+                  <img src={`${FLAGS}/${flag}.png`} alt={flag} loading="lazy" />
+                </div>
+              ))}
+            </div>
           </div>
           <div className="eh-stats">
             <div className="eh-stat">
-              <div className="eh-stat-icon"><IconPin /></div>
-              <span className="eh-stat-num">18+</span>
-              <span className="eh-stat-label">{t(lang, 'energyHome.latam.countries')}</span>
+              <div className="eh-stat-icon"><img src={`${IMG}/icon-pin.webp`} alt="" /></div>
+              <div className="eh-stat-body">
+                <span className="eh-stat-num">18+</span>
+                <span className="eh-stat-label">{t(lang, 'energyHome.latam.countries')}</span>
+              </div>
             </div>
             <div className="eh-stat">
-              <div className="eh-stat-icon"><IconSolar /></div>
-              <span className="eh-stat-num">25,000+</span>
-              <span className="eh-stat-label">{t(lang, 'energyHome.latam.installations')}</span>
+              <div className="eh-stat-icon"><img src={`${IMG}/icon-solar.webp`} alt="" /></div>
+              <div className="eh-stat-body">
+                <span className="eh-stat-num">25,000+</span>
+                <span className="eh-stat-label">{t(lang, 'energyHome.latam.installations')}</span>
+              </div>
             </div>
             <div className="eh-stat">
-              <div className="eh-stat-icon"><IconHelmet /></div>
-              <span className="eh-stat-num">500+</span>
-              <span className="eh-stat-label">{t(lang, 'energyHome.latam.installers')}</span>
+              <div className="eh-stat-icon"><img src={`${IMG}/icon-helmet.webp`} alt="" /></div>
+              <div className="eh-stat-body">
+                <span className="eh-stat-num">500+</span>
+                <span className="eh-stat-label">{t(lang, 'energyHome.latam.installers')}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -370,8 +340,10 @@ export default function EnergyHomePage({ lang }: Props) {
         .eh-hero-cta-wrap{margin-top:auto}
 
         /* CLEAN SECTION */
-        .eh-clean{text-align:center;padding:140px 0 80px}
-        .eh-clean .eh-h2{max-width:1100px;margin-left:auto;margin-right:auto;text-align:center}
+        .eh-clean{padding:140px 0 80px}
+        .eh-clean-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding:60px 24px;max-width:1200px}
+        .eh-clean-title{font-family:Inter,sans-serif;font-size:clamp(32px,4vw,48px);font-weight:700;line-height:1.1;letter-spacing:-0.02em;color:#fff;text-align:center;margin:0;max-width:1100px}
+        .eh-clean-desc{font-family:Inter,sans-serif;font-size:clamp(15px,1.4vw,18px);font-weight:300;line-height:1.6;color:#b0b0b0;text-align:center;margin:0;max-width:1162px;white-space:pre-line}
 
         /* SWITCHING TO ANCESTRO */
         .eh-switching{padding:80px 0 100px}
@@ -456,19 +428,22 @@ export default function EnergyHomePage({ lang }: Props) {
         .eh-install-image img{max-width:440px;width:100%;height:auto;filter:drop-shadow(0 30px 60px rgba(0,0,0,0.6))}
 
         /* LATAM */
-        .eh-latam{position:relative;padding:140px 0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+        .eh-latam{position:relative;min-height:961px;padding:84px 0 80px;display:flex;align-items:center;justify-content:center;overflow:hidden}
         .eh-latam .eh-fullbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
-        .eh-latam-overlay{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,0,0,0.25) 0%,rgba(0,0,0,0.75) 60%,rgba(0,0,0,0.92) 100%)}
-        .eh-latam-content{position:relative;z-index:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;width:100%}
-        .eh-latam-content .eh-muted{max-width:640px}
-        .eh-flags{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;max-width:720px;margin:20px auto 30px}
+        .eh-latam-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:40px;width:100%;max-width:1148px;padding:10px 24px;min-height:850px}
+        .eh-latam-header{display:flex;flex-direction:column;align-items:center;gap:28px;text-align:center}
+        .eh-latam-title{font-family:Inter,sans-serif;font-size:clamp(26px,3vw,34px);font-weight:500;color:#fff;margin:0;letter-spacing:-0.01em}
+        .eh-latam-desc{font-family:Inter,sans-serif;font-size:clamp(15px,1.4vw,18px);font-weight:400;color:#a3a3a3;margin:0;text-align:center;max-width:720px}
+        .eh-flags{display:flex;flex-wrap:wrap;justify-content:center;gap:21px;max-width:634px;margin:0}
         .eh-flag{width:40px;height:27px;border-radius:6px;overflow:hidden;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.4)}
         .eh-flag img{width:100%;height:100%;object-fit:cover;display:block}
-        .eh-stats{display:flex;justify-content:center;align-items:stretch;gap:24px;margin-top:40px;flex-wrap:wrap;width:100%;max-width:1000px}
-        .eh-stat{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:40px 32px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.1);border-radius:16px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);flex:1 1 240px;max-width:300px;min-height:220px}
-        .eh-stat-icon{display:flex;align-items:center;justify-content:center;height:74px}
-        .eh-stat-num{font-size:clamp(32px,3.5vw,44px);font-weight:700;color:var(--color-white);line-height:1;letter-spacing:-0.02em}
-        .eh-stat-label{font-size:14px;color:rgba(255,255,255,0.7);text-align:center}
+        .eh-stats{display:flex;justify-content:center;align-items:stretch;gap:41px;width:100%;max-width:1148px}
+        .eh-stat{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;padding:50px;background:rgba(255,255,255,0.012);border:1px solid rgba(255,255,255,0.1);border-radius:10px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);flex:1 1 0;min-width:0}
+        .eh-stat-icon{display:flex;align-items:center;justify-content:center;height:74px;flex-shrink:0}
+        .eh-stat-icon img{height:74px;width:auto;object-fit:contain}
+        .eh-stat-body{display:flex;flex-direction:column;align-items:center;gap:10px}
+        .eh-stat-num{font-family:Inter,sans-serif;font-size:clamp(32px,3vw,40px);font-weight:600;color:#fff;line-height:1;letter-spacing:-0.02em}
+        .eh-stat-label{font-family:Inter,sans-serif;font-size:14px;font-weight:400;color:#a3a3a3;text-align:center}
 
         /* FINAL CTA */
         .eh-finalcta{position:relative;min-height:560px;padding:140px 0;display:flex;align-items:center;overflow:hidden}
