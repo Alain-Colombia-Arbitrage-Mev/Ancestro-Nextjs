@@ -29,8 +29,8 @@ interface MegaMenuData {
 const megaMenuData: Record<string, MegaMenuData> = {
   energy: {
     cards: [
-      { title: 'Home', image: `${CDN_URL}/megamenu/energy-home.png`, href: '#energy-home' },
-      { title: 'Business', image: `${CDN_URL}/megamenu/energy-business.png`, href: '#energy-business' },
+      { title: 'Home', image: `${CDN_URL}/megamenu/energy-home.png`, href: '/LANG/energy/home' },
+      { title: 'Business', image: `${CDN_URL}/megamenu/energy-business.png`, href: '/LANG/energy/business' },
     ],
     links: [
       { label: 'Get a Proposal', href: '#proposal' },
@@ -306,7 +306,7 @@ export default function Navbar({ lang }: NavbarProps) {
             <div className="megamenu-content">
               <div className="megamenu-cards">
                 {currentMegaMenu.cards.map((card) => (
-                  <a key={card.title} href={card.href} className="megamenu-card">
+                  <a key={card.title} href={card.href.replace('/LANG/', `/${lang}/`)} className="megamenu-card">
                     <div className="megamenu-card-image">
                       <img src={card.image} alt={card.title} loading="lazy" />
                     </div>
@@ -362,7 +362,7 @@ export default function Navbar({ lang }: NavbarProps) {
                       <div className="mobile-nav-panel">
                         <div className="mobile-nav-cards">
                           {menuData.cards.map((card) => (
-                            <a key={card.title} href={card.href} className="mobile-nav-card" onClick={closeMenu}>
+                            <a key={card.title} href={card.href.replace('/LANG/', `/${lang}/`)} className="mobile-nav-card" onClick={closeMenu}>
                               <div className="mobile-nav-card-image">
                                 <img src={card.image} alt={card.title} loading="lazy" />
                               </div>
