@@ -6,23 +6,97 @@ import { CDN_URL } from '@/lib/cdn';
 interface Props { lang: string }
 
 const IMG = `${CDN_URL}/energy-home`;
+const FLAGS = `${CDN_URL}/images/flags`;
 
 const energyFlowSteps = [
-  { key: 'generate', titleKey: 'energyHome.flow.generate.title', descKey: 'energyHome.flow.generate.desc' },
+  { key: 'wifi', titleKey: 'energyHome.flow.wifi.title', descKey: 'energyHome.flow.wifi.desc' },
   { key: 'use', titleKey: 'energyHome.flow.use.title', descKey: 'energyHome.flow.use.desc' },
   { key: 'store', titleKey: 'energyHome.flow.store.title', descKey: 'energyHome.flow.store.desc' },
   { key: 'charge', titleKey: 'energyHome.flow.charge.title', descKey: 'energyHome.flow.charge.desc' },
 ];
 
+const switchingCards = [
+  { key: 'noUpfront', titleKey: 'energyHome.switching.noUpfront' },
+  { key: 'easy', titleKey: 'energyHome.switching.easy' },
+  { key: 'lower', titleKey: 'energyHome.switching.lower' },
+  { key: 'backup', titleKey: 'energyHome.switching.backup' },
+];
+
+const plans = [
+  { key: 'solar', image: 'plan-solar.webp', tagline: 'plan.solar.tagline' },
+  { key: 'battery', image: 'plan-battery.webp', tagline: 'plan.battery.tagline' },
+  { key: 'bundle', image: 'plan-bundle.webp', tagline: 'plan.bundle.tagline', featured: true },
+];
+
+const solarFeatures = [
+  { key: 'aesthetic', titleKey: 'energyHome.solarFeat.aesthetic.title', descKey: 'energyHome.solarFeat.aesthetic.desc' },
+  { key: 'weather', titleKey: 'energyHome.solarFeat.weather.title', descKey: 'energyHome.solarFeat.weather.desc' },
+  { key: 'easy', titleKey: 'energyHome.solarFeat.easy.title', descKey: 'energyHome.solarFeat.easy.desc' },
+  { key: 'profile', titleKey: 'energyHome.solarFeat.profile.title', descKey: 'energyHome.solarFeat.profile.desc' },
+];
+
+const batteryFeatures = [
+  { key: 'noOutages', titleKey: 'energyHome.batteryFeat.noOutages.title', descKey: 'energyHome.batteryFeat.noOutages.desc' },
+  { key: 'peace', titleKey: 'energyHome.batteryFeat.peace.title', descKey: 'energyHome.batteryFeat.peace.desc' },
+  { key: 'easy', titleKey: 'energyHome.batteryFeat.easy.title', descKey: 'energyHome.batteryFeat.easy.desc' },
+  { key: 'weather', titleKey: 'energyHome.batteryFeat.weather.title', descKey: 'energyHome.batteryFeat.weather.desc' },
+];
+
+const appFeatures = [
+  { key: 'customize', titleKey: 'energyHome.appFeat.customize.title', descKey: 'energyHome.appFeat.customize.desc' },
+  { key: 'monitor', titleKey: 'energyHome.appFeat.monitor.title', descKey: 'energyHome.appFeat.monitor.desc' },
+  { key: 'alerts', titleKey: 'energyHome.appFeat.alerts.title', descKey: 'energyHome.appFeat.alerts.desc' },
+];
+
+const latamFlags = [
+  'colombia', 'panama', 'dominican-republic', 'mexico', 'peru', 'guatemala',
+  'el-salvador', 'uruguay', 'costa-rica', 'brazil', 'nicaragua', 'honduras',
+  'chile', 'argentina', 'bolivia', 'belize', 'ecuador', 'paraguay'
+];
+
+// Icon components
+function IconPin() {
+  return (
+    <svg width="52" height="74" viewBox="0 0 52 74" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M26 0C11.64 0 0 11.64 0 26c0 19.5 26 48 26 48s26-28.5 26-48C52 11.64 40.36 0 26 0z" fill="#a3a3a3"/>
+      <circle cx="26" cy="26" r="13" fill="#f8b03b"/>
+    </svg>
+  );
+}
+
+function IconSolar() {
+  return (
+    <svg width="74" height="74" viewBox="0 0 74 74" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="22" width="68" height="52" rx="2" fill="#a3a3a3"/>
+      <circle cx="15" cy="15" r="8" fill="#f8b03b"/>
+      <rect x="13" y="0" width="4" height="6" rx="1" fill="#f8b03b"/>
+      <rect x="13" y="24" width="4" height="6" rx="1" fill="#f8b03b"/>
+      <rect x="0" y="13" width="6" height="4" rx="1" fill="#f8b03b"/>
+      <rect x="24" y="13" width="6" height="4" rx="1" fill="#f8b03b"/>
+      <rect x="3" y="3" width="5" height="5" rx="1" transform="rotate(-45 3 3)" fill="#f8b03b"/>
+      <rect x="22" y="3" width="5" height="5" rx="1" transform="rotate(45 22 3)" fill="#f8b03b"/>
+      <rect x="3" y="22" width="5" height="5" rx="1" transform="rotate(45 3 22)" fill="#f8b03b"/>
+      <rect x="22" y="22" width="5" height="5" rx="1" transform="rotate(-45 22 22)" fill="#f8b03b"/>
+    </svg>
+  );
+}
+
+function IconHelmet() {
+  return (
+    <svg width="93" height="74" viewBox="0 0 93 74" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M46.5 8C25.2 8 8 25.2 8 46.5c0 6 3 10 6 10h65c3 0 6-4 6-10C85 25.2 67.8 8 46.5 8z" fill="#a3a3a3"/>
+      <path d="M46.5 64H6c-2 0-4 2-4 4s2 6 4 6h81c2 0 4-3 4-6s-2-4-4-4H46.5z" fill="#a3a3a3"/>
+      <path d="M73 8l6 30-2 1-6-29 2-2z" fill="#f8b03b" transform="rotate(-21 76 23)"/>
+      <path d="M30 36l6 30-2 1-6-29 2-2z" fill="#f8b03b" transform="rotate(-158 33 51)"/>
+    </svg>
+  );
+}
+
 export default function EnergyHomePage({ lang }: Props) {
   const [activeFlow, setActiveFlow] = useState(0);
-  const [activeTab, setActiveTab] = useState(0);
+  const [productTab, setProductTab] = useState<'solar' | 'battery'>('solar');
 
-  const tabs = [
-    { key: 'solar', labelKey: 'energyHome.tabs.solar' },
-    { key: 'battery', labelKey: 'energyHome.tabs.battery' },
-    { key: 'charging', labelKey: 'energyHome.tabs.charging' },
-  ];
+  const activeFeatures = productTab === 'solar' ? solarFeatures : batteryFeatures;
 
   return (
     <div className="eh-page">
@@ -59,11 +133,25 @@ export default function EnergyHomePage({ lang }: Props) {
         </div>
       </section>
 
-      {/* INSTALL SOLAR PANELS + ENERGY FLOW */}
+      {/* SWITCHING TO ANCESTRO */}
+      <section className="eh-section eh-switching">
+        <div className="eh-container">
+          <h2 className="eh-h2 eh-h2-center">{t(lang, 'energyHome.switching.title')}</h2>
+          <div className="eh-switching-grid">
+            {switchingCards.map((card) => (
+              <div key={card.key} className="eh-switching-card">
+                <span>{t(lang, card.titleKey)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ENERGY FLOW SLIDE */}
       <section className="eh-section eh-flow">
         <div className="eh-container">
-          <h2 className="eh-h2 eh-h2-md">{t(lang, 'energyHome.install.title')}</h2>
-          <p className="eh-lead eh-lead-sm">{t(lang, 'energyHome.install.desc')}</p>
+          <h2 className="eh-h2 eh-h2-md eh-h2-center">{t(lang, 'energyHome.install.title')}</h2>
+          <p className="eh-lead eh-lead-sm eh-lead-center">{t(lang, 'energyHome.install.desc')}</p>
         </div>
         <div className="eh-flow-stage">
           <img src={`${IMG}/night-house-bg.webp`} alt="" className="eh-flow-bg" />
@@ -71,11 +159,12 @@ export default function EnergyHomePage({ lang }: Props) {
           <div className="eh-flow-panel">
             <h3 className="eh-flow-title">{t(lang, energyFlowSteps[activeFlow].titleKey)}</h3>
             <p className="eh-flow-desc">{t(lang, energyFlowSteps[activeFlow].descKey)}</p>
-            <button className="eh-btn-pill">{t(lang, 'energyHome.flow.cta')}</button>
+            <button type="button" className="eh-btn-pill">{t(lang, 'energyHome.flow.cta')}</button>
           </div>
           <div className="eh-flow-dots">
             {energyFlowSteps.map((step, i) => (
               <button
+                type="button"
                 key={step.key}
                 className={`eh-dot ${i === activeFlow ? 'active' : ''}`}
                 onClick={() => setActiveFlow(i)}
@@ -86,37 +175,62 @@ export default function EnergyHomePage({ lang }: Props) {
         </div>
       </section>
 
-      {/* PRODUCT TABS */}
-      <section className="eh-section eh-tabs-section">
+      {/* CHOOSE YOUR ENERGY COVERAGE - PLANS */}
+      <section className="eh-section eh-plans">
         <div className="eh-container">
-          <div className="eh-tabs-nav">
-            {tabs.map((tab, i) => (
-              <button
-                key={tab.key}
-                className={`eh-tab ${i === activeTab ? 'active' : ''}`}
-                onClick={() => setActiveTab(i)}
-              >
-                {t(lang, tab.labelKey)}
-              </button>
+          <h2 className="eh-h2 eh-h2-md eh-h2-center">{t(lang, 'energyHome.plans.title')}</h2>
+          <div className="eh-plans-grid">
+            {plans.map((plan) => (
+              <div key={plan.key} className={`eh-plan-card ${plan.featured ? 'featured' : ''}`}>
+                <div className="eh-plan-image">
+                  <img src={`${IMG}/${plan.image}`} alt={t(lang, `energyHome.plans.${plan.key}.title`)} />
+                </div>
+                <div className="eh-plan-body">
+                  <h3 className="eh-plan-title">{t(lang, `energyHome.plans.${plan.key}.title`)}</h3>
+                  <p className="eh-plan-desc">{t(lang, `energyHome.plans.${plan.key}.desc`)}</p>
+                  <p className="eh-plan-tagline">{t(lang, plan.tagline)}</p>
+                </div>
+                <button type="button" className="eh-plan-cta">{t(lang, 'energyHome.plans.cta')}</button>
+              </div>
             ))}
-          </div>
-          <div className="eh-tabs-stage">
-            <img src={`${IMG}/tabs-bg.webp`} alt="" className="eh-tabs-bg" />
-            <div className="eh-tabs-content">
-              <h3 className="eh-h3">{t(lang, `energyHome.tabs.${tabs[activeTab].key}.title`)}</h3>
-              <p className="eh-muted">{t(lang, `energyHome.tabs.${tabs[activeTab].key}.desc`)}</p>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* SOLAR PANELS BANNER */}
-      <section className="eh-section eh-banner">
-        <img src={`${IMG}/solar-panels-bg.webp`} alt="" className="eh-banner-bg" />
-        <div className="eh-banner-overlay" />
-        <div className="eh-container eh-banner-content">
-          <h2 className="eh-h2">{t(lang, 'energyHome.solar.title')}</h2>
-          <p className="eh-lead eh-lead-sm">{t(lang, 'energyHome.solar.desc')}</p>
+      {/* PRODUCT TABS - SOLAR/BATTERY SHOWCASE */}
+      <section className="eh-section eh-product-tabs">
+        <div className="eh-container">
+          <div className="eh-product-tabs-nav">
+            <button
+              type="button"
+              className={`eh-product-tab ${productTab === 'solar' ? 'active' : ''}`}
+              onClick={() => setProductTab('solar')}
+            >
+              {t(lang, 'energyHome.product.solar')}
+            </button>
+            <button
+              type="button"
+              className={`eh-product-tab ${productTab === 'battery' ? 'active' : ''}`}
+              onClick={() => setProductTab('battery')}
+            >
+              {t(lang, 'energyHome.product.battery')}
+            </button>
+          </div>
+          <div className="eh-product-stage">
+            <img
+              src={`${IMG}/${productTab === 'solar' ? 'product-solar.webp' : 'product-battery.webp'}`}
+              alt=""
+              className="eh-product-image"
+            />
+          </div>
+          <div className="eh-product-features">
+            {activeFeatures.map((f, i) => (
+              <div key={f.key} className={`eh-product-feat ${i === 0 ? 'active' : ''}`}>
+                <h4 className="eh-product-feat-title">{t(lang, f.titleKey)}</h4>
+                <p className="eh-product-feat-desc">{t(lang, f.descKey)}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -134,25 +248,19 @@ export default function EnergyHomePage({ lang }: Props) {
       <section className="eh-section eh-app">
         <div className="eh-container eh-app-wrap">
           <div className="eh-app-header">
-            <h2 className="eh-h2">{t(lang, 'energyHome.app.title')}</h2>
-            <p className="eh-muted">{t(lang, 'energyHome.app.desc')}</p>
+            <h2 className="eh-h2 eh-h2-center">{t(lang, 'energyHome.app.title')}</h2>
+            <p className="eh-muted eh-muted-center">{t(lang, 'energyHome.app.desc')}</p>
           </div>
           <div className="eh-app-phone">
-            <img src={`${IMG}/battery-product.webp`} alt="Ancestro App" />
+            <img src={`${IMG}/app-phone.webp`} alt="Ancestro App" />
           </div>
           <div className="eh-app-features">
-            <div className="eh-feature">
-              <h4 className="eh-feature-title">{t(lang, 'energyHome.app.feat1.title')}</h4>
-              <p className="eh-muted eh-muted-sm">{t(lang, 'energyHome.app.feat1.desc')}</p>
-            </div>
-            <div className="eh-feature">
-              <h4 className="eh-feature-title">{t(lang, 'energyHome.app.feat2.title')}</h4>
-              <p className="eh-muted eh-muted-sm">{t(lang, 'energyHome.app.feat2.desc')}</p>
-            </div>
-            <div className="eh-feature">
-              <h4 className="eh-feature-title">{t(lang, 'energyHome.app.feat3.title')}</h4>
-              <p className="eh-muted eh-muted-sm">{t(lang, 'energyHome.app.feat3.desc')}</p>
-            </div>
+            {appFeatures.map((f) => (
+              <div key={f.key} className="eh-app-feature">
+                <h4 className="eh-feature-title">{t(lang, f.titleKey)}</h4>
+                <p className="eh-muted eh-muted-sm">{t(lang, f.descKey)}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -160,63 +268,54 @@ export default function EnergyHomePage({ lang }: Props) {
       {/* GETTING TO POWER ON */}
       <section className="eh-section eh-powerOn">
         <img src={`${IMG}/night-house-bg.webp`} alt="" className="eh-fullbg" />
-        <div className="eh-dark-overlay" />
+        <div className="eh-powerOn-overlay" />
         <div className="eh-container eh-powerOn-content">
           <h2 className="eh-h2">{t(lang, 'energyHome.powerOn.title')}</h2>
           <p className="eh-muted">{t(lang, 'energyHome.powerOn.desc')}</p>
         </div>
       </section>
 
-      {/* INSTALLER SECTION */}
-      <section className="eh-section eh-installer">
-        <div className="eh-container eh-installer-wrap">
-          <div className="eh-installer-text">
-            <h2 className="eh-h2">{t(lang, 'energyHome.installer.title')}</h2>
-            <p className="eh-muted">{t(lang, 'energyHome.installer.desc')}</p>
+      {/* INSTALL SOLAR + BATTERY PRODUCT SHOT */}
+      <section className="eh-section eh-install">
+        <div className="eh-container eh-install-wrap">
+          <div className="eh-install-text">
+            <h2 className="eh-h2">{t(lang, 'energyHome.installCta.title')}</h2>
+            <p className="eh-muted">{t(lang, 'energyHome.installCta.desc')}</p>
+            <button type="button" className="eh-cta-glass eh-install-cta">{t(lang, 'energyHome.installCta.cta')}</button>
           </div>
-          <div className="eh-installer-image">
-            <img src={`${IMG}/installer-bg.webp`} alt="Ancestro installer" />
-          </div>
-        </div>
-      </section>
-
-      {/* BATTERY SYSTEM SPECS */}
-      <section className="eh-section eh-specs">
-        <div className="eh-container">
-          <h2 className="eh-h2 eh-h2-center">{t(lang, 'energyHome.specs.title')}</h2>
-          <div className="eh-specs-wrap">
-            <div className="eh-specs-image">
-              <img src={`${IMG}/battery-product.webp`} alt="Ancestro Battery" />
-            </div>
-            <ul className="eh-specs-list">
-              <li><span>{t(lang, 'energyHome.specs.capacity.label')}</span><strong>13.5 kWh</strong></li>
-              <li><span>{t(lang, 'energyHome.specs.power.label')}</span><strong>7 kW</strong></li>
-              <li><span>{t(lang, 'energyHome.specs.backup.label')}</span><strong>24h+</strong></li>
-              <li><span>{t(lang, 'energyHome.specs.warranty.label')}</span><strong>10 {t(lang, 'energyHome.specs.years')}</strong></li>
-              <li><span>{t(lang, 'energyHome.specs.dimensions.label')}</span><strong>1150×755×155 mm</strong></li>
-              <li><span>{t(lang, 'energyHome.specs.weight.label')}</span><strong>114 kg</strong></li>
-            </ul>
+          <div className="eh-install-image">
+            <img src={`${IMG}/battery-product.webp`} alt="Ancestro Battery" />
           </div>
         </div>
       </section>
 
-      {/* LATAM MAP SECTION */}
+      {/* LATAM SECTION WITH FLAGS + ICONS */}
       <section className="eh-section eh-latam">
         <img src={`${IMG}/latam-map-bg.webp`} alt="" className="eh-fullbg" />
-        <div className="eh-dark-overlay" />
+        <div className="eh-latam-overlay" />
         <div className="eh-container eh-latam-content">
           <h2 className="eh-h2 eh-h2-center">{t(lang, 'energyHome.latam.title')}</h2>
           <p className="eh-muted eh-muted-center">{t(lang, 'energyHome.latam.desc')}</p>
+          <div className="eh-flags">
+            {latamFlags.map((flag) => (
+              <div key={flag} className="eh-flag">
+                <img src={`${FLAGS}/${flag}.png`} alt={flag} loading="lazy" />
+              </div>
+            ))}
+          </div>
           <div className="eh-stats">
             <div className="eh-stat">
+              <div className="eh-stat-icon"><IconPin /></div>
               <span className="eh-stat-num">18+</span>
               <span className="eh-stat-label">{t(lang, 'energyHome.latam.countries')}</span>
             </div>
             <div className="eh-stat">
+              <div className="eh-stat-icon"><IconSolar /></div>
               <span className="eh-stat-num">25,000+</span>
               <span className="eh-stat-label">{t(lang, 'energyHome.latam.installations')}</span>
             </div>
             <div className="eh-stat">
+              <div className="eh-stat-icon"><IconHelmet /></div>
               <span className="eh-stat-num">500+</span>
               <span className="eh-stat-label">{t(lang, 'energyHome.latam.installers')}</span>
             </div>
@@ -227,11 +326,11 @@ export default function EnergyHomePage({ lang }: Props) {
       {/* FINAL CTA */}
       <section className="eh-section eh-finalcta">
         <img src={`${IMG}/solar-panels-bg.webp`} alt="" className="eh-fullbg" />
-        <div className="eh-dark-overlay" />
+        <div className="eh-finalcta-overlay" />
         <div className="eh-container eh-finalcta-content">
           <h2 className="eh-h2 eh-h2-center">{t(lang, 'energyHome.finalCta.title')}</h2>
           <p className="eh-muted eh-muted-center">{t(lang, 'energyHome.finalCta.desc')}</p>
-          <button className="eh-btn-primary">{t(lang, 'energyHome.finalCta.cta')}</button>
+          <button type="button" className="eh-btn-primary">{t(lang, 'energyHome.finalCta.cta')}</button>
         </div>
       </section>
 
@@ -241,12 +340,13 @@ export default function EnergyHomePage({ lang }: Props) {
         .eh-section{position:relative;padding:120px 0}
 
         /* HEADINGS */
-        .eh-h2{font-size:clamp(26px,4vw,50px);font-weight:600;line-height:1.15;letter-spacing:-0.02em;margin:0 0 20px;color:var(--color-white);word-wrap:break-word;overflow-wrap:break-word;hyphens:auto}
+        .eh-h2{font-size:clamp(26px,4vw,50px);font-weight:600;line-height:1.15;letter-spacing:-0.02em;margin:0 0 20px;color:var(--color-white);word-wrap:break-word;overflow-wrap:break-word}
         .eh-h2-md{font-size:clamp(24px,3vw,34px)}
         .eh-h2-center{text-align:center}
         .eh-h3{font-size:clamp(22px,2.4vw,28px);font-weight:600;letter-spacing:-0.01em;margin:0 0 12px}
         .eh-lead{font-size:clamp(16px,1.5vw,20px);line-height:1.6;color:var(--color-gray);max-width:900px;margin:0 auto}
         .eh-lead-sm{font-size:clamp(14px,1.2vw,16px);max-width:820px}
+        .eh-lead-center{text-align:center}
         .eh-muted{color:var(--color-gray);font-size:15px;line-height:1.7}
         .eh-muted-sm{font-size:13px}
         .eh-muted-center{text-align:center;max-width:760px;margin-left:auto;margin-right:auto}
@@ -254,8 +354,8 @@ export default function EnergyHomePage({ lang }: Props) {
         /* BUTTONS */
         .eh-cta-glass{padding:14px 32px;background:rgba(255,255,255,0.1);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);border:1px solid rgba(255,255,255,0.15);border-radius:15px;color:var(--color-white);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s ease}
         .eh-cta-glass:hover{background:rgba(248,176,59,0.2);border-color:rgba(248,176,59,0.5)}
-        .eh-btn-pill{padding:12px 28px;background:var(--color-primary);border:none;border-radius:999px;color:var(--color-black);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s ease;margin-top:16px}
-        .eh-btn-pill:hover{background:#ffbf50;transform:translateY(-2px)}
+        .eh-btn-pill{padding:12px 28px;background:rgba(255,255,255,0.1);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);border:1px solid rgba(255,255,255,0.2);border-radius:15px;color:var(--color-white);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.25s ease;margin-top:16px}
+        .eh-btn-pill:hover{background:rgba(248,176,59,0.2);border-color:rgba(248,176,59,0.5)}
         .eh-btn-primary{padding:16px 36px;background:var(--color-primary);border:none;border-radius:12px;color:var(--color-black);font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.25s ease;margin-top:30px}
         .eh-btn-primary:hover{background:#ffbf50;transform:translateY(-3px);box-shadow:0 12px 30px rgba(248,176,59,0.4)}
 
@@ -270,15 +370,22 @@ export default function EnergyHomePage({ lang }: Props) {
         .eh-hero-cta-wrap{margin-top:auto}
 
         /* CLEAN SECTION */
-        .eh-clean{text-align:center;padding:140px 0 120px}
-        .eh-clean .eh-h2{max-width:900px;margin-left:auto;margin-right:auto}
+        .eh-clean{text-align:center;padding:140px 0 80px}
+        .eh-clean .eh-h2{max-width:1100px;margin-left:auto;margin-right:auto;text-align:center}
+
+        /* SWITCHING TO ANCESTRO */
+        .eh-switching{padding:80px 0 100px}
+        .eh-switching-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:40px}
+        .eh-switching-card{padding:40px 24px;min-height:140px;background:rgba(255,255,255,0.04);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);border:1px solid rgba(255,255,255,0.1);border-radius:16px;display:flex;align-items:center;justify-content:center;text-align:center;transition:all 0.3s ease}
+        .eh-switching-card:hover{background:rgba(248,176,59,0.08);border-color:rgba(248,176,59,0.3);transform:translateY(-4px)}
+        .eh-switching-card span{font-size:clamp(16px,1.5vw,22px);font-weight:500;color:var(--color-white);line-height:1.3;white-space:pre-line}
 
         /* ENERGY FLOW */
         .eh-flow{text-align:center;padding-bottom:0}
         .eh-flow-stage{position:relative;width:100%;height:820px;margin-top:60px;overflow:hidden}
         .eh-flow-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
         .eh-flow-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.6) 0%,rgba(0,0,0,0) 40%,rgba(0,0,0,0.9) 100%)}
-        .eh-flow-panel{position:absolute;left:50%;bottom:120px;transform:translateX(-50%);text-align:center;max-width:800px;padding:0 24px}
+        .eh-flow-panel{position:absolute;left:50%;bottom:120px;transform:translateX(-50%);text-align:center;max-width:800px;padding:0 24px;display:flex;flex-direction:column;align-items:center}
         .eh-flow-title{font-size:clamp(28px,3vw,40px);font-weight:600;margin:0 0 12px;color:var(--color-white)}
         .eh-flow-desc{font-size:15px;color:rgba(255,255,255,0.8);line-height:1.6;margin:0}
         .eh-flow-dots{position:absolute;left:50%;bottom:60px;transform:translateX(-50%);display:flex;gap:10px}
@@ -286,71 +393,86 @@ export default function EnergyHomePage({ lang }: Props) {
         .eh-dot.active{background:var(--color-primary);width:28px;border-radius:999px}
         .eh-dot:hover:not(.active){background:rgba(255,255,255,0.5)}
 
-        /* TABS SECTION */
-        .eh-tabs-section{padding:100px 0}
-        .eh-tabs-nav{display:flex;justify-content:center;gap:12px;margin-bottom:40px;flex-wrap:wrap}
-        .eh-tab{padding:12px 28px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;color:rgba(255,255,255,0.7);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.25s ease}
-        .eh-tab:hover{background:rgba(255,255,255,0.08);color:var(--color-white)}
-        .eh-tab.active{background:rgba(248,176,59,0.15);border-color:rgba(248,176,59,0.4);color:var(--color-primary)}
-        .eh-tabs-stage{position:relative;width:100%;aspect-ratio:16/9;max-height:720px;border-radius:24px;overflow:hidden;background:var(--color-white-10)}
-        .eh-tabs-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-        .eh-tabs-content{position:absolute;left:0;right:0;bottom:0;padding:40px 48px;background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,0.85) 100%)}
+        /* PLANS */
+        .eh-plans{padding:120px 0}
+        .eh-plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;margin-top:50px}
+        .eh-plan-card{display:flex;flex-direction:column;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;overflow:hidden;padding:10px 10px 30px;transition:all 0.3s ease}
+        .eh-plan-card:hover{border-color:rgba(248,176,59,0.4);transform:translateY(-4px)}
+        .eh-plan-card.featured{border-color:rgba(248,176,59,0.35)}
+        .eh-plan-image{width:100%;height:220px;border-radius:16px;overflow:hidden;background:rgba(255,255,255,0.04)}
+        .eh-plan-image img{width:100%;height:100%;object-fit:cover}
+        .eh-plan-body{padding:24px 24px 16px;flex:1}
+        .eh-plan-title{font-size:22px;font-weight:600;color:var(--color-white);margin:0 0 10px}
+        .eh-plan-desc{font-size:14px;color:rgba(255,255,255,0.7);line-height:1.6;margin:0 0 16px}
+        .eh-plan-tagline{font-size:12px;font-style:italic;color:rgba(255,255,255,0.8);line-height:1.4;margin:0}
+        .eh-plan-card.featured .eh-plan-tagline{color:var(--color-primary)}
+        .eh-plan-cta{margin:0 24px;padding:12px 20px;background:rgba(255,255,255,0.08);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);border:1px solid rgba(255,255,255,0.15);border-radius:15px;color:var(--color-white);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.3s ease}
+        .eh-plan-cta:hover{background:rgba(248,176,59,0.2);border-color:rgba(248,176,59,0.5)}
 
-        /* BANNER */
-        .eh-banner{position:relative;min-height:560px;padding:140px 0;display:flex;align-items:center}
-        .eh-banner-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-        .eh-banner-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.85) 100%)}
-        .eh-banner-content{position:relative;text-align:center}
+        /* PRODUCT TABS SHOWCASE */
+        .eh-product-tabs{padding:80px 0}
+        .eh-product-tabs-nav{display:flex;justify-content:center;gap:10px;margin-bottom:30px}
+        .eh-product-tab{padding:12px 32px;background:rgba(255,255,255,0.08);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);border:1px solid rgba(255,255,255,0.12);border-radius:999px;color:rgba(255,255,255,0.8);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.25s ease}
+        .eh-product-tab:hover{background:rgba(255,255,255,0.12);color:var(--color-white)}
+        .eh-product-tab.active{background:var(--color-primary);border-color:var(--color-primary);color:var(--color-black)}
+        .eh-product-stage{width:100%;aspect-ratio:16/10;max-height:800px;border-radius:24px;overflow:hidden;background:rgba(255,255,255,0.04);margin-bottom:40px}
+        .eh-product-image{width:100%;height:100%;object-fit:cover;display:block}
+        .eh-product-features{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;border-top:2px solid #424242;padding-top:28px}
+        .eh-product-feat{padding-top:12px;border-top:2px solid transparent;margin-top:-16px}
+        .eh-product-feat.active{border-top-color:var(--color-primary)}
+        .eh-product-feat-title{font-size:clamp(18px,1.8vw,24px);font-weight:600;color:var(--color-gray);margin:0 0 15px}
+        .eh-product-feat.active .eh-product-feat-title{color:var(--color-primary)}
+        .eh-product-feat-desc{font-size:14px;color:rgba(255,255,255,0.75);line-height:1.6;margin:0}
+        .eh-product-feat.active .eh-product-feat-desc{color:var(--color-white)}
 
         /* GRID DOWN */
-        .eh-grid-down{position:relative;min-height:640px;padding:200px 0;display:flex;align-items:flex-end}
+        .eh-grid-down{position:relative;min-height:720px;padding:200px 0;display:flex;align-items:flex-end}
         .eh-fullbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
         .eh-grid-down-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.3) 0%,rgba(0,0,0,0.95) 100%)}
         .eh-grid-down-content{position:relative}
-        .eh-dark-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.55)}
 
         /* APP */
         .eh-app{padding:140px 0}
         .eh-app-wrap{display:grid;grid-template-columns:1fr;gap:60px;text-align:center}
         .eh-app-header{max-width:820px;margin:0 auto}
         .eh-app-phone{display:flex;justify-content:center}
-        .eh-app-phone img{max-width:320px;height:auto;filter:drop-shadow(0 30px 80px rgba(248,176,59,0.2))}
-        .eh-app-features{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;max-width:1000px;margin:0 auto;text-align:left}
-        .eh-feature-title{font-size:16px;font-weight:600;margin:0 0 10px;color:var(--color-white)}
+        .eh-app-phone img{max-width:360px;height:auto;filter:drop-shadow(0 30px 80px rgba(248,176,59,0.2))}
+        .eh-app-features{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;max-width:1100px;margin:0 auto;text-align:left}
+        .eh-app-feature{padding:24px;background:rgba(255,255,255,0.04);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);border:1px solid rgba(255,255,255,0.08);border-radius:16px}
+        .eh-feature-title{font-size:clamp(18px,1.6vw,24px);font-weight:500;margin:0 0 12px;color:var(--color-white)}
 
         /* POWER ON */
-        .eh-powerOn{position:relative;min-height:640px;padding:200px 0;display:flex;align-items:flex-end}
-        .eh-powerOn-content{position:relative}
+        .eh-powerOn{position:relative;min-height:720px;padding:200px 0;display:flex;align-items:flex-end;overflow:hidden}
+        .eh-powerOn-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,0.5) 50%,rgba(0,0,0,0.95) 100%)}
+        .eh-powerOn-content{position:relative;max-width:900px}
 
-        /* INSTALLER */
-        .eh-installer{padding:120px 0}
-        .eh-installer-wrap{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
-        .eh-installer-image img{width:100%;height:auto;border-radius:24px}
-
-        /* SPECS */
-        .eh-specs{padding:120px 0}
-        .eh-specs-wrap{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-top:50px}
-        .eh-specs-image{display:flex;justify-content:center}
-        .eh-specs-image img{max-width:380px;height:auto;filter:drop-shadow(0 30px 80px rgba(0,0,0,0.6))}
-        .eh-specs-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0}
-        .eh-specs-list li{display:flex;justify-content:space-between;align-items:center;padding:18px 0;border-bottom:1px solid rgba(255,255,255,0.08)}
-        .eh-specs-list li span{color:var(--color-gray);font-size:14px}
-        .eh-specs-list li strong{font-size:18px;font-weight:600;color:var(--color-white)}
+        /* INSTALL (Battery product showcase) */
+        .eh-install{padding:120px 0}
+        .eh-install-wrap{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+        .eh-install-text h2{margin-bottom:16px}
+        .eh-install-text .eh-muted{margin-bottom:32px;max-width:460px}
+        .eh-install-cta{margin-top:8px}
+        .eh-install-image{display:flex;justify-content:center}
+        .eh-install-image img{max-width:440px;width:100%;height:auto;filter:drop-shadow(0 30px 60px rgba(0,0,0,0.6))}
 
         /* LATAM */
-        .eh-latam{position:relative;padding:140px 0 120px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+        .eh-latam{position:relative;padding:140px 0;display:flex;align-items:center;justify-content:center;overflow:hidden}
         .eh-latam .eh-fullbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
-        .eh-latam .eh-dark-overlay{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,0,0,0.25) 0%,rgba(0,0,0,0.75) 60%,rgba(0,0,0,0.92) 100%)}
-        .eh-latam-content{position:relative;z-index:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:24px;width:100%}
-        .eh-latam-content .eh-h2{margin-bottom:4px}
-        .eh-latam-content .eh-muted{max-width:640px;margin:0 auto}
-        .eh-stats{display:flex;justify-content:center;align-items:stretch;gap:24px;margin-top:48px;flex-wrap:wrap;width:100%;max-width:900px}
-        .eh-stat{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:28px 32px;background:rgba(10,10,10,0.55);border:1px solid rgba(255,255,255,0.12);border-radius:16px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);flex:1 1 200px;max-width:260px;min-height:130px}
-        .eh-stat-num{font-size:clamp(32px,3.5vw,44px);font-weight:700;color:var(--color-primary);line-height:1;letter-spacing:-0.02em}
-        .eh-stat-label{font-size:14px;color:rgba(255,255,255,0.75);text-align:center}
+        .eh-latam-overlay{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,0,0,0.25) 0%,rgba(0,0,0,0.75) 60%,rgba(0,0,0,0.92) 100%)}
+        .eh-latam-content{position:relative;z-index:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;width:100%}
+        .eh-latam-content .eh-muted{max-width:640px}
+        .eh-flags{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;max-width:720px;margin:20px auto 30px}
+        .eh-flag{width:40px;height:27px;border-radius:6px;overflow:hidden;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.4)}
+        .eh-flag img{width:100%;height:100%;object-fit:cover;display:block}
+        .eh-stats{display:flex;justify-content:center;align-items:stretch;gap:24px;margin-top:40px;flex-wrap:wrap;width:100%;max-width:1000px}
+        .eh-stat{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:40px 32px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.1);border-radius:16px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);flex:1 1 240px;max-width:300px;min-height:220px}
+        .eh-stat-icon{display:flex;align-items:center;justify-content:center;height:74px}
+        .eh-stat-num{font-size:clamp(32px,3.5vw,44px);font-weight:700;color:var(--color-white);line-height:1;letter-spacing:-0.02em}
+        .eh-stat-label{font-size:14px;color:rgba(255,255,255,0.7);text-align:center}
 
         /* FINAL CTA */
-        .eh-finalcta{position:relative;min-height:560px;padding:140px 0;display:flex;align-items:center}
+        .eh-finalcta{position:relative;min-height:560px;padding:140px 0;display:flex;align-items:center;overflow:hidden}
+        .eh-finalcta-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.6)}
         .eh-finalcta-content{position:relative;text-align:center}
 
         @media(max-width:1024px){
@@ -358,24 +480,28 @@ export default function EnergyHomePage({ lang }: Props) {
           .eh-hero{min-height:600px;height:auto;padding:120px 0 80px}
           .eh-flow-stage{height:600px}
           .eh-app-features{grid-template-columns:1fr;gap:24px}
-          .eh-installer-wrap,.eh-specs-wrap{grid-template-columns:1fr;gap:40px}
-          .eh-installer-wrap{text-align:center}
+          .eh-switching-grid{grid-template-columns:repeat(2,1fr)}
+          .eh-plans-grid{grid-template-columns:1fr;max-width:460px;margin-left:auto;margin-right:auto}
+          .eh-product-features{grid-template-columns:repeat(2,1fr)}
+          .eh-install-wrap{grid-template-columns:1fr;gap:40px;text-align:center}
+          .eh-install-text .eh-muted{margin-left:auto;margin-right:auto}
           .eh-stats{gap:20px}
-          .eh-stat{min-width:140px;padding:20px 24px}
+          .eh-stat{min-height:180px;padding:30px 24px}
           .eh-stat-num{font-size:32px}
-          .eh-tabs-content{padding:24px}
         }
         @media(max-width:640px){
           .eh-section{padding:60px 0}
           .eh-container{padding:0 20px}
-          .eh-flow-stage{height:500px}
+          .eh-flow-stage{height:520px}
           .eh-flow-panel{bottom:90px}
           .eh-hero-title{font-size:34px}
-          .eh-tabs-nav{gap:8px}
-          .eh-tab{padding:10px 18px;font-size:13px}
-          .eh-stat-num{font-size:26px}
+          .eh-switching-grid{grid-template-columns:1fr;gap:16px}
+          .eh-product-features{grid-template-columns:1fr}
+          .eh-product-tab{padding:10px 20px;font-size:13px}
+          .eh-flags{gap:10px;max-width:100%}
+          .eh-flag{width:32px;height:22px}
           .eh-stats{flex-direction:column;align-items:center}
-          .eh-stat{width:100%;max-width:280px}
+          .eh-stat{width:100%;max-width:300px}
         }
       `}</style>
     </div>
