@@ -95,6 +95,7 @@ export default function Navbar({ lang }: NavbarProps) {
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
+  const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const megaMenuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navbarRef = useRef<HTMLElement>(null);
 
@@ -140,6 +141,7 @@ export default function Navbar({ lang }: NavbarProps) {
 
   function closeMenu() {
     setIsOpen(false);
+    setMobileExpanded(null);
     document.body.style.overflow = '';
   }
 
@@ -339,8 +341,50 @@ export default function Navbar({ lang }: NavbarProps) {
         <div className={`mobile-menu ${isOpen ? 'active' : ''}`}>
           <div className="mobile-menu-content">
             <div className="mobile-nav-links">
-              {navItems.map((item) => (
-                item.href.startsWith('#') ? (
+              {navItems.map((item) => {
+                const hasMegaMenu = megaMenuKeys.includes(item.key);
+                const isExpanded = mobileExpanded === item.key;
+                const menuData = hasMegaMenu ? megaMenuData[item.key] : null;
+
+                if (hasMegaMenu && menuData) {
+                  return (
+                    <div key={item.key} className={`mobile-nav-group ${isExpanded ? 'expanded' : ''}`}>
+                      <button
+                        className="mobile-nav-link mobile-nav-trigger"
+                        onClick={() => setMobileExpanded(isExpanded ? null : item.key)}
+                        aria-expanded={isExpanded}
+                      >
+                        {item.label}
+                        <svg className="mobile-nav-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                          <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                      <div className="mobile-nav-panel">
+                        <div className="mobile-nav-cards">
+                          {menuData.cards.map((card) => (
+                            <a key={card.title} href={card.href} className="mobile-nav-card" onClick={closeMenu}>
+                              <div className="mobile-nav-card-image">
+                                <img src={card.image} alt={card.title} loading="lazy" />
+                              </div>
+                              <span className="mobile-nav-card-title">{card.title}</span>
+                            </a>
+                          ))}
+                        </div>
+                        {menuData.links.length > 0 && (
+                          <div className="mobile-nav-sublinks">
+                            {menuData.links.map((link) => (
+                              <a key={link.label} href={link.href} className="mobile-nav-sublink" onClick={closeMenu}>
+                                {link.label}
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                }
+
+                return item.href.startsWith('#') ? (
                   <a key={item.key} href={item.href} className="mobile-nav-link" onClick={closeMenu}>
                     {item.label}
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -350,8 +394,8 @@ export default function Navbar({ lang }: NavbarProps) {
                     {item.label}
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   </Link>
-                )
-              ))}
+                );
+              })}
             </div>
 
             {user ? (
@@ -481,16 +525,33 @@ export default function Navbar({ lang }: NavbarProps) {
           .mobile-menu.active{opacity:1;visibility:visible}
           .mobile-menu-content{display:flex;flex-direction:column;min-height:100%;padding:100px 24px 40px;max-width:500px;margin:0 auto}
           .mobile-nav-links{display:flex;flex-direction:column;gap:12px;flex:1}
+          .mobile-nav-group{display:flex;flex-direction:column;gap:0;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;opacity:0;transform:translateY(20px);transition:all 0.3s ease}
+          .mobile-menu.active .mobile-nav-group{opacity:1;transform:translateY(0)}
+          .mobile-nav-group .mobile-nav-link.mobile-nav-trigger{background:transparent;border:none;opacity:1;transform:none;width:100%;cursor:pointer;font-family:inherit}
+          .mobile-nav-group.expanded{background:rgba(248,176,59,0.06);border-color:rgba(248,176,59,0.25)}
+          .mobile-nav-chevron{transition:transform 0.3s cubic-bezier(0.16,1,0.3,1);color:var(--color-gray);flex-shrink:0}
+          .mobile-nav-group.expanded .mobile-nav-chevron{transform:rotate(180deg);color:var(--color-primary)}
+          .mobile-nav-panel{max-height:0;overflow:hidden;transition:max-height 0.4s cubic-bezier(0.16,1,0.3,1);padding:0 20px}
+          .mobile-nav-group.expanded .mobile-nav-panel{max-height:1200px;padding:0 20px 20px}
+          .mobile-nav-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding-top:8px}
+          .mobile-nav-card{display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px 8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;text-decoration:none;color:var(--color-white);transition:all 0.25s ease}
+          .mobile-nav-card:active{background:rgba(248,176,59,0.1);border-color:rgba(248,176,59,0.35);transform:scale(0.97)}
+          .mobile-nav-card-image{width:100%;height:70px;display:flex;align-items:center;justify-content:center}
+          .mobile-nav-card-image img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
+          .mobile-nav-card-title{font-size:13px;font-weight:600;text-align:center;line-height:1.2;white-space:pre-line}
+          .mobile-nav-sublinks{display:flex;flex-direction:column;gap:2px;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08)}
+          .mobile-nav-sublink{display:flex;align-items:center;padding:12px 6px;color:rgba(255,255,255,0.85);font-size:15px;font-weight:500;text-decoration:none;border-radius:8px;transition:all 0.2s ease}
+          .mobile-nav-sublink:active{background:rgba(255,255,255,0.06);color:var(--color-primary);padding-left:12px}
           .mobile-nav-link{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;color:var(--color-white);font-size:18px;font-weight:600;text-decoration:none;transition:all 0.3s ease;opacity:0;transform:translateY(20px)}
-          .mobile-menu.active .mobile-nav-link{opacity:1;transform:translateY(0)}
-          .mobile-menu.active .mobile-nav-link:nth-child(1){transition-delay:0.05s}
-          .mobile-menu.active .mobile-nav-link:nth-child(2){transition-delay:0.1s}
-          .mobile-menu.active .mobile-nav-link:nth-child(3){transition-delay:0.15s}
-          .mobile-menu.active .mobile-nav-link:nth-child(4){transition-delay:0.2s}
-          .mobile-menu.active .mobile-nav-link:nth-child(5){transition-delay:0.25s}
-          .mobile-menu.active .mobile-nav-link:nth-child(6){transition-delay:0.3s}
-          .mobile-menu.active .mobile-nav-link:nth-child(7){transition-delay:0.35s}
-          .mobile-menu.active .mobile-nav-link:nth-child(8){transition-delay:0.4s}
+          .mobile-menu.active .mobile-nav-links > *{opacity:1;transform:translateY(0)}
+          .mobile-menu.active .mobile-nav-links > *:nth-child(1){transition-delay:0.05s}
+          .mobile-menu.active .mobile-nav-links > *:nth-child(2){transition-delay:0.1s}
+          .mobile-menu.active .mobile-nav-links > *:nth-child(3){transition-delay:0.15s}
+          .mobile-menu.active .mobile-nav-links > *:nth-child(4){transition-delay:0.2s}
+          .mobile-menu.active .mobile-nav-links > *:nth-child(5){transition-delay:0.25s}
+          .mobile-menu.active .mobile-nav-links > *:nth-child(6){transition-delay:0.3s}
+          .mobile-menu.active .mobile-nav-links > *:nth-child(7){transition-delay:0.35s}
+          .mobile-menu.active .mobile-nav-links > *:nth-child(8){transition-delay:0.4s}
           .mobile-nav-link:hover,.mobile-nav-link:active{background:rgba(255,255,255,0.08);border-color:rgba(248,176,59,0.4);transform:scale(1.02)}
           .mobile-nav-link svg{color:var(--color-gray);transition:all 0.3s ease}
           .mobile-nav-link:hover svg{color:var(--color-primary);transform:translateX(4px)}
