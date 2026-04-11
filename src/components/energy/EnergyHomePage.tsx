@@ -29,14 +29,24 @@ export default function EnergyHomePage({ lang }: Props) {
       {/* HERO SECTION */}
       <section className="eh-hero">
         <div className="eh-hero-bg">
-          <img src={`${IMG}/hero-bg.webp`} alt="" />
+          <video
+            className="eh-hero-video"
+            src={`${IMG}/hero-video.mp4`}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster={`${IMG}/hero-bg.webp`}
+            aria-hidden="true"
+          />
           <div className="eh-hero-gradient" />
         </div>
         <div className="eh-hero-content">
           <h1 className="eh-hero-title">{t(lang, 'energyHome.hero.title')}</h1>
           <p className="eh-hero-subtitle">{t(lang, 'energyHome.hero.subtitle')}</p>
           <div className="eh-hero-cta-wrap">
-            <button className="eh-cta-glass">{t(lang, 'energyHome.hero.cta')}</button>
+            <button type="button" className="eh-cta-glass">{t(lang, 'energyHome.hero.cta')}</button>
           </div>
         </div>
       </section>
@@ -252,11 +262,11 @@ export default function EnergyHomePage({ lang }: Props) {
         /* HERO */
         .eh-hero{position:relative;height:100vh;min-height:720px;display:flex;align-items:center;justify-content:center;overflow:hidden}
         .eh-hero-bg{position:absolute;inset:0;z-index:0}
-        .eh-hero-bg img{width:100%;height:100%;object-fit:cover}
-        .eh-hero-gradient{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.6) 0%,rgba(0,0,0,0.3) 35%,rgba(0,0,0,0.85) 100%)}
+        .eh-hero-bg img,.eh-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+        .eh-hero-gradient{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.45) 0%,rgba(0,0,0,0.2) 35%,rgba(0,0,0,0.85) 100%)}
         .eh-hero-content{position:relative;z-index:1;text-align:center;padding:0 24px;max-width:1100px;display:flex;flex-direction:column;align-items:center;gap:16px}
-        .eh-hero-title{font-size:clamp(36px,5vw,64px);font-weight:600;line-height:1.05;letter-spacing:-0.03em;margin:0;color:var(--color-white)}
-        .eh-hero-subtitle{font-size:clamp(16px,1.6vw,22px);color:rgba(255,255,255,0.85);font-weight:500;margin:0 0 32px}
+        .eh-hero-title{font-size:clamp(36px,5vw,64px);font-weight:600;line-height:1.05;letter-spacing:-0.03em;margin:0;color:var(--color-white);text-shadow:0 2px 20px rgba(0,0,0,0.5)}
+        .eh-hero-subtitle{font-size:clamp(16px,1.6vw,22px);color:rgba(255,255,255,0.92);font-weight:500;margin:0 0 32px;text-shadow:0 2px 12px rgba(0,0,0,0.5)}
         .eh-hero-cta-wrap{margin-top:auto}
 
         /* CLEAN SECTION */
@@ -328,12 +338,16 @@ export default function EnergyHomePage({ lang }: Props) {
         .eh-specs-list li strong{font-size:18px;font-weight:600;color:var(--color-white)}
 
         /* LATAM */
-        .eh-latam{position:relative;min-height:720px;padding:140px 0;display:flex;align-items:center}
-        .eh-latam-content{position:relative;text-align:center}
-        .eh-stats{display:flex;justify-content:center;gap:60px;margin-top:60px;flex-wrap:wrap}
-        .eh-stat{display:flex;flex-direction:column;align-items:center;gap:8px;padding:24px 40px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);min-width:180px}
-        .eh-stat-num{font-size:40px;font-weight:700;color:var(--color-primary);line-height:1}
-        .eh-stat-label{font-size:14px;color:var(--color-gray)}
+        .eh-latam{position:relative;padding:140px 0 120px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+        .eh-latam .eh-fullbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+        .eh-latam .eh-dark-overlay{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,0,0,0.25) 0%,rgba(0,0,0,0.75) 60%,rgba(0,0,0,0.92) 100%)}
+        .eh-latam-content{position:relative;z-index:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:24px;width:100%}
+        .eh-latam-content .eh-h2{margin-bottom:4px}
+        .eh-latam-content .eh-muted{max-width:640px;margin:0 auto}
+        .eh-stats{display:flex;justify-content:center;align-items:stretch;gap:24px;margin-top:48px;flex-wrap:wrap;width:100%;max-width:900px}
+        .eh-stat{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:28px 32px;background:rgba(10,10,10,0.55);border:1px solid rgba(255,255,255,0.12);border-radius:16px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);flex:1 1 200px;max-width:260px;min-height:130px}
+        .eh-stat-num{font-size:clamp(32px,3.5vw,44px);font-weight:700;color:var(--color-primary);line-height:1;letter-spacing:-0.02em}
+        .eh-stat-label{font-size:14px;color:rgba(255,255,255,0.75);text-align:center}
 
         /* FINAL CTA */
         .eh-finalcta{position:relative;min-height:560px;padding:140px 0;display:flex;align-items:center}

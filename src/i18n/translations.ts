@@ -658,7 +658,7 @@ export const translations = {
     'energyHome.solar.title': 'Energía Solar de Nivel Mundial',
     'energyHome.solar.desc': 'Componentes premium, instalación profesional y monitoreo continuo. Tu sistema trabaja para ti, ahorro tras ahorro.',
     'energyHome.gridDown.title': 'Se Va la Luz, tu Hogar Sigue Encendido',
-    'energyHome.gridDown.desc': 'Batería + tranquilidad.',
+    'energyHome.gridDown.desc': 'Batería — tranquilidad.',
     'energyHome.app.title': 'Controla Todo desde la App Ancestro',
     'energyHome.app.desc': 'Cuando instalas solar con Powerwall, la app Ancestro te da control sobre todos los productos en tu ecosistema Ancestro.',
     'energyHome.app.feat1.title': 'Optimiza tu Energía',
