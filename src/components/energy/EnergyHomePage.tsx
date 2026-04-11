@@ -23,9 +23,9 @@ const switchingCards = [
 ];
 
 const plans = [
-  { key: 'solar', image: 'plan-solar.webp', tagline: 'plan.solar.tagline' },
-  { key: 'battery', image: 'plan-battery.webp', tagline: 'plan.battery.tagline' },
-  { key: 'bundle', image: 'plan-bundle.webp', tagline: 'plan.bundle.tagline', featured: true },
+  { key: 'solar', image: 'plan-solar.webp', tagline: 'plan.solar.tagline', fit: 'cover' as const },
+  { key: 'battery', image: 'battery-product.webp', tagline: 'plan.battery.tagline', fit: 'contain' as const },
+  { key: 'bundle', image: 'plan-bundle.webp', tagline: 'plan.bundle.tagline', featured: true, fit: 'cover' as const },
 ];
 
 const solarFeatures = [
@@ -145,7 +145,7 @@ export default function EnergyHomePage({ lang }: Props) {
           <div className="eh-plans-grid">
             {plans.map((plan) => (
               <div key={plan.key} className={`eh-plan-card ${plan.featured ? 'featured' : ''}`}>
-                <div className="eh-plan-image">
+                <div className={`eh-plan-image eh-plan-image-${plan.fit}`}>
                   <img src={`${IMG}/${plan.image}`} alt={t(lang, `energyHome.plans.${plan.key}.title`)} />
                 </div>
                 <div className="eh-plan-body">
@@ -199,7 +199,7 @@ export default function EnergyHomePage({ lang }: Props) {
 
       {/* GRID DOWN LIGHTS ON */}
       <section className="eh-section eh-grid-down">
-        <img src={`${IMG}/clean-energy-bg.webp`} alt="" className="eh-fullbg" />
+        <img src={`${IMG}/grid-down-bg.webp`} alt="" className="eh-fullbg" />
         <div className="eh-grid-down-overlay" />
         <div className="eh-container eh-grid-down-content">
           <h2 className="eh-h2">{t(lang, 'energyHome.gridDown.title')}</h2>
@@ -230,7 +230,7 @@ export default function EnergyHomePage({ lang }: Props) {
 
       {/* GETTING TO POWER ON */}
       <section className="eh-section eh-powerOn">
-        <img src={`${IMG}/night-house-bg.webp`} alt="" className="eh-fullbg" />
+        <img src={`${IMG}/power-on-bg.webp`} alt="" className="eh-fullbg" />
         <div className="eh-powerOn-overlay" />
         <div className="eh-container eh-powerOn-content">
           <h2 className="eh-h2">{t(lang, 'energyHome.powerOn.title')}</h2>
@@ -295,7 +295,7 @@ export default function EnergyHomePage({ lang }: Props) {
 
       {/* FINAL CTA */}
       <section className="eh-section eh-finalcta">
-        <img src={`${IMG}/solar-panels-bg.webp`} alt="" className="eh-fullbg" />
+        <img src={`${IMG}/final-cta-bg.webp`} alt="" className="eh-fullbg" />
         <div className="eh-finalcta-overlay" />
         <div className="eh-container eh-finalcta-content">
           <h2 className="eh-h2 eh-h2-center">{t(lang, 'energyHome.finalCta.title')}</h2>
@@ -371,8 +371,10 @@ export default function EnergyHomePage({ lang }: Props) {
         .eh-plan-card{display:flex;flex-direction:column;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;overflow:hidden;padding:10px 10px 30px;transition:all 0.3s ease}
         .eh-plan-card:hover{border-color:rgba(248,176,59,0.4);transform:translateY(-4px)}
         .eh-plan-card.featured{border-color:rgba(248,176,59,0.35)}
-        .eh-plan-image{width:100%;height:220px;border-radius:16px;overflow:hidden;background:rgba(255,255,255,0.04)}
-        .eh-plan-image img{width:100%;height:100%;object-fit:cover}
+        .eh-plan-image{width:100%;height:220px;border-radius:16px;overflow:hidden;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center}
+        .eh-plan-image-cover img{width:100%;height:100%;object-fit:cover}
+        .eh-plan-image-contain{background:linear-gradient(160deg,rgba(255,255,255,0.06) 0%,rgba(0,0,0,0.2) 100%)}
+        .eh-plan-image-contain img{max-width:80%;max-height:90%;width:auto;height:auto;object-fit:contain}
         .eh-plan-body{padding:24px 24px 16px;flex:1}
         .eh-plan-title{font-size:22px;font-weight:600;color:var(--color-white);margin:0 0 10px}
         .eh-plan-desc{font-size:14px;color:rgba(255,255,255,0.7);line-height:1.6;margin:0 0 16px}
