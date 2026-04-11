@@ -15,11 +15,16 @@ const energyFlowSteps = [
   { key: 'charge', titleKey: 'energyHome.flow.charge.title', descKey: 'energyHome.flow.charge.desc' },
 ];
 
-const switchingCards = [
-  { key: 'noUpfront', titleKey: 'energyHome.switching.noUpfront' },
-  { key: 'easy', titleKey: 'energyHome.switching.easy' },
-  { key: 'lower', titleKey: 'energyHome.switching.lower' },
-  { key: 'backup', titleKey: 'energyHome.switching.backup' },
+const switchingSteps = [
+  { num: '1', titleKey: 'energyHome.switching.step1.title', descKey: 'energyHome.switching.step1.desc' },
+  { num: '2', titleKey: 'energyHome.switching.step2.title', descKey: 'energyHome.switching.step2.desc' },
+  { num: '3', titleKey: 'energyHome.switching.step3.title', descKey: 'energyHome.switching.step3.desc' },
+];
+
+const completeSolutions = [
+  { key: 'solar', titleKey: 'energyHome.solutions.solar.title', descKey: 'energyHome.solutions.solar.desc' },
+  { key: 'battery', titleKey: 'energyHome.solutions.battery.title', descKey: 'energyHome.solutions.battery.desc' },
+  { key: 'monitoring', titleKey: 'energyHome.solutions.monitoring.title', descKey: 'energyHome.solutions.monitoring.desc' },
 ];
 
 const plans = [
@@ -96,14 +101,17 @@ export default function EnergyHomePage({ lang }: Props) {
         </div>
       </section>
 
-      {/* SWITCHING TO ANCESTRO */}
+      {/* SWITCHING TO ANCESTRO - 3 STEPS */}
       <section className="eh-section eh-switching">
         <div className="eh-container">
-          <h2 className="eh-h2 eh-h2-center">{t(lang, 'energyHome.switching.title')}</h2>
-          <div className="eh-switching-grid">
-            {switchingCards.map((card) => (
-              <div key={card.key} className="eh-switching-card">
-                <span>{t(lang, card.titleKey)}</span>
+          <h2 className="eh-switching-title">{t(lang, 'energyHome.switching.title')}</h2>
+          <p className="eh-switching-sub">{t(lang, 'energyHome.switching.sub')}</p>
+          <div className="eh-switching-steps">
+            {switchingSteps.map((step) => (
+              <div key={step.num} className="eh-switching-step">
+                <span className="eh-switching-num">{step.num}</span>
+                <h3 className="eh-switching-step-title">{t(lang, step.titleKey)}</h3>
+                <p className="eh-switching-step-desc">{t(lang, step.descKey)}</p>
               </div>
             ))}
           </div>
@@ -133,6 +141,22 @@ export default function EnergyHomePage({ lang }: Props) {
                 onClick={() => setActiveFlow(i)}
                 aria-label={t(lang, step.titleKey)}
               />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* COMPLETE ENERGY SOLUTIONS - 3 FEATURE CARDS */}
+      <section className="eh-section eh-solutions">
+        <div className="eh-container">
+          <h2 className="eh-solutions-title">{t(lang, 'energyHome.solutions.title')}</h2>
+          <div className="eh-solutions-grid">
+            {completeSolutions.map((sol) => (
+              <div key={sol.key} className="eh-solutions-card">
+                <div className="eh-solutions-icon" />
+                <h3 className="eh-solutions-card-title">{t(lang, sol.titleKey)}</h3>
+                <p className="eh-solutions-card-desc">{t(lang, sol.descKey)}</p>
+              </div>
             ))}
           </div>
         </div>
@@ -345,12 +369,26 @@ export default function EnergyHomePage({ lang }: Props) {
         .eh-clean-title{font-family:Inter,sans-serif;font-size:clamp(32px,4vw,48px);font-weight:700;line-height:1.1;letter-spacing:-0.02em;color:#fff;text-align:center;margin:0;max-width:1100px}
         .eh-clean-desc{font-family:Inter,sans-serif;font-size:clamp(15px,1.4vw,18px);font-weight:300;line-height:1.6;color:#b0b0b0;text-align:center;margin:0;max-width:1162px;white-space:pre-line}
 
-        /* SWITCHING TO ANCESTRO */
-        .eh-switching{padding:80px 0 100px}
-        .eh-switching-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:40px}
-        .eh-switching-card{padding:40px 24px;min-height:140px;background:rgba(255,255,255,0.04);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);border:1px solid rgba(255,255,255,0.1);border-radius:16px;display:flex;align-items:center;justify-content:center;text-align:center;transition:all 0.3s ease}
-        .eh-switching-card:hover{background:rgba(248,176,59,0.08);border-color:rgba(248,176,59,0.3);transform:translateY(-4px)}
-        .eh-switching-card span{font-size:clamp(16px,1.5vw,22px);font-weight:500;color:var(--color-white);line-height:1.3;white-space:pre-line}
+        /* SWITCHING TO ANCESTRO - 3 STEPS */
+        .eh-switching{padding:120px 0 140px;background:#0F0F0F}
+        .eh-switching .eh-container{display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px}
+        .eh-switching-title{font-family:Inter,sans-serif;font-size:clamp(32px,4vw,48px);font-weight:700;line-height:1.1;letter-spacing:-0.02em;color:#fff;text-align:center;margin:0}
+        .eh-switching-sub{font-family:Inter,sans-serif;font-size:clamp(16px,1.6vw,20px);font-weight:300;color:#b0b0b0;text-align:center;margin:0 0 40px}
+        .eh-switching-steps{display:grid;grid-template-columns:repeat(3,280px);gap:50px;justify-content:center;padding-top:40px;width:100%}
+        .eh-switching-step{display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center}
+        .eh-switching-num{font-family:Inter,sans-serif;font-size:56px;font-weight:700;color:#4FD1C5;line-height:1}
+        .eh-switching-step-title{font-family:Inter,sans-serif;font-size:18px;font-weight:600;color:#fff;margin:0;text-align:center}
+        .eh-switching-step-desc{font-family:Inter,sans-serif;font-size:14px;font-weight:300;color:#909090;margin:0;text-align:center;line-height:1.5}
+
+        /* COMPLETE ENERGY SOLUTIONS */
+        .eh-solutions{padding:80px 60px;background:#000}
+        .eh-solutions .eh-container{display:flex;flex-direction:column;align-items:center;gap:60px;max-width:1400px}
+        .eh-solutions-title{font-family:Inter,sans-serif;font-size:clamp(32px,4vw,48px);font-weight:700;color:#fff;text-align:center;margin:0;letter-spacing:-0.02em}
+        .eh-solutions-grid{display:flex;justify-content:space-around;gap:40px;width:100%;flex-wrap:wrap}
+        .eh-solutions-card{display:flex;flex-direction:column;gap:16px;padding:24px;width:300px}
+        .eh-solutions-icon{width:60px;height:60px;border-radius:12px;background:#4FD1C5;flex-shrink:0}
+        .eh-solutions-card-title{font-family:Inter,sans-serif;font-size:20px;font-weight:600;color:#fff;margin:0}
+        .eh-solutions-card-desc{font-family:Inter,sans-serif;font-size:14px;font-weight:300;color:#b0b0b0;margin:0;line-height:1.5}
 
         /* ENERGY FLOW */
         .eh-flow{text-align:center;padding-bottom:0}
