@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { t } from '@/i18n/translations';
@@ -10,17 +10,101 @@ interface NavbarProps {
   lang: string;
 }
 
+interface MegaMenuCard {
+  title: string;
+  image: string;
+  href: string;
+}
+
+interface MegaMenuLink {
+  label: string;
+  href: string;
+}
+
+interface MegaMenuData {
+  cards: MegaMenuCard[];
+  links: MegaMenuLink[];
+}
+
+const megaMenuData: Record<string, MegaMenuData> = {
+  energy: {
+    cards: [
+      { title: 'Home', image: `${CDN_URL}/megamenu/energy-home.png`, href: '#energy-home' },
+      { title: 'Business', image: `${CDN_URL}/megamenu/energy-business.png`, href: '#energy-business' },
+    ],
+    links: [
+      { label: 'Get a Proposal', href: '#proposal' },
+      { label: 'Incentives', href: '#incentives' },
+      { label: 'Partner with Ancestro', href: '#partner' },
+      { label: 'Host land or roof', href: '#host' },
+      { label: 'Equipment', href: '#equipment' },
+    ],
+  },
+  charging: {
+    cards: [
+      { title: 'Level 3\nFast Charger', image: `${CDN_URL}/megamenu/charging-l3.webp`, href: '#charging-l3' },
+      { title: 'Level 2\nFast Charger', image: `${CDN_URL}/megamenu/charging-l2.webp`, href: '#charging-l2' },
+      { title: 'Home Charging', image: `${CDN_URL}/megamenu/charging-home.webp`, href: '#charging-home' },
+    ],
+    links: [
+      { label: 'Download Charging App', href: '#charging-app' },
+      { label: 'Help Me Charge', href: '#help-charge' },
+      { label: 'Charging Calculator', href: '#calculator' },
+      { label: 'Ancestro Charging Map', href: '#charging-map' },
+      { label: 'Host a Charger', href: '#host-charger' },
+      { label: 'Incentives', href: '#charging-incentives' },
+      { label: 'Equipment', href: '#charging-equipment' },
+    ],
+  },
+  vehicles: {
+    cards: [
+      { title: 'Cars', image: `${CDN_URL}/megamenu/vehicles-cars.webp`, href: '#vehicles-cars' },
+      { title: 'Trucks', image: `${CDN_URL}/megamenu/vehicles-trucks.webp`, href: '#vehicles-trucks' },
+      { title: 'Bus', image: `${CDN_URL}/megamenu/vehicles-bus.webp`, href: '#vehicles-bus' },
+      { title: 'e-Motorcycle', image: `${CDN_URL}/megamenu/vehicles-motorcycle.webp`, href: '#vehicles-motorcycle' },
+      { title: 'e-Scooter', image: `${CDN_URL}/megamenu/vehicles-scooter.webp`, href: '#vehicles-scooter' },
+      { title: 'Golf Cart', image: `${CDN_URL}/megamenu/vehicles-golf.webp`, href: '#vehicles-golf' },
+    ],
+    links: [
+      { label: 'Trade-in', href: '#trade-in' },
+      { label: 'Find Collision Center', href: '#collision' },
+      { label: 'Financing', href: '#financing' },
+      { label: 'Find a Charger', href: '#find-charger' },
+      { label: 'Fleet', href: '#fleet' },
+      { label: 'Incentives', href: '#vehicle-incentives' },
+      { label: 'Semi', href: '#semi' },
+      { label: 'Insurance', href: '#insurance' },
+    ],
+  },
+  shop: {
+    cards: [
+      { title: 'Stays', image: `${CDN_URL}/megamenu/shop-stays.webp`, href: '#shop-stays' },
+      { title: 'Experiences', image: `${CDN_URL}/megamenu/shop-experiences.png`, href: '#shop-experiences' },
+      { title: 'Health', image: `${CDN_URL}/megamenu/shop-health.webp`, href: '#shop-health' },
+      { title: 'Lifestyle', image: `${CDN_URL}/megamenu/shop-lifestyle.webp`, href: '#shop-lifestyle' },
+      { title: 'Dining', image: `${CDN_URL}/megamenu/shop-dining.webp`, href: '#shop-dining' },
+    ],
+    links: [],
+  },
+};
+
 export default function Navbar({ lang }: NavbarProps) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
+  const megaMenuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const navbarRef = useRef<HTMLElement>(null);
+
+  const megaMenuKeys = ['energy', 'charging', 'vehicles', 'shop'];
 
   const navItems = [
     { label: t(lang, 'nav.energy'), href: '#energy', key: 'energy' },
     { label: t(lang, 'nav.charging'), href: '#charging', key: 'charging' },
     { label: t(lang, 'nav.vehicles'), href: '#vehicles', key: 'vehicles' },
+    { label: t(lang, 'nav.shop'), href: '#shop', key: 'shop' },
     { label: t(lang, 'nav.team'), href: `/${lang}/team`, key: 'team' },
     { label: t(lang, 'nav.join'), href: `/${lang}/join`, key: 'join' },
     { label: t(lang, 'nav.waitlist'), href: `/${lang}/waitlist`, key: 'waitlist' },
@@ -34,6 +118,20 @@ export default function Navbar({ lang }: NavbarProps) {
     { code: 'zh', name: '中文', flag: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><mask id="fzh"><circle cx="256" cy="256" r="256" fill="#fff"/></mask><g mask="url(#fzh)"><path fill="#d80027" d="M0 0h512v512H0z"/><path fill="#ffda44" d="m140.1 155.8 22.1 68h71.5l-57.8 42.1 22.1 68-57.9-42-57.9 42 22.2-68-57.9-42.1H118z"/></g></svg> },
     { code: 'ar', name: 'العربية', flag: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><mask id="far"><circle cx="256" cy="256" r="256" fill="#fff"/></mask><g mask="url(#far)"><path fill="#6da544" d="M0 0h512v512H0z"/><g fill="#eee"><path d="M144.7 306v-89h22.3v66.8h111.3V195h22.3v111zM367 306v-89h22.3v88.9zM166.8 239.1h111.5v22.3H166.8z"/><path d="M211.5 217h22.3v67h-22.3zm67 0h22.3v67h-22.3zm67 67h22.3v22h-22.3z"/><path d="M144.7 306h244.6v22.3H144.7z"/></g></g></svg> },
   ];
+
+  const handleMegaMenuEnter = useCallback((key: string) => {
+    if (megaMenuTimeoutRef.current) {
+      clearTimeout(megaMenuTimeoutRef.current);
+      megaMenuTimeoutRef.current = null;
+    }
+    setActiveMegaMenu(key);
+  }, []);
+
+  const handleMegaMenuLeave = useCallback(() => {
+    megaMenuTimeoutRef.current = setTimeout(() => {
+      setActiveMegaMenu(null);
+    }, 150);
+  }, []);
 
   function toggleMenu() {
     setIsOpen(!isOpen);
@@ -50,7 +148,7 @@ export default function Navbar({ lang }: NavbarProps) {
       if (window.innerWidth > 1024 && isOpen) closeMenu();
     }
     function handleEscape(e: KeyboardEvent) {
-      if (e.key === 'Escape') { closeMenu(); setLangDropdownOpen(false); setUserDropdownOpen(false); }
+      if (e.key === 'Escape') { closeMenu(); setLangDropdownOpen(false); setUserDropdownOpen(false); setActiveMegaMenu(null); }
     }
     window.addEventListener('resize', handleResize);
     document.addEventListener('keydown', handleEscape);
@@ -67,17 +165,24 @@ export default function Navbar({ lang }: NavbarProps) {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (megaMenuTimeoutRef.current) clearTimeout(megaMenuTimeoutRef.current);
+    };
+  }, []);
+
   async function handleLogout() {
     await logout();
     window.location.href = `/${lang}`;
   }
 
-  // Get current route without lang prefix for language switching
   const currentRoute = pathname.replace(/^\/(es|en|pt|zh|ar)/, '') || '/';
+
+  const currentMegaMenu = activeMegaMenu ? megaMenuData[activeMegaMenu] : null;
 
   return (
     <>
-      <nav className="navbar">
+      <nav className="navbar" ref={navbarRef}>
         <div className="navbar-inner">
           <Link href={`/${lang}`} className="logo">
             <img src={`${CDN_URL}/logo.svg`} alt="Ancestro Logo" className="logo-img" width={200} height={40} />
@@ -85,19 +190,33 @@ export default function Navbar({ lang }: NavbarProps) {
 
           {/* Desktop Navigation */}
           <div className="nav-links-desktop">
-            {navItems.map((item) => (
-              item.href.startsWith('#') ? (
-                <a key={item.key} href={item.href}
-                  className={`nav-link ${item.key === 'join' ? 'nav-link-highlight' : ''}`}>
+            {navItems.map((item) => {
+              const hasMegaMenu = megaMenuKeys.includes(item.key);
+              const isActive = activeMegaMenu === item.key;
+
+              const linkProps = {
+                className: `nav-link ${item.key === 'join' ? 'nav-link-highlight' : ''} ${isActive ? 'nav-link-active' : ''}`,
+                ...(hasMegaMenu ? {
+                  onMouseEnter: () => handleMegaMenuEnter(item.key),
+                  onMouseLeave: handleMegaMenuLeave,
+                } : {}),
+              };
+
+              return item.href.startsWith('#') ? (
+                <a key={item.key} href={item.href} {...linkProps}>
                   {item.label}
+                  {hasMegaMenu && (
+                    <svg className={`nav-link-arrow ${isActive ? 'rotated' : ''}`} width="10" height="10" viewBox="0 0 24 24" fill="none">
+                      <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  )}
                 </a>
               ) : (
-                <Link key={item.key} href={item.href}
-                  className={`nav-link ${item.key === 'join' ? 'nav-link-highlight' : ''}`}>
+                <Link key={item.key} href={item.href} {...linkProps}>
                   {item.label}
                 </Link>
-              )
-            ))}
+              );
+            })}
           </div>
 
           <div className="nav-right-desktop">
@@ -175,6 +294,47 @@ export default function Navbar({ lang }: NavbarProps) {
           </div>
         </div>
 
+        {/* Mega Menu Panel */}
+        <div
+          className={`megamenu-panel ${activeMegaMenu ? 'active' : ''}`}
+          onMouseEnter={() => { if (activeMegaMenu) handleMegaMenuEnter(activeMegaMenu); }}
+          onMouseLeave={handleMegaMenuLeave}
+        >
+          {currentMegaMenu && (
+            <div className="megamenu-content">
+              <div className="megamenu-cards">
+                {currentMegaMenu.cards.map((card) => (
+                  <a key={card.title} href={card.href} className="megamenu-card">
+                    <div className="megamenu-card-image">
+                      <img src={card.image} alt={card.title} loading="lazy" />
+                    </div>
+                    <div className="megamenu-card-info">
+                      <span className="megamenu-card-title">{card.title}</span>
+                      <div className="megamenu-card-actions">
+                        <span>Learn More</span>
+                        <span className="megamenu-card-divider"></span>
+                        <span>Order</span>
+                      </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+              {currentMegaMenu.links.length > 0 && (
+                <>
+                  <div className="megamenu-divider"></div>
+                  <div className="megamenu-links">
+                    {currentMegaMenu.links.map((link) => (
+                      <a key={link.label} href={link.href} className="megamenu-link">
+                        {link.label}
+                      </a>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* Mobile Menu */}
         <div className={`mobile-menu ${isOpen ? 'active' : ''}`}>
           <div className="mobile-menu-content">
@@ -216,6 +376,11 @@ export default function Navbar({ lang }: NavbarProps) {
         </div>
       </nav>
 
+      {/* Megamenu overlay to close on click outside */}
+      {activeMegaMenu && (
+        <div className="megamenu-overlay" onClick={() => setActiveMegaMenu(null)} />
+      )}
+
       <style>{`
         .navbar{position:fixed;top:0;left:0;right:0;height:79px;background-color:var(--color-black-50);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);z-index:1000}
         .navbar-inner{display:flex;align-items:center;justify-content:space-between;height:100%;max-width:1920px;margin:0 auto;padding:0 30px}
@@ -223,9 +388,12 @@ export default function Navbar({ lang }: NavbarProps) {
         .logo:hover{opacity:0.9}
         .logo-img{height:40px;width:auto;object-fit:contain}
         .nav-links-desktop{display:flex;align-items:center;gap:4px;position:absolute;left:50%;transform:translateX(-50%)}
-        .nav-link{padding:10px;font-size:14px;font-weight:600;color:var(--color-white);text-decoration:none;transition:opacity var(--transition-fast);border-radius:8px;white-space:nowrap}
+        .nav-link{display:flex;align-items:center;gap:4px;padding:10px;font-size:14px;font-weight:600;color:var(--color-white);text-decoration:none;transition:all var(--transition-fast);border-radius:8px;white-space:nowrap;cursor:pointer}
         .nav-link:hover{opacity:0.8}
-.nav-link-highlight{color:var(--color-primary)}
+        .nav-link-active{background:rgba(255,255,255,0.1);color:#f8b03b}
+        .nav-link-highlight{color:var(--color-primary)}
+        .nav-link-arrow{transition:transform 0.3s ease;opacity:0.6;margin-left:2px}
+        .nav-link-arrow.rotated{transform:rotate(180deg);opacity:1}
         .nav-right-desktop{display:flex;align-items:center;gap:12px}
         .flag-icon{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;overflow:hidden;flex-shrink:0}
         .flag-icon svg{width:100%;height:100%}
@@ -253,13 +421,52 @@ export default function Navbar({ lang }: NavbarProps) {
         .nav-dropdown-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;background:none;border:none;border-radius:8px;color:var(--color-white);font-family:var(--font-family);font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;transition:background 0.15s ease}
         .nav-dropdown-item:hover{background:rgba(255,255,255,0.08)}
         .nav-dropdown-logout{color:#ef4444}
+
+        /* Mega Menu */
+        .megamenu-panel{position:absolute;top:79px;left:0;right:0;max-height:0;overflow:hidden;opacity:0;transition:max-height 0.4s cubic-bezier(0.16,1,0.3,1),opacity 0.3s ease;z-index:999;pointer-events:none}
+        .megamenu-panel.active{max-height:600px;opacity:1;pointer-events:auto}
+        .megamenu-content{display:flex;align-items:stretch;gap:40px;max-width:1920px;margin:0 auto;padding:20px 60px;background:rgba(10,10,10,0.92);backdrop-filter:blur(30px) saturate(140%);-webkit-backdrop-filter:blur(30px) saturate(140%);border:1px solid rgba(255,255,255,0.12);border-radius:20px;margin-left:20px;margin-right:20px;box-shadow:0 30px 80px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.04) inset}
+        .megamenu-cards{display:flex;align-items:center;justify-content:center;gap:24px;flex:1;padding:30px 0;flex-wrap:wrap}
+        .megamenu-card{display:flex;flex-direction:column;align-items:center;gap:14px;text-decoration:none;width:170px;transition:transform 0.3s ease}
+        .megamenu-card:hover{transform:translateY(-4px)}
+        .megamenu-card-image{width:170px;height:140px;display:flex;align-items:center;justify-content:center;transition:transform 0.3s ease;position:relative}
+        .megamenu-card:hover .megamenu-card-image{transform:scale(1.05)}
+        .megamenu-card-image img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block}
+        .megamenu-card-info{display:flex;flex-direction:column;align-items:center;gap:6px}
+        .megamenu-card-title{font-family:Inter,sans-serif;font-size:15px;font-weight:600;color:#fff;text-align:center;white-space:pre-line;line-height:1.25;letter-spacing:-0.01em}
+        .megamenu-card-actions{display:flex;align-items:center;gap:10px}
+        .megamenu-card-actions span{font-family:Inter,sans-serif;font-size:11px;font-weight:500;color:rgba(255,255,255,0.7);transition:color 0.2s ease}
+        .megamenu-card:hover .megamenu-card-actions span:not(.megamenu-card-divider){color:#f8b03b}
+        .megamenu-card-divider{width:1px;height:12px;background:rgba(255,255,255,0.25)}
+        .megamenu-divider{width:1px;align-self:stretch;margin:30px 0;background:rgba(255,255,255,0.15);flex-shrink:0}
+        .megamenu-links{display:flex;flex-direction:column;justify-content:center;gap:0;flex-shrink:0;min-width:180px;padding:30px 0}
+        .megamenu-link{font-family:Inter,sans-serif;font-size:14px;font-weight:500;color:rgba(255,255,255,0.85);text-decoration:none;line-height:2.3;transition:color 0.2s ease;white-space:nowrap}
+        .megamenu-link:hover{color:#f8b03b}
+        .megamenu-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:998}
+
+        @media(min-width:1440px){
+          .megamenu-content{padding:20px 120px;gap:50px}
+          .megamenu-cards{gap:36px}
+          .megamenu-card,.megamenu-card-image{width:190px}
+          .megamenu-card-image{height:160px}
+          .megamenu-card-title{font-size:16px}
+        }
+        @media(min-width:1700px){
+          .megamenu-content{padding:20px 180px}
+          .megamenu-cards{gap:48px}
+          .megamenu-card,.megamenu-card-image{width:210px}
+          .megamenu-card-image{height:175px}
+          .megamenu-card-title{font-size:18px}
+          .megamenu-card-actions span{font-size:12px}
+        }
+
         .nav-right-mobile{display:none}
         .hamburger{display:none}
         .mobile-menu{display:none}
         @media(max-width:1024px){
           .navbar-inner{padding:0 16px}
           .logo-img{height:35px}
-          .nav-links-desktop,.nav-right-desktop{display:none}
+          .nav-links-desktop,.nav-right-desktop,.megamenu-panel,.megamenu-overlay{display:none}
           .nav-right-mobile{display:flex;align-items:center;gap:12px;z-index:1002}
           .hamburger{display:flex;flex-direction:column;justify-content:center;align-items:center;width:44px;height:44px;padding:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;cursor:pointer;transition:all 0.3s ease}
           .hamburger:hover{background:rgba(255,255,255,0.15)}
@@ -282,6 +489,8 @@ export default function Navbar({ lang }: NavbarProps) {
           .mobile-menu.active .mobile-nav-link:nth-child(4){transition-delay:0.2s}
           .mobile-menu.active .mobile-nav-link:nth-child(5){transition-delay:0.25s}
           .mobile-menu.active .mobile-nav-link:nth-child(6){transition-delay:0.3s}
+          .mobile-menu.active .mobile-nav-link:nth-child(7){transition-delay:0.35s}
+          .mobile-menu.active .mobile-nav-link:nth-child(8){transition-delay:0.4s}
           .mobile-nav-link:hover,.mobile-nav-link:active{background:rgba(255,255,255,0.08);border-color:rgba(248,176,59,0.4);transform:scale(1.02)}
           .mobile-nav-link svg{color:var(--color-gray);transition:all 0.3s ease}
           .mobile-nav-link:hover svg{color:var(--color-primary);transform:translateX(4px)}
