@@ -22,7 +22,7 @@ export default function SwitchAncestro({ lang }: { lang: string }) {
       </div>
 
       <style>{`
-        .eh-switch{position:relative;z-index:5;margin-top:-180px;margin-bottom:-80px;padding:0 40px}
+        .eh-switch{background:transparent;position:relative;z-index:5;margin-top:-180px;margin-bottom:-80px;padding:0 40px}
         .eh-switch-inner{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:40px}
         .eh-switch-title{font-size:30px;font-weight:600;color:#fff;text-align:center;margin:0}
         .eh-switch-grid{display:flex;gap:24px;width:100%}

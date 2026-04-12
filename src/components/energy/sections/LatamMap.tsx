@@ -46,7 +46,7 @@ export default function LatamMap({ lang }: { lang: string }) {
       </div>
 
       <style>{`
-        .eh-latam{position:relative;width:100%;min-height:780px;display:flex;overflow:hidden}
+        .eh-latam{background:#000;position:relative;z-index:1;width:100%;min-height:780px;display:flex;overflow:hidden}
         .eh-latam-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
         .eh-latam-content{position:relative;z-index:1;width:100%;max-width:1148px;margin:0 auto;padding:80px 40px;display:flex;flex-direction:column;justify-content:space-between;min-height:780px}
         .eh-latam-top{text-align:center}

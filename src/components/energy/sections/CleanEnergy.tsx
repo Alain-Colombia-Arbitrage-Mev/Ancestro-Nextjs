@@ -12,7 +12,7 @@ export default function CleanEnergy({ lang }: { lang: string }) {
       </div>
 
       <style>{`
-        .eh-clean{position:relative;width:100%;min-height:700px;display:flex;align-items:flex-start;overflow:hidden}
+        .eh-clean{background:#000;position:relative;width:100%;min-height:700px;display:flex;align-items:flex-start;overflow:hidden}
         .eh-clean-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
         .eh-clean-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.7) 0%,transparent 40%,transparent 60%,rgba(0,0,0,.7) 100%)}
         .eh-clean-inner{position:relative;z-index:1;width:100%;max-width:1280px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:20px;padding:100px 40px 60px}

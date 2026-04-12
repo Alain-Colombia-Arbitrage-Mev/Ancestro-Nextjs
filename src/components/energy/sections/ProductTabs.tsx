@@ -41,7 +41,7 @@ export default function ProductTabs({ lang }: { lang: string }) {
       </div>
 
       <style>{`
-        .eh-ptabs{padding:100px 40px}
+        .eh-ptabs{background:#000;position:relative;z-index:1;padding:100px 40px}
         .eh-ptabs-inner{max-width:1280px;margin:0 auto}
         .eh-ptabs-nav{display:flex;justify-content:center;gap:10px;margin-bottom:30px}
         .eh-ptab{padding:12px 32px;min-height:44px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);border-radius:999px;color:rgba(255,255,255,.8);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:all .25s}

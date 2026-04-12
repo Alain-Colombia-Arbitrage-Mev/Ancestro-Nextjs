@@ -24,7 +24,7 @@ export default function HeroSection({ lang }: { lang: string }) {
       </div>
 
       <style>{`
-        .eh-hero{position:relative;width:100%;height:100vh;min-height:720px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+        .eh-hero{background:#000;position:relative;width:100%;height:100vh;min-height:720px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
         .eh-hero-bg{position:absolute;inset:0}
         .eh-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
         .eh-hero-gradient{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,transparent 40%,rgba(0,0,0,.85) 100%)}

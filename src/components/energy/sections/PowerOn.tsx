@@ -12,7 +12,7 @@ export default function PowerOn({ lang }: { lang: string }) {
       </div>
 
       <style>{`
-        .eh-power{position:relative;width:100%;min-height:800px;display:flex;align-items:flex-end;overflow:hidden}
+        .eh-power{position:relative;z-index:1;width:100%;min-height:800px;display:flex;align-items:flex-end;overflow:hidden;background:#000}
         .eh-power-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
         .eh-power-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.85) 100%)}
         .eh-power-inner{position:relative;z-index:1;padding:0 40px 80px;max-width:1280px}

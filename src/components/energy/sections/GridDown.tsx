@@ -12,7 +12,7 @@ export default function GridDown({ lang }: { lang: string }) {
       </div>
 
       <style>{`
-        .eh-grid{position:relative;width:100%;min-height:600px;display:flex;align-items:flex-end;overflow:hidden}
+        .eh-grid{position:relative;z-index:1;width:100%;min-height:600px;display:flex;align-items:flex-end;overflow:hidden;background:#000}
         .eh-grid-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
         .eh-grid-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,#000 95%)}
         .eh-grid-inner{position:relative;z-index:1;padding:0 40px 80px;max-width:1280px}

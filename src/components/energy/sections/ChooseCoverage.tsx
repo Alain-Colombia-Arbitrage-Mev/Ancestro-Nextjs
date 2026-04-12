@@ -35,7 +35,7 @@ export default function ChooseCoverage({ lang }: { lang: string }) {
       </div>
 
       <style>{`
-        .eh-cov{padding:100px 40px;max-width:1280px;margin:0 auto}
+        .eh-cov{background:#000;position:relative;z-index:1;padding:100px 40px;max-width:1280px;margin:0 auto}
         .eh-cov-title{font-size:30px;font-weight:500;text-align:center;color:#fff;margin:0 0 50px}
         .eh-cov-grid{display:flex;gap:30px;justify-content:center}
         .eh-cov-card{flex:1;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:10px 10px 30px;display:flex;flex-direction:column;align-items:stretch;min-height:480px;transition:all .3s ease;cursor:pointer}
