@@ -32,7 +32,7 @@ export default function SolarSlide({ lang }: { lang: string }) {
       </div>
 
       <style>{`
-        .eh-slide{position:relative;width:100%;height:900px;overflow:hidden}
+        .eh-slide{position:relative;width:100%;height:900px;overflow:hidden;margin-top:-100px}
         .eh-slide-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
         .eh-slide-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.6) 0%,transparent 35%,transparent 65%,rgba(0,0,0,.9) 100%)}
         .eh-slide-content{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:center}
