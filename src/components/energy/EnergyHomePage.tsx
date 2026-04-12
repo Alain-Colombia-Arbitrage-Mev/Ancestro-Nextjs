@@ -11,6 +11,7 @@ import AncestroApp from './sections/AncestroApp';
 import PowerOn from './sections/PowerOn';
 import InstallSolar from './sections/InstallSolar';
 import LatamMap from './sections/LatamMap';
+import FinalCta from './sections/FinalCta';
 
 interface Props { lang: string }
 
@@ -32,6 +33,7 @@ export default function EnergyHomePage({ lang }: Props) {
       {/* 9 */}  <MakesItEasy lang={lang} />
       {/* 10 */} <InstallSolar lang={lang} />
       {/* 11 */} <LatamMap lang={lang} />
+      {/* 12 */} <FinalCta lang={lang} />
     </div>
   );
 }
