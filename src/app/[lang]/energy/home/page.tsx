@@ -2,6 +2,9 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import EnergyHomePage from '@/components/energy/EnergyHomePage';
 
+// Force static rendering - no streaming
+export const dynamic = 'force-static';
+
 interface PageProps { params: Promise<{ lang: string }> }
 
 export default async function EnergyHome({ params }: PageProps) {
