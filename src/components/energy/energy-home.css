@@ -88,8 +88,9 @@
 .eh-slide-bg-active{opacity:1}
 .eh-slide-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.6) 0%,transparent 35%,transparent 65%,rgba(0,0,0,.9) 100%)}
 .eh-slide-content{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:center}
-.eh-slide-heading{font-size:24px;font-weight:500;color:#fff;text-align:center;margin:0;padding-top:100px}
-.eh-slide-sub{font-size:13px;font-weight:400;color:#a3a3a3;text-align:center;max-width:600px;margin:14px auto 0;padding:0 32px}
+.eh-slide-top{text-align:center;padding:80px 32px 0;max-width:900px}
+.eh-slide-heading{font-size:24px;font-weight:500;color:#fff;margin:0}
+.eh-slide-sub{font-size:13px;font-weight:400;color:#a3a3a3;margin:14px auto 0;max-width:600px}
 .eh-slide-panel{position:absolute;bottom:130px;left:50%;transform:translateX(-50%);text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;padding:0 32px;max-width:600px}
 .eh-slide-title{font-size:24px;font-weight:600;color:#fff;margin:0}
 .eh-slide-desc{font-size:14px;font-weight:400;color:#a3a3a3;margin:0;max-width:600px}
@@ -99,22 +100,25 @@
 .eh-dot:hover:not(.active){background:rgba(255,255,255,.45)}
 @media(max-width:1024px){
   .eh-slide{height:580px}
-  .eh-slide-heading{font-size:22px;padding-top:80px}
+  .eh-slide-top{padding-top:60px}
+  .eh-slide-heading{font-size:22px}
   .eh-slide-panel{bottom:115px}
   .eh-slide-title{font-size:22px}
   .eh-slide-desc{font-size:13px}
 }
 @media(max-width:768px){
   .eh-slide{height:500px}
-  .eh-slide-heading{font-size:20px;padding-top:64px}
+  .eh-slide-top{padding-top:48px}
+  .eh-slide-heading{font-size:20px}
   .eh-slide-panel{bottom:100px}
   .eh-slide-title{font-size:20px}
   .eh-slide-desc{font-size:13px}
 }
 @media(max-width:480px){
   .eh-slide{height:420px}
-  .eh-slide-heading{font-size:20px;padding-top:48px}
-  .eh-slide-sub{padding:0 20px;font-size:12px}
+  .eh-slide-top{padding:36px 20px 0}
+  .eh-slide-heading{font-size:20px}
+  .eh-slide-sub{font-size:12px}
   .eh-slide-panel{bottom:84px;padding:0 20px}
   .eh-slide-title{font-size:20px}
   .eh-slide-desc{font-size:13px}
