@@ -329,7 +329,7 @@
 
 /* === LatamMap === */
 .eh-latam{background:#000;position:relative;z-index:1;width:100%;height:700px;overflow:hidden}
-.eh-latam-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center center;display:block}
+.eh-latam-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;display:block}
 .eh-latam-header{position:absolute;top:60px;left:50%;transform:translateX(-50%);z-index:2;text-align:center;width:100%;max-width:1128px;padding:0 40px}
 .eh-latam-title{font-size:24px;font-weight:500;color:#fff;margin:0 0 8px}
 .eh-latam-desc{font-size:14px;color:#a3a3a3;margin:0 0 20px;max-width:550px;margin-left:auto;margin-right:auto}
@@ -340,7 +340,7 @@
 .eh-latam-stat:hover{border-color:rgba(248,176,59,.4);transform:translateY(-2px)}
 .eh-latam-stat-icon{height:32px;object-fit:contain;display:block;flex-shrink:0}
 .eh-latam-stat-info{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
-.eh-latam-stat-num{font-size:22px;font-weight:700;color:#fff;line-height:1}
+.eh-latam-stat-num{font-size:24px;font-weight:700;color:#f8b03b;line-height:1;text-shadow:0 1px 4px rgba(0,0,0,.5)}
 .eh-latam-stat-label{font-size:11px;color:#a3a3a3;text-align:left}
 @media(max-width:1024px){
   .eh-latam{height:600px}
