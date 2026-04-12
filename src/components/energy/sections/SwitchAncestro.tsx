@@ -22,22 +22,30 @@ export default function SwitchAncestro({ lang }: { lang: string }) {
       </div>
 
       <style>{`
-        .eh-switch{position:relative;z-index:2;padding:60px 24px 80px}
-        .eh-switch-inner{max-width:1128px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:40px}
+        .eh-switch{position:relative;z-index:2;padding:100px 40px}
+        .eh-switch-inner{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:40px}
         .eh-switch-title{font-size:34px;font-weight:600;color:#fff;text-align:center;margin:0}
-        .eh-switch-grid{display:flex;gap:50px;width:100%}
-        .eh-switch-card{flex:1;padding:20px;border:1px solid rgba(255,255,255,.1);border-radius:10px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;text-align:center;min-height:100px;transition:all .3s ease}
-        .eh-switch-card:hover{border-color:rgba(248,176,59,.4);background:rgba(255,255,255,.04)}
+        .eh-switch-grid{display:flex;gap:24px;width:100%}
+        .eh-switch-card{flex:1;padding:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;text-align:center;min-height:100px;transition:all .3s ease;cursor:pointer}
+        .eh-switch-card:hover{border-color:rgba(248,176,59,.4);transform:translateY(-2px);background:rgba(255,255,255,.08)}
         .eh-switch-text{font-size:24px;font-weight:500;color:#fff;white-space:pre-line;line-height:1.4}
         @media(max-width:1024px){
+          .eh-switch{padding:80px 40px}
           .eh-switch-grid{flex-wrap:wrap;gap:20px}
           .eh-switch-card{flex:1 1 calc(50% - 10px);min-width:200px}
+          .eh-switch-title{font-size:28px}
           .eh-switch-text{font-size:20px}
         }
-        @media(max-width:640px){
+        @media(max-width:768px){
+          .eh-switch{padding:60px 40px}
+          .eh-switch-title{font-size:24px}
+          .eh-switch-text{font-size:18px}
+        }
+        @media(max-width:480px){
+          .eh-switch{padding:60px 24px}
           .eh-switch-grid{flex-direction:column;gap:16px}
           .eh-switch-card{min-width:0}
-          .eh-switch-title{font-size:26px}
+          .eh-switch-title{font-size:24px}
           .eh-switch-text{font-size:18px}
         }
       `}</style>

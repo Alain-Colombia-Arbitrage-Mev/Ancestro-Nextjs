@@ -32,23 +32,38 @@ export default function SolarSlide({ lang }: { lang: string }) {
       </div>
 
       <style>{`
-        .eh-slide{position:relative;width:100%;height:1080px;overflow:hidden}
-        .eh-slide-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+        .eh-slide{position:relative;width:100%;height:900px;overflow:hidden}
+        .eh-slide-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
         .eh-slide-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.6) 0%,transparent 35%,transparent 65%,rgba(0,0,0,.9) 100%)}
         .eh-slide-content{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:center}
-        .eh-slide-heading{font-size:34px;font-weight:500;color:#fff;text-align:center;margin:0;padding-top:195px}
-        .eh-slide-sub{font-size:14px;font-weight:400;color:#a3a3a3;text-align:center;max-width:821px;margin:16px auto 0;padding:0 24px}
-        .eh-slide-panel{position:absolute;bottom:200px;left:50%;transform:translateX(-50%);text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 24px}
+        .eh-slide-heading{font-size:34px;font-weight:500;color:#fff;text-align:center;margin:0;padding-top:120px}
+        .eh-slide-sub{font-size:14px;font-weight:400;color:#a3a3a3;text-align:center;max-width:650px;margin:16px auto 0;padding:0 40px}
+        .eh-slide-panel{position:absolute;bottom:160px;left:50%;transform:translateX(-50%);text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 40px;max-width:650px}
         .eh-slide-title{font-size:34px;font-weight:600;color:#fff;margin:0}
-        .eh-slide-desc{font-size:20px;font-weight:400;color:#a3a3a3;margin:0}
+        .eh-slide-desc{font-size:20px;font-weight:400;color:#a3a3a3;margin:0;max-width:650px}
         .eh-slide-dots{position:absolute;bottom:58px;left:50%;transform:translateX(-50%);display:flex;gap:10px}
-        .eh-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.1);border:none;cursor:pointer;padding:0;transition:all .3s}
+        .eh-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.1);border:none;cursor:pointer;padding:0;transition:all .3s;min-height:44px;min-width:44px;display:flex;align-items:center;justify-content:center;background-clip:content-box;box-sizing:content-box}
         .eh-dot.active{background:#f8b03b;width:28px;border-radius:999px}
         .eh-dot:hover:not(.active){background:rgba(255,255,255,.3)}
+        @media(max-width:1024px){
+          .eh-slide{height:700px}
+          .eh-slide-heading{font-size:28px;padding-top:100px}
+          .eh-slide-panel{bottom:140px}
+          .eh-slide-title{font-size:28px}
+          .eh-slide-desc{font-size:18px}
+        }
         @media(max-width:768px){
           .eh-slide{height:600px}
           .eh-slide-heading{font-size:24px;padding-top:80px}
           .eh-slide-panel{bottom:120px}
+          .eh-slide-title{font-size:24px}
+          .eh-slide-desc{font-size:16px}
+        }
+        @media(max-width:480px){
+          .eh-slide{height:500px}
+          .eh-slide-heading{font-size:24px;padding-top:60px}
+          .eh-slide-sub{padding:0 24px;font-size:13px}
+          .eh-slide-panel{bottom:100px;padding:0 24px}
           .eh-slide-title{font-size:24px}
           .eh-slide-desc{font-size:16px}
         }

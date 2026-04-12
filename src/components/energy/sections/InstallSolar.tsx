@@ -16,19 +16,33 @@ export default function InstallSolar({ lang }: { lang: string }) {
       </div>
 
       <style>{`
-        .eh-install{background:#000;display:flex;align-items:center;min-height:600px}
-        .eh-install-inner{display:flex;align-items:center;max-width:1920px;margin:0 auto;padding-left:50px;width:100%}
+        .eh-install{background:#000;display:flex;align-items:center;padding:100px 0}
+        .eh-install-inner{display:flex;align-items:center;gap:60px;max-width:1280px;margin:0 auto;padding:0 40px;width:100%}
         .eh-install-text{flex:1;max-width:618px}
         .eh-install-title{font-size:34px;font-weight:600;color:#fff;margin:0 0 20px}
-        .eh-install-desc{font-size:20px;color:#a3a3a3;margin:0 0 30px;line-height:1.6}
-        .eh-install-cta{padding:15px 60px;border-radius:30px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:16px;cursor:pointer;backdrop-filter:blur(10px)}
+        .eh-install-desc{font-size:20px;color:#a3a3a3;margin:0 0 30px;line-height:1.6;max-width:650px}
+        .eh-install-cta{padding:14px 40px;min-height:44px;border-radius:30px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:16px;cursor:pointer;backdrop-filter:blur(10px);transition:all .3s ease}
         .eh-install-cta:hover{background:rgba(255,255,255,.2)}
         .eh-install-img-wrap{flex:1;display:flex;justify-content:center}
-        .eh-install-img{width:438px;height:657px;object-fit:contain;filter:drop-shadow(0 20px 40px rgba(0,0,0,.5))}
+        .eh-install-img{max-width:438px;width:100%;max-height:500px;object-fit:contain;display:block;filter:drop-shadow(0 20px 40px rgba(0,0,0,.5))}
+        @media(max-width:1024px){
+          .eh-install{padding:80px 0}
+          .eh-install-inner{gap:40px;padding:0 40px}
+          .eh-install-title{font-size:28px}
+          .eh-install-desc{font-size:18px}
+        }
         @media(max-width:768px){
-          .eh-install-inner{flex-direction:column;padding:40px 24px;text-align:center}
+          .eh-install{padding:60px 0}
+          .eh-install-inner{flex-direction:column;padding:0 40px;text-align:center}
           .eh-install-text{max-width:100%}
-          .eh-install-img{width:280px;height:auto}
+          .eh-install-title{font-size:24px}
+          .eh-install-desc{font-size:16px}
+          .eh-install-img{max-width:280px;max-height:400px}
+        }
+        @media(max-width:480px){
+          .eh-install-inner{padding:0 24px}
+          .eh-install-title{font-size:24px}
+          .eh-install-desc{font-size:16px}
         }
       `}</style>
     </section>
