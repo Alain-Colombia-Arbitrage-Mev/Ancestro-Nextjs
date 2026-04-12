@@ -41,7 +41,7 @@ export default function AncestroApp({ lang }: { lang: string }) {
         .eh-app-text{flex:1;max-width:428px}
         .eh-app-title{font-size:30px;font-weight:500;color:#fff;margin:0 0 16px;text-align:left}
         .eh-app-desc{font-size:14px;color:#a3a3a3;margin:0 0 24px;line-height:1.6;max-width:650px}
-        .eh-app-badge{width:232px;height:69px;display:block}
+        .eh-app-badge{width:180px;height:auto;display:block}
         .eh-app-phone-wrap{flex:1;position:relative;display:flex;justify-content:center}
         .eh-app-phone{max-width:400px;width:100%;display:block;position:relative;z-index:1}
         .eh-app-phone-fade{position:absolute;bottom:0;left:0;right:0;height:150px;background:linear-gradient(transparent,#000);z-index:2}

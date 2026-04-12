@@ -22,19 +22,19 @@ export const FLAGS = `${CDN_URL}/images/flags`;
 export default function EnergyHomePage({ lang }: Props) {
   return (
     <div style={{ background: '#000', color: '#fff', fontFamily: 'Inter, sans-serif', overflowX: 'hidden' }}>
-      <HeroSection lang={lang} />
-      <CleanEnergy lang={lang} />
-      <SwitchAncestro lang={lang} />
-      <SolarSlide lang={lang} />
-      <ProductTabs lang={lang} />
-      <ChooseCoverage lang={lang} />
-      <MakesItEasy lang={lang} />
-      <GridDown lang={lang} />
-      <AncestroApp lang={lang} />
-      <PowerOn lang={lang} />
-      <InstallSolar lang={lang} />
-      <LatamMap lang={lang} />
-      <FinalCta lang={lang} />
+      {/* 1 */}  <HeroSection lang={lang} />
+      {/* 2 */}  <CleanEnergy lang={lang} />
+      {/* 2.1 */}<SwitchAncestro lang={lang} />
+      {/* 3 */}  <SolarSlide lang={lang} />
+      {/* 4 */}  <ChooseCoverage lang={lang} />
+      {/* 5 */}  <ProductTabs lang={lang} />
+      {/* 6 */}  <GridDown lang={lang} />
+      {/* 7 */}  <AncestroApp lang={lang} />
+      {/* 8 */}  <PowerOn lang={lang} />
+      {/* 9 */}  <MakesItEasy lang={lang} />
+      {/* 10 */} <InstallSolar lang={lang} />
+      {/* 11 */} <LatamMap lang={lang} />
+      {/* 12 */} <FinalCta lang={lang} />
     </div>
   );
 }
