@@ -10,33 +10,6 @@ export default function CleanEnergy({ lang }: { lang: string }) {
         <h2 className="eh-clean-title">{t(lang, 'energyHome.clean.title')}</h2>
         <p className="eh-clean-desc">{t(lang, 'energyHome.clean.desc')}</p>
       </div>
-
-      <style>{`
-        .eh-clean{background:#000;position:relative;width:100%;min-height:700px;display:flex;align-items:flex-start;overflow:hidden}
-        .eh-clean-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
-        .eh-clean-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.7) 0%,transparent 40%,transparent 60%,rgba(0,0,0,.7) 100%)}
-        .eh-clean-inner{position:relative;z-index:1;width:100%;max-width:1280px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:20px;padding:100px 40px 60px}
-        .eh-clean-title{font-size:30px;font-weight:600;line-height:1.15;color:#fff;text-align:center;margin:0}
-        .eh-clean-desc{font-size:17px;font-weight:400;line-height:1.6;color:#a3a3a3;text-align:center;margin:0;max-width:650px;white-space:pre-line}
-        @media(max-width:1024px){
-          .eh-clean{min-height:550px}
-          .eh-clean-inner{padding:80px 40px 60px}
-          .eh-clean-title{font-size:26px}
-          .eh-clean-desc{font-size:16px}
-        }
-        @media(max-width:768px){
-          .eh-clean{min-height:450px}
-          .eh-clean-inner{padding:60px 40px 40px}
-          .eh-clean-title{font-size:24px}
-          .eh-clean-desc{font-size:15px}
-        }
-        @media(max-width:480px){
-          .eh-clean{min-height:400px}
-          .eh-clean-inner{padding:60px 24px 40px}
-          .eh-clean-title{font-size:24px}
-          .eh-clean-desc{font-size:15px}
-        }
-      `}</style>
     </section>
   );
 }

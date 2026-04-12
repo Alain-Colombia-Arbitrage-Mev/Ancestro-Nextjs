@@ -1,3 +1,4 @@
+import './energy-home.css';
 import { CDN_URL } from '@/lib/cdn';
 import HeroSection from './sections/HeroSection';
 import CleanEnergy from './sections/CleanEnergy';
@@ -20,7 +21,7 @@ export const FLAGS = `${CDN_URL}/images/flags`;
 
 export default function EnergyHomePage({ lang }: Props) {
   return (
-    <div style={{ background: '#000', color: '#fff', fontFamily: 'Inter, sans-serif', overflowX: 'hidden' }}>
+    <div key={`energy-home-${lang}`} style={{ background: '#000', color: '#fff', fontFamily: 'Inter, sans-serif', overflowX: 'hidden' }}>
       {/* 1 */}  <HeroSection lang={lang} />
       {/* 2 */}  <CleanEnergy lang={lang} />
       {/* 2.1 */}<SwitchAncestro lang={lang} />

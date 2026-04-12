@@ -30,44 +30,6 @@ export default function SolarSlide({ lang }: { lang: string }) {
           ))}
         </div>
       </div>
-
-      <style>{`
-        .eh-slide{background:#000;position:relative;z-index:1;width:100%;height:900px;overflow:hidden}
-        .eh-slide-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
-        .eh-slide-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.6) 0%,transparent 35%,transparent 65%,rgba(0,0,0,.9) 100%)}
-        .eh-slide-content{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:center}
-        .eh-slide-heading{font-size:30px;font-weight:500;color:#fff;text-align:center;margin:0;padding-top:120px}
-        .eh-slide-sub{font-size:14px;font-weight:400;color:#a3a3a3;text-align:center;max-width:650px;margin:16px auto 0;padding:0 40px}
-        .eh-slide-panel{position:absolute;bottom:160px;left:50%;transform:translateX(-50%);text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 40px;max-width:650px}
-        .eh-slide-title{font-size:30px;font-weight:600;color:#fff;margin:0}
-        .eh-slide-desc{font-size:17px;font-weight:400;color:#a3a3a3;margin:0;max-width:650px}
-        .eh-slide-dots{position:absolute;bottom:58px;left:50%;transform:translateX(-50%);display:flex;gap:10px}
-        .eh-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.25);border:none;cursor:pointer;padding:0;transition:all .3s ease;display:block;box-sizing:border-box}
-        .eh-dot.active{background:#f8b03b;width:24px;height:10px;border-radius:999px}
-        .eh-dot:hover:not(.active){background:rgba(255,255,255,.45)}
-        @media(max-width:1024px){
-          .eh-slide{height:700px}
-          .eh-slide-heading{font-size:26px;padding-top:100px}
-          .eh-slide-panel{bottom:140px}
-          .eh-slide-title{font-size:26px}
-          .eh-slide-desc{font-size:16px}
-        }
-        @media(max-width:768px){
-          .eh-slide{height:600px}
-          .eh-slide-heading{font-size:24px;padding-top:80px}
-          .eh-slide-panel{bottom:120px}
-          .eh-slide-title{font-size:24px}
-          .eh-slide-desc{font-size:15px}
-        }
-        @media(max-width:480px){
-          .eh-slide{height:500px}
-          .eh-slide-heading{font-size:24px;padding-top:60px}
-          .eh-slide-sub{padding:0 24px;font-size:13px}
-          .eh-slide-panel{bottom:100px;padding:0 24px}
-          .eh-slide-title{font-size:24px}
-          .eh-slide-desc{font-size:15px}
-        }
-      `}</style>
     </section>
   );
 }

@@ -20,35 +20,6 @@ export default function SwitchAncestro({ lang }: { lang: string }) {
           ))}
         </div>
       </div>
-
-      <style>{`
-        .eh-switch{background:transparent;position:relative;z-index:5;margin-top:-180px;margin-bottom:-80px;padding:0 40px}
-        .eh-switch-inner{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:40px}
-        .eh-switch-title{font-size:30px;font-weight:600;color:#fff;text-align:center;margin:0}
-        .eh-switch-grid{display:flex;gap:24px;width:100%}
-        .eh-switch-card{flex:1;padding:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;text-align:center;min-height:100px;transition:all .3s ease;cursor:pointer}
-        .eh-switch-card:hover{border-color:rgba(248,176,59,.4);transform:translateY(-2px);background:rgba(255,255,255,.08)}
-        .eh-switch-text{font-size:20px;font-weight:500;color:#fff;white-space:pre-line;line-height:1.4}
-        @media(max-width:1024px){
-          .eh-switch{margin-top:-140px;margin-bottom:-60px;padding:0 40px}
-          .eh-switch-grid{flex-wrap:wrap;gap:20px}
-          .eh-switch-card{flex:1 1 calc(50% - 10px);min-width:200px}
-          .eh-switch-title{font-size:26px}
-          .eh-switch-text{font-size:18px}
-        }
-        @media(max-width:768px){
-          .eh-switch{margin-top:-100px;margin-bottom:-40px;padding:0 40px}
-          .eh-switch-title{font-size:24px}
-          .eh-switch-text{font-size:16px}
-        }
-        @media(max-width:480px){
-          .eh-switch{margin-top:-80px;margin-bottom:-30px;padding:0 24px}
-          .eh-switch-grid{flex-direction:column;gap:16px}
-          .eh-switch-card{min-width:0}
-          .eh-switch-title{font-size:24px}
-          .eh-switch-text{font-size:16px}
-        }
-      `}</style>
     </section>
   );
 }
