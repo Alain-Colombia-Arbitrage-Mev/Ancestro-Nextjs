@@ -52,27 +52,27 @@ export default function ProductTabs({ lang }: { lang: string }) {
         .eh-ptabs-feats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;border-top:2px solid #424242;padding-top:24px}
         .eh-ptabs-feat{border-top:2px solid transparent;padding-top:10px;margin-top:-14px}
         .eh-ptabs-feat.active{border-top-color:#f8b03b}
-        .eh-ptabs-feat-t{font-size:24px;font-weight:600;color:#a3a3a3;margin:0 0 15px}
+        .eh-ptabs-feat-t{font-size:20px;font-weight:600;color:#a3a3a3;margin:0 0 15px}
         .eh-ptabs-feat.active .eh-ptabs-feat-t{color:#f8b03b}
-        .eh-ptabs-feat-d{font-size:16px;font-weight:400;color:#a3a3a3;line-height:1.6;margin:0;max-width:300px}
+        .eh-ptabs-feat-d{font-size:15px;font-weight:400;color:#a3a3a3;line-height:1.6;margin:0;max-width:300px}
         .eh-ptabs-feat.active .eh-ptabs-feat-d{color:#fff}
         @media(max-width:1024px){
           .eh-ptabs{padding:80px 40px}
           .eh-ptabs-feats{grid-template-columns:repeat(2,1fr)}
-          .eh-ptabs-feat-t{font-size:20px}
+          .eh-ptabs-feat-t{font-size:18px}
           .eh-ptabs-feat-d{font-size:14px}
         }
         @media(max-width:768px){
           .eh-ptabs{padding:60px 40px}
           .eh-ptabs-feats{grid-template-columns:repeat(2,1fr)}
-          .eh-ptabs-feat-t{font-size:20px}
+          .eh-ptabs-feat-t{font-size:16px}
           .eh-ptabs-feat-d{font-size:14px}
         }
         @media(max-width:480px){
           .eh-ptabs{padding:60px 24px}
           .eh-ptabs-feats{grid-template-columns:1fr}
           .eh-ptab{padding:10px 20px;font-size:13px}
-          .eh-ptabs-feat-t{font-size:18px}
+          .eh-ptabs-feat-t{font-size:16px}
           .eh-ptabs-feat-d{font-size:14px}
         }
       `}</style>

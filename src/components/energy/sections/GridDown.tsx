@@ -16,12 +16,12 @@ export default function GridDown({ lang }: { lang: string }) {
         .eh-grid-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
         .eh-grid-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,#000 95%)}
         .eh-grid-inner{position:relative;z-index:1;padding:0 40px 80px;max-width:1280px}
-        .eh-grid-title{font-size:34px;font-weight:500;color:#fff;margin:0 0 12px}
+        .eh-grid-title{font-size:30px;font-weight:500;color:#fff;margin:0 0 12px}
         .eh-grid-desc{font-size:14px;color:#a3a3a3;margin:0;max-width:600px;line-height:1.6}
         @media(max-width:1024px){
           .eh-grid{min-height:500px}
           .eh-grid-inner{padding:0 40px 60px}
-          .eh-grid-title{font-size:28px}
+          .eh-grid-title{font-size:26px}
         }
         @media(max-width:768px){
           .eh-grid{min-height:450px}

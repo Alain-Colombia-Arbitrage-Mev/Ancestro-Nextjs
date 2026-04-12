@@ -36,7 +36,7 @@ export default function ChooseCoverage({ lang }: { lang: string }) {
 
       <style>{`
         .eh-cov{padding:100px 40px;max-width:1280px;margin:0 auto}
-        .eh-cov-title{font-size:34px;font-weight:500;text-align:center;color:#fff;margin:0 0 50px}
+        .eh-cov-title{font-size:30px;font-weight:500;text-align:center;color:#fff;margin:0 0 50px}
         .eh-cov-grid{display:flex;gap:30px;justify-content:center}
         .eh-cov-card{flex:1;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:10px 10px 30px;display:flex;flex-direction:column;align-items:stretch;min-height:480px;transition:all .3s ease;cursor:pointer}
         .eh-cov-card:hover{border-color:rgba(248,176,59,.4);transform:translateY(-2px)}
@@ -44,16 +44,16 @@ export default function ChooseCoverage({ lang }: { lang: string }) {
         .eh-cov-img-wrap{height:257px;border-radius:12px;overflow:hidden}
         .eh-cov-img{width:100%;height:100%;display:block;border-radius:12px}
         .eh-cov-body{padding:15px 30px;flex:1;display:flex;flex-direction:column;text-align:left}
-        .eh-cov-card-title{font-size:22px;font-weight:600;color:#fff;margin:0 0 8px}
-        .eh-cov-card-desc{font-size:14px;color:gray;margin:0 0 12px;flex:1;max-width:650px;line-height:1.6}
+        .eh-cov-card-title{font-size:20px;font-weight:600;color:#fff;margin:0 0 8px}
+        .eh-cov-card-desc{font-size:13px;color:gray;margin:0 0 12px;flex:1;max-width:650px;line-height:1.6}
         .eh-cov-tagline{font-size:12px;font-style:italic;color:#a3a3a3;margin:0}
         .eh-cov-tagline-orange{color:orange}
-        .eh-cov-cta{display:block;margin:0 30px;padding:14px 24px;min-height:44px;border-radius:30px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:14px;cursor:pointer;text-align:center;backdrop-filter:blur(10px);transition:all .3s ease}
+        .eh-cov-cta{display:block;margin:0 30px;padding:14px 24px;min-height:44px;border-radius:30px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:13px;cursor:pointer;text-align:center;backdrop-filter:blur(10px);transition:all .3s ease}
         .eh-cov-cta:hover{background:rgba(255,255,255,.2)}
         @media(max-width:1024px){
           .eh-cov{padding:80px 40px}
           .eh-cov-grid{flex-direction:column;max-width:500px;margin:0 auto}
-          .eh-cov-title{font-size:28px}
+          .eh-cov-title{font-size:26px}
           .eh-cov-card{min-height:auto}
         }
         @media(max-width:768px){
@@ -64,7 +64,7 @@ export default function ChooseCoverage({ lang }: { lang: string }) {
         @media(max-width:480px){
           .eh-cov{padding:60px 24px}
           .eh-cov-title{font-size:24px}
-          .eh-cov-card-title{font-size:20px}
+          .eh-cov-card-title{font-size:17px}
         }
       `}</style>
     </section>
