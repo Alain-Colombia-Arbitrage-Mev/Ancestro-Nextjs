@@ -3,7 +3,7 @@
 export default function ChatWidget({ lang }: { lang: string }) {
   return (
     <iframe
-      src={`http://localhost:5000/widget?agent=default&lang=${lang}`}
+      src={`https://chatbot-control-center-production-de32.up.railway.app/widget?agent=default&lang=${lang}`}
       style={{
         position: 'fixed',
         bottom: 0,
