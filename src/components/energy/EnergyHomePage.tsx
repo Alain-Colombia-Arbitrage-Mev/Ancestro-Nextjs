@@ -1,4 +1,3 @@
-'use client';
 import { CDN_URL } from '@/lib/cdn';
 import HeroSection from './sections/HeroSection';
 import CleanEnergy from './sections/CleanEnergy';
