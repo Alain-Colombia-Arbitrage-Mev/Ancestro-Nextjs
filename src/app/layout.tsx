@@ -1,15 +1,11 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
 import './globals.css';
 import { AuthProvider } from '@/lib/auth-context';
 import { CDN_URL } from '@/lib/cdn';
-
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter',
-  weight: ['400', '500', '600', '700'],
-});
 
 export const viewport: Viewport = {
   themeColor: '#f8b03b',
@@ -33,7 +29,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={inter.variable}>
+    <html lang="es">
       <head>
         <link rel="dns-prefetch" href="https://assets.ancestro.ai" />
         <link rel="preconnect" href="https://assets.ancestro.ai" crossOrigin="anonymous" />

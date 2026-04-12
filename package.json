@@ -11,6 +11,7 @@
   "dependencies": {
     "@aws-sdk/client-bedrock-agent-runtime": "^3.1005.0",
     "@aws-sdk/client-bedrock-runtime": "^3.1005.0",
+    "@fontsource/inter": "^5.2.8",
     "aws-amplify": "^6.16.2",
     "next": "^16.2.3",
     "pg": "^8.20.0",
