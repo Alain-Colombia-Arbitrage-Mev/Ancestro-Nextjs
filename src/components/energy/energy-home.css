@@ -329,7 +329,8 @@
 
 /* === LatamMap === */
 .eh-latam{background:#000;position:relative;z-index:1;width:100%;height:700px;overflow:hidden}
-.eh-latam-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+.eh-latam-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;display:block}
+.eh-latam::after{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(190deg,#000 0%,transparent 50%,#000 100%)}
 .eh-latam-header{position:absolute;top:60px;left:50%;transform:translateX(-50%);z-index:2;text-align:center;width:100%;max-width:1128px;padding:0 40px}
 .eh-latam-title{font-size:24px;font-weight:500;color:#fff;margin:0 0 8px}
 .eh-latam-desc{font-size:14px;color:#a3a3a3;margin:0 0 20px;max-width:550px;margin-left:auto;margin-right:auto}
