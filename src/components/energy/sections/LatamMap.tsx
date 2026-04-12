@@ -17,7 +17,7 @@ const STATS = [
 export default function LatamMap({ lang }: { lang: string }) {
   return (
     <section className="eh-latam">
-      <img src={`${IMG}/latam-map-full.webp`} alt="" className="eh-latam-bg" />
+      <img src={`${IMG}/latam-map-v2.png`} alt="" className="eh-latam-bg" />
 
       <div className="eh-latam-header">
         <h2 className="eh-latam-title">{t(lang, 'energyHome.latam.title')}</h2>
