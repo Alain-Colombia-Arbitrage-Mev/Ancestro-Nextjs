@@ -15,11 +15,16 @@ const energyFlowSteps = [
   { key: 'charge', titleKey: 'energyHome.flow.charge.title', descKey: 'energyHome.flow.charge.desc' },
 ];
 
-const switchingCards = [
-  { key: 'card1', titleKey: 'energyHome.switching.card1' },
-  { key: 'card2', titleKey: 'energyHome.switching.card2' },
-  { key: 'card3', titleKey: 'energyHome.switching.card3' },
-  { key: 'card4', titleKey: 'energyHome.switching.card4' },
+const switchingSteps = [
+  { num: '1', titleKey: 'energyHome.switching.step1.title', descKey: 'energyHome.switching.step1.desc' },
+  { num: '2', titleKey: 'energyHome.switching.step2.title', descKey: 'energyHome.switching.step2.desc' },
+  { num: '3', titleKey: 'energyHome.switching.step3.title', descKey: 'energyHome.switching.step3.desc' },
+];
+
+const completeSolutions = [
+  { key: 'solar', titleKey: 'energyHome.solutions.solar.title', descKey: 'energyHome.solutions.solar.desc' },
+  { key: 'battery', titleKey: 'energyHome.solutions.battery.title', descKey: 'energyHome.solutions.battery.desc' },
+  { key: 'monitoring', titleKey: 'energyHome.solutions.monitoring.title', descKey: 'energyHome.solutions.monitoring.desc' },
 ];
 
 const plans = [
@@ -63,7 +68,7 @@ export default function EnergyHomePage({ lang }: Props) {
 
   return (
     <div className="eh-page">
-      {/* 1. HERO SECTION */}
+      {/* HERO SECTION */}
       <section className="eh-hero">
         <div className="eh-hero-bg">
           <video
@@ -88,41 +93,44 @@ export default function EnergyHomePage({ lang }: Props) {
         </div>
       </section>
 
-      {/* 2. CLEAN ENERGY - with background image */}
+      {/* CLEAN ENERGY HEADLINE */}
       <section className="eh-section eh-clean">
-        <img src={`${IMG}/clean-energy-house.webp`} alt="" className="eh-fullbg" />
-        <div className="eh-clean-overlay" />
         <div className="eh-container eh-clean-inner">
           <h2 className="eh-clean-title">{t(lang, 'energyHome.clean.title')}</h2>
           <p className="eh-clean-desc">{t(lang, 'energyHome.clean.desc')}</p>
         </div>
       </section>
 
-      {/* 3. SWITCHING TO ANCESTRO - 4 glass cards overlaid */}
+      {/* SWITCHING TO ANCESTRO - 3 STEPS */}
       <section className="eh-section eh-switching">
         <div className="eh-container">
           <h2 className="eh-switching-title">{t(lang, 'energyHome.switching.title')}</h2>
-          <div className="eh-switching-cards">
-            {switchingCards.map((card) => (
-              <div key={card.key} className="eh-switching-card">
-                <span className="eh-switching-card-text">{t(lang, card.titleKey)}</span>
+          <p className="eh-switching-sub">{t(lang, 'energyHome.switching.sub')}</p>
+          <div className="eh-switching-steps">
+            {switchingSteps.map((step) => (
+              <div key={step.num} className="eh-switching-step">
+                <span className="eh-switching-num">{step.num}</span>
+                <h3 className="eh-switching-step-title">{t(lang, step.titleKey)}</h3>
+                <p className="eh-switching-step-desc">{t(lang, step.descKey)}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 4. SOLAR FLOW CAROUSEL */}
+      {/* ENERGY FLOW SLIDE */}
       <section className="eh-section eh-flow">
-        <img src={`${IMG}/night-house-bg.webp`} alt="" className="eh-fullbg" />
-        <div className="eh-flow-overlay" />
-        <div className="eh-flow-content">
-          <h2 className="eh-flow-heading">{t(lang, 'energyHome.install.title')}</h2>
-          <p className="eh-flow-subheading">{t(lang, 'energyHome.install.desc')}</p>
+        <div className="eh-container">
+          <h2 className="eh-h2 eh-h2-md eh-h2-center">{t(lang, 'energyHome.install.title')}</h2>
+          <p className="eh-lead eh-lead-sm eh-lead-center">{t(lang, 'energyHome.install.desc')}</p>
+        </div>
+        <div className="eh-flow-stage">
+          <img src={`${IMG}/night-house-bg.webp`} alt="" className="eh-flow-bg" />
+          <div className="eh-flow-overlay" />
           <div className="eh-flow-panel">
             <h3 className="eh-flow-title">{t(lang, energyFlowSteps[activeFlow].titleKey)}</h3>
             <p className="eh-flow-desc">{t(lang, energyFlowSteps[activeFlow].descKey)}</p>
-            <button type="button" className="eh-cta-glass">{t(lang, 'energyHome.flow.cta')}</button>
+            <button type="button" className="eh-btn-pill">{t(lang, 'energyHome.flow.cta')}</button>
           </div>
           <div className="eh-flow-dots">
             {energyFlowSteps.map((step, i) => (
@@ -138,7 +146,45 @@ export default function EnergyHomePage({ lang }: Props) {
         </div>
       </section>
 
-      {/* 5. PRODUCT TABS - SOLAR/BATTERY */}
+      {/* COMPLETE ENERGY SOLUTIONS - 3 FEATURE CARDS */}
+      <section className="eh-section eh-solutions">
+        <div className="eh-container">
+          <h2 className="eh-solutions-title">{t(lang, 'energyHome.solutions.title')}</h2>
+          <div className="eh-solutions-grid">
+            {completeSolutions.map((sol) => (
+              <div key={sol.key} className="eh-solutions-card">
+                <div className="eh-solutions-icon" />
+                <h3 className="eh-solutions-card-title">{t(lang, sol.titleKey)}</h3>
+                <p className="eh-solutions-card-desc">{t(lang, sol.descKey)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CHOOSE YOUR ENERGY COVERAGE - PLANS */}
+      <section className="eh-section eh-plans">
+        <div className="eh-container">
+          <h2 className="eh-h2 eh-h2-md eh-h2-center">{t(lang, 'energyHome.plans.title')}</h2>
+          <div className="eh-plans-grid">
+            {plans.map((plan) => (
+              <div key={plan.key} className={`eh-plan-card ${plan.featured ? 'featured' : ''}`}>
+                <div className={`eh-plan-image eh-plan-image-${plan.fit}`}>
+                  <img src={`${IMG}/${plan.image}`} alt={t(lang, `energyHome.plans.${plan.key}.title`)} />
+                </div>
+                <div className="eh-plan-body">
+                  <h3 className="eh-plan-title">{t(lang, `energyHome.plans.${plan.key}.title`)}</h3>
+                  <p className="eh-plan-desc">{t(lang, `energyHome.plans.${plan.key}.desc`)}</p>
+                  <p className="eh-plan-tagline">{t(lang, plan.tagline)}</p>
+                </div>
+                <button type="button" className="eh-plan-cta">{t(lang, 'energyHome.plans.cta')}</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PRODUCT TABS - SOLAR/BATTERY SHOWCASE */}
       <section className="eh-section eh-product-tabs">
         <div className="eh-container">
           <div className="eh-product-tabs-nav">
@@ -175,94 +221,53 @@ export default function EnergyHomePage({ lang }: Props) {
         </div>
       </section>
 
-      {/* 6. CHOOSE YOUR ENERGY COVERAGE - PLANS */}
-      <section className="eh-section eh-plans">
-        <div className="eh-container">
-          <h2 className="eh-plans-title">{t(lang, 'energyHome.plans.title')}</h2>
-          <div className="eh-plans-grid">
-            {plans.map((plan) => (
-              <div key={plan.key} className={`eh-plan-card ${plan.featured ? 'featured' : ''}`}>
-                <div className={`eh-plan-image eh-plan-image-${plan.fit}`}>
-                  <img src={`${IMG}/${plan.image}`} alt={t(lang, `energyHome.plans.${plan.key}.title`)} />
-                </div>
-                <div className="eh-plan-body">
-                  <h3 className="eh-plan-title">{t(lang, `energyHome.plans.${plan.key}.title`)}</h3>
-                  <p className="eh-plan-desc">{t(lang, `energyHome.plans.${plan.key}.desc`)}</p>
-                  <p className="eh-plan-tagline">{t(lang, plan.tagline)}</p>
-                </div>
-                <button type="button" className="eh-plan-cta eh-cta-glass">{t(lang, 'energyHome.plans.cta')}</button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 7. ANCESTRO MAKES IT EASY */}
-      <section className="eh-section eh-makes-easy">
-        <div className="eh-container eh-makes-easy-wrap">
-          <div className="eh-makes-easy-text">
-            <h2 className="eh-makes-easy-title">{t(lang, 'energyHome.makesEasy.title')}</h2>
-            <p className="eh-makes-easy-desc">{t(lang, 'energyHome.makesEasy.desc')}</p>
-          </div>
-          <div className="eh-makes-easy-image">
-            <img src={`${IMG}/installer-man.webp`} alt="" />
-          </div>
-        </div>
-      </section>
-
-      {/* 8. GRID GOES DOWN */}
+      {/* GRID DOWN LIGHTS ON */}
       <section className="eh-section eh-grid-down">
         <img src={`${IMG}/grid-down-bg.webp`} alt="" className="eh-fullbg" />
         <div className="eh-grid-down-overlay" />
         <div className="eh-container eh-grid-down-content">
-          <h2 className="eh-grid-down-title">{t(lang, 'energyHome.gridDown.title')}</h2>
-          <p className="eh-grid-down-desc">{t(lang, 'energyHome.gridDown.desc')}</p>
+          <h2 className="eh-h2">{t(lang, 'energyHome.gridDown.title')}</h2>
+          <p className="eh-muted">{t(lang, 'energyHome.gridDown.desc')}</p>
         </div>
       </section>
 
-      {/* 9. ANCESTRO APP */}
+      {/* APP SHOWCASE */}
       <section className="eh-section eh-app">
-        <div className="eh-container">
-          <div className="eh-app-top">
-            <div className="eh-app-text">
-              <h2 className="eh-app-title">{t(lang, 'energyHome.app.title')}</h2>
-              <p className="eh-app-desc">{t(lang, 'energyHome.app.desc')}</p>
-              <a href="#" className="eh-app-badge">
-                <img src={`${IMG}/google-play-badge.webp`} alt="Google Play" />
-              </a>
-            </div>
-            <div className="eh-app-phone">
-              <img src={`${IMG}/app-phone-v2.webp`} alt="Ancestro App" />
-              <div className="eh-app-phone-gradient" />
-            </div>
+        <div className="eh-container eh-app-wrap">
+          <div className="eh-app-header">
+            <h2 className="eh-h2 eh-h2-center">{t(lang, 'energyHome.app.title')}</h2>
+            <p className="eh-muted eh-muted-center">{t(lang, 'energyHome.app.desc')}</p>
+          </div>
+          <div className="eh-app-phone">
+            <img src={`${IMG}/app-phone.webp`} alt="Ancestro App" />
           </div>
           <div className="eh-app-features">
             {appFeatures.map((f) => (
               <div key={f.key} className="eh-app-feature">
-                <h4 className="eh-app-feature-title">{t(lang, f.titleKey)}</h4>
-                <p className="eh-app-feature-desc">{t(lang, f.descKey)}</p>
+                <h4 className="eh-feature-title">{t(lang, f.titleKey)}</h4>
+                <p className="eh-muted eh-muted-sm">{t(lang, f.descKey)}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 10. GETTING TO POWER ON */}
+      {/* GETTING TO POWER ON */}
       <section className="eh-section eh-powerOn">
         <img src={`${IMG}/power-on-bg.webp`} alt="" className="eh-fullbg" />
         <div className="eh-powerOn-overlay" />
         <div className="eh-container eh-powerOn-content">
-          <h2 className="eh-powerOn-title">{t(lang, 'energyHome.powerOn.title')}</h2>
-          <p className="eh-powerOn-desc">{t(lang, 'energyHome.powerOn.desc')}</p>
+          <h2 className="eh-h2">{t(lang, 'energyHome.powerOn.title')}</h2>
+          <p className="eh-muted">{t(lang, 'energyHome.powerOn.desc')}</p>
         </div>
       </section>
 
-      {/* 11. INSTALL SOLAR + BATTERY */}
+      {/* INSTALL SOLAR + BATTERY PRODUCT SHOT */}
       <section className="eh-section eh-install">
         <div className="eh-container eh-install-wrap">
           <div className="eh-install-text">
-            <h2 className="eh-install-title">{t(lang, 'energyHome.installCta.title')}</h2>
-            <p className="eh-install-desc">{t(lang, 'energyHome.installCta.desc')}</p>
+            <h2 className="eh-h2">{t(lang, 'energyHome.installCta.title')}</h2>
+            <p className="eh-muted">{t(lang, 'energyHome.installCta.desc')}</p>
             <button type="button" className="eh-cta-glass eh-install-cta">{t(lang, 'energyHome.installCta.cta')}</button>
           </div>
           <div className="eh-install-image">
@@ -271,7 +276,7 @@ export default function EnergyHomePage({ lang }: Props) {
         </div>
       </section>
 
-      {/* 12. LATAM MAP */}
+      {/* LATAM SECTION WITH FLAGS + ICONS */}
       <section className="eh-section eh-latam">
         <img src={`${IMG}/latam-map-full.webp`} alt="" className="eh-fullbg" />
         <div className="eh-container eh-latam-content">
@@ -312,157 +317,163 @@ export default function EnergyHomePage({ lang }: Props) {
         </div>
       </section>
 
-      {/* 13. FINAL CTA / FOOTER */}
+      {/* FINAL CTA */}
       <section className="eh-section eh-finalcta">
         <img src={`${IMG}/final-cta-bg.webp`} alt="" className="eh-fullbg" />
         <div className="eh-finalcta-overlay" />
         <div className="eh-container eh-finalcta-content">
-          <h2 className="eh-finalcta-title">{t(lang, 'energyHome.finalCta.title')}</h2>
-          <p className="eh-finalcta-desc">{t(lang, 'energyHome.finalCta.desc')}</p>
-          <button type="button" className="eh-cta-glass">{t(lang, 'energyHome.finalCta.cta')}</button>
+          <h2 className="eh-h2 eh-h2-center">{t(lang, 'energyHome.finalCta.title')}</h2>
+          <p className="eh-muted eh-muted-center">{t(lang, 'energyHome.finalCta.desc')}</p>
+          <button type="button" className="eh-btn-primary">{t(lang, 'energyHome.finalCta.cta')}</button>
         </div>
       </section>
 
       <style>{`
-        .eh-page{background:#000;color:#fff;font-family:Inter,sans-serif;overflow-x:hidden}
+        .eh-page{background:var(--color-black);color:var(--color-white);font-family:var(--font-family);overflow-x:hidden}
         .eh-container{max-width:1280px;margin:0 auto;padding:0 24px;width:100%}
         .eh-section{position:relative;padding:120px 0}
-        .eh-fullbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+        /* HEADINGS */
+        .eh-h2{font-size:clamp(26px,4vw,50px);font-weight:600;line-height:1.15;letter-spacing:-0.02em;margin:0 0 20px;color:var(--color-white);word-wrap:break-word;overflow-wrap:break-word}
+        .eh-h2-md{font-size:clamp(24px,3vw,34px)}
+        .eh-h2-center{text-align:center}
+        .eh-h3{font-size:clamp(22px,2.4vw,28px);font-weight:600;letter-spacing:-0.01em;margin:0 0 12px}
+        .eh-lead{font-size:clamp(16px,1.5vw,20px);line-height:1.6;color:var(--color-gray);max-width:900px;margin:0 auto}
+        .eh-lead-sm{font-size:clamp(14px,1.2vw,16px);max-width:820px}
+        .eh-lead-center{text-align:center}
+        .eh-muted{color:var(--color-gray);font-size:15px;line-height:1.7}
+        .eh-muted-sm{font-size:13px}
+        .eh-muted-center{text-align:center;max-width:760px;margin-left:auto;margin-right:auto}
 
         /* BUTTONS */
-        .eh-cta-glass{padding:12px 30px;background:rgba(255,255,255,0.1);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);border:1px solid rgba(255,255,255,0.15);border-radius:15px;color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s ease}
+        .eh-cta-glass{padding:14px 32px;background:rgba(255,255,255,0.1);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);border:1px solid rgba(255,255,255,0.15);border-radius:15px;color:var(--color-white);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s ease}
         .eh-cta-glass:hover{background:rgba(248,176,59,0.2);border-color:rgba(248,176,59,0.5)}
+        .eh-btn-pill{padding:12px 28px;background:rgba(255,255,255,0.1);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);border:1px solid rgba(255,255,255,0.2);border-radius:15px;color:var(--color-white);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.25s ease;margin-top:16px}
+        .eh-btn-pill:hover{background:rgba(248,176,59,0.2);border-color:rgba(248,176,59,0.5)}
+        .eh-btn-primary{padding:16px 36px;background:var(--color-primary);border:none;border-radius:12px;color:var(--color-black);font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.25s ease;margin-top:30px}
+        .eh-btn-primary:hover{background:#ffbf50;transform:translateY(-3px);box-shadow:0 12px 30px rgba(248,176,59,0.4)}
 
-        /* 1. HERO */
+        /* HERO */
         .eh-hero{position:relative;height:100vh;min-height:720px;display:flex;align-items:center;justify-content:center;overflow:hidden}
         .eh-hero-bg{position:absolute;inset:0;z-index:0}
-        .eh-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
-        .eh-hero-gradient{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.45) 0%,rgba(0,0,0,0) 40%,rgba(0,0,0,0.85) 100%)}
-        .eh-hero-content{position:relative;z-index:1;text-align:center;padding:0 24px;max-width:1100px;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:center;gap:16px}
-        .eh-hero-title{font-size:50px;font-weight:600;line-height:1.05;color:#fff;margin:0;text-shadow:0 2px 20px rgba(0,0,0,0.5)}
-        .eh-hero-subtitle{font-size:20px;font-weight:600;color:#fff;margin:0;text-shadow:0 2px 12px rgba(0,0,0,0.5)}
-        .eh-hero-cta-wrap{position:absolute;bottom:80px;left:50%;transform:translateX(-50%)}
+        .eh-hero-bg img,.eh-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+        .eh-hero-gradient{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.45) 0%,rgba(0,0,0,0.2) 35%,rgba(0,0,0,0.85) 100%)}
+        .eh-hero-content{position:relative;z-index:1;text-align:center;padding:0 24px;max-width:1100px;display:flex;flex-direction:column;align-items:center;gap:16px}
+        .eh-hero-title{font-size:clamp(36px,5vw,64px);font-weight:600;line-height:1.05;letter-spacing:-0.03em;margin:0;color:var(--color-white);text-shadow:0 2px 20px rgba(0,0,0,0.5)}
+        .eh-hero-subtitle{font-size:clamp(16px,1.6vw,22px);color:rgba(255,255,255,0.92);font-weight:500;margin:0 0 32px;text-shadow:0 2px 12px rgba(0,0,0,0.5)}
+        .eh-hero-cta-wrap{margin-top:auto}
 
-        /* 2. CLEAN ENERGY - with bg image */
-        .eh-clean{position:relative;min-height:800px;display:flex;align-items:flex-start;padding:0;overflow:hidden}
-        .eh-clean-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0) 40%,rgba(0,0,0,0) 60%,rgba(0,0,0,0.7) 100%)}
-        .eh-clean-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:20px;padding:49px 24px 60px;max-width:1200px}
-        .eh-clean-title{font-size:34px;font-weight:600;line-height:1.15;color:#fff;text-align:center;margin:0}
-        .eh-clean-desc{font-size:20px;font-weight:400;line-height:1.6;color:#a3a3a3;text-align:center;margin:0;max-width:1162px;white-space:pre-line}
+        /* CLEAN SECTION */
+        .eh-clean{padding:140px 0 80px}
+        .eh-clean-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding:60px 24px;max-width:1200px}
+        .eh-clean-title{font-family:Inter,sans-serif;font-size:clamp(32px,4vw,48px);font-weight:700;line-height:1.1;letter-spacing:-0.02em;color:#fff;text-align:center;margin:0;max-width:1100px}
+        .eh-clean-desc{font-family:Inter,sans-serif;font-size:clamp(15px,1.4vw,18px);font-weight:300;line-height:1.6;color:#b0b0b0;text-align:center;margin:0;max-width:1162px;white-space:pre-line}
 
-        /* 3. SWITCHING TO ANCESTRO - 4 glass cards */
-        .eh-switching{position:relative;z-index:2;margin-top:-80px;padding:60px 0 80px}
-        .eh-switching .eh-container{display:flex;flex-direction:column;align-items:center;gap:40px}
-        .eh-switching-title{font-size:34px;font-weight:600;color:#fff;text-align:center;margin:0}
-        .eh-switching-cards{display:flex;gap:50px;width:100%;justify-content:center}
-        .eh-switching-card{flex:1;max-width:280px;padding:20px;background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;min-height:100px}
-        .eh-switching-card-text{font-size:24px;font-weight:500;color:#fff;white-space:pre-line;line-height:1.4}
+        /* SWITCHING TO ANCESTRO - 3 STEPS */
+        .eh-switching{padding:120px 0 140px;background:#0F0F0F}
+        .eh-switching .eh-container{display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px}
+        .eh-switching-title{font-family:Inter,sans-serif;font-size:clamp(32px,4vw,48px);font-weight:700;line-height:1.1;letter-spacing:-0.02em;color:#fff;text-align:center;margin:0}
+        .eh-switching-sub{font-family:Inter,sans-serif;font-size:clamp(16px,1.6vw,20px);font-weight:300;color:#b0b0b0;text-align:center;margin:0 0 40px}
+        .eh-switching-steps{display:grid;grid-template-columns:repeat(3,280px);gap:50px;justify-content:center;padding-top:40px;width:100%}
+        .eh-switching-step{display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center}
+        .eh-switching-num{font-family:Inter,sans-serif;font-size:56px;font-weight:700;color:#4FD1C5;line-height:1}
+        .eh-switching-step-title{font-family:Inter,sans-serif;font-size:18px;font-weight:600;color:#fff;margin:0;text-align:center}
+        .eh-switching-step-desc{font-family:Inter,sans-serif;font-size:14px;font-weight:300;color:#909090;margin:0;text-align:center;line-height:1.5}
 
-        /* 4. SOLAR FLOW CAROUSEL */
-        .eh-flow{position:relative;min-height:1080px;padding:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
-        .eh-flow-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.6) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 65%,rgba(0,0,0,0.9) 100%)}
-        .eh-flow-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;height:100%;min-height:1080px;padding:0 24px}
-        .eh-flow-heading{font-size:34px;font-weight:500;color:#fff;text-align:center;margin:0;padding-top:195px;width:100%}
-        .eh-flow-subheading{font-size:14px;font-weight:400;color:#a3a3a3;text-align:center;margin:16px 0 0;max-width:821px}
-        .eh-flow-panel{position:absolute;bottom:200px;left:50%;transform:translateX(-50%);text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
-        .eh-flow-title{font-size:34px;font-weight:600;color:#fff;margin:0}
-        .eh-flow-desc{font-size:20px;font-weight:400;color:#a3a3a3;margin:0}
-        .eh-flow-dots{position:absolute;bottom:58px;left:50%;transform:translateX(-50%);display:flex;gap:10px}
-        .eh-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.1);border:none;cursor:pointer;transition:all 0.3s ease;padding:0}
-        .eh-dot.active{background:#f8b03b;width:28px;border-radius:999px}
-        .eh-dot:hover:not(.active){background:rgba(255,255,255,0.3)}
+        /* COMPLETE ENERGY SOLUTIONS */
+        .eh-solutions{padding:80px 60px;background:#000}
+        .eh-solutions .eh-container{display:flex;flex-direction:column;align-items:center;gap:60px;max-width:1400px}
+        .eh-solutions-title{font-family:Inter,sans-serif;font-size:clamp(32px,4vw,48px);font-weight:700;color:#fff;text-align:center;margin:0;letter-spacing:-0.02em}
+        .eh-solutions-grid{display:flex;justify-content:space-around;gap:40px;width:100%;flex-wrap:wrap}
+        .eh-solutions-card{display:flex;flex-direction:column;gap:16px;padding:24px;width:300px}
+        .eh-solutions-icon{width:60px;height:60px;border-radius:12px;background:#4FD1C5;flex-shrink:0}
+        .eh-solutions-card-title{font-family:Inter,sans-serif;font-size:20px;font-weight:600;color:#fff;margin:0}
+        .eh-solutions-card-desc{font-family:Inter,sans-serif;font-size:14px;font-weight:300;color:#b0b0b0;margin:0;line-height:1.5}
 
-        /* 5. PRODUCT TABS */
-        .eh-product-tabs{padding:80px 0}
-        .eh-product-tabs-nav{display:flex;justify-content:center;gap:10px;margin-bottom:30px}
-        .eh-product-tab{padding:12px 32px;background:rgba(255,255,255,0.1);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);border:1px solid rgba(255,255,255,0.1);border-radius:999px;color:rgba(255,255,255,0.8);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.25s ease}
-        .eh-product-tab:hover{background:rgba(255,255,255,0.15);color:#fff}
-        .eh-product-tab.active{background:#f8b03b;border-color:#f8b03b;color:#000}
-        .eh-product-stage{width:100%;max-height:800px;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);margin-bottom:40px}
-        .eh-product-image{width:100%;height:100%;object-fit:cover;display:block;max-height:800px}
-        .eh-product-features{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;border-top:2px solid #424242;padding-top:28px}
-        .eh-product-feat{padding-top:12px;border-top:2px solid transparent;margin-top:-16px}
-        .eh-product-feat.active{border-top-color:#f8b03b}
-        .eh-product-feat-title{font-size:24px;font-weight:600;color:#a3a3a3;margin:0 0 15px}
-        .eh-product-feat.active .eh-product-feat-title{color:#f8b03b}
-        .eh-product-feat-desc{font-size:16px;font-weight:400;color:#a3a3a3;line-height:1.6;margin:0}
-        .eh-product-feat.active .eh-product-feat-desc{color:#fff}
+        /* ENERGY FLOW */
+        .eh-flow{text-align:center;padding-bottom:0}
+        .eh-flow-stage{position:relative;width:100%;height:820px;margin-top:60px;overflow:hidden}
+        .eh-flow-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+        .eh-flow-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.6) 0%,rgba(0,0,0,0) 40%,rgba(0,0,0,0.9) 100%)}
+        .eh-flow-panel{position:absolute;left:50%;bottom:120px;transform:translateX(-50%);text-align:center;max-width:800px;padding:0 24px;display:flex;flex-direction:column;align-items:center}
+        .eh-flow-title{font-size:clamp(28px,3vw,40px);font-weight:600;margin:0 0 12px;color:var(--color-white)}
+        .eh-flow-desc{font-size:15px;color:rgba(255,255,255,0.8);line-height:1.6;margin:0}
+        .eh-flow-dots{position:absolute;left:50%;bottom:60px;transform:translateX(-50%);display:flex;gap:10px}
+        .eh-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.3);border:none;cursor:pointer;transition:all 0.3s ease;padding:0}
+        .eh-dot.active{background:var(--color-primary);width:28px;border-radius:999px}
+        .eh-dot:hover:not(.active){background:rgba(255,255,255,0.5)}
 
-        /* 6. PLANS */
-        .eh-plans{padding:40px 0;background:#000}
-        .eh-plans .eh-container{display:flex;flex-direction:column;align-items:center;gap:34px}
-        .eh-plans-title{font-size:34px;font-weight:500;color:#fff;text-align:center;margin:0}
-        .eh-plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;width:100%}
-        .eh-plan-card{display:flex;flex-direction:column;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);border-radius:20px;overflow:hidden;padding:10px 10px 30px 10px;gap:17px;transition:all 0.3s ease}
+        /* PLANS */
+        .eh-plans{padding:120px 0}
+        .eh-plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;margin-top:50px}
+        .eh-plan-card{display:flex;flex-direction:column;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;overflow:hidden;padding:10px 10px 30px;transition:all 0.3s ease}
         .eh-plan-card:hover{border-color:rgba(248,176,59,0.4);transform:translateY(-4px)}
         .eh-plan-card.featured{border-color:rgba(248,176,59,0.35)}
-        .eh-plan-image{width:100%;height:257px;border-radius:20px;overflow:hidden;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center}
+        .eh-plan-image{width:100%;height:220px;border-radius:16px;overflow:hidden;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center}
         .eh-plan-image-cover img{width:100%;height:100%;object-fit:cover}
         .eh-plan-image-contain{background:linear-gradient(160deg,rgba(255,255,255,0.06) 0%,rgba(0,0,0,0.2) 100%)}
         .eh-plan-image-contain img{max-width:80%;max-height:90%;width:auto;height:auto;object-fit:contain}
-        .eh-plan-body{padding:15px 30px;flex:1;display:flex;flex-direction:column;gap:17px}
-        .eh-plan-title{font-size:22px;font-weight:600;color:#fff;margin:0}
-        .eh-plan-desc{font-size:14px;color:rgba(255,255,255,0.7);line-height:1.6;margin:0}
+        .eh-plan-body{padding:24px 24px 16px;flex:1}
+        .eh-plan-title{font-size:22px;font-weight:600;color:var(--color-white);margin:0 0 10px}
+        .eh-plan-desc{font-size:14px;color:rgba(255,255,255,0.7);line-height:1.6;margin:0 0 16px}
         .eh-plan-tagline{font-size:12px;font-style:italic;color:rgba(255,255,255,0.8);line-height:1.4;margin:0}
-        .eh-plan-card.featured .eh-plan-tagline{color:#f8b03b}
-        .eh-plan-cta{margin:0 30px;align-self:stretch}
+        .eh-plan-card.featured .eh-plan-tagline{color:var(--color-primary)}
+        .eh-plan-cta{margin:0 24px;padding:12px 20px;background:rgba(255,255,255,0.08);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);border:1px solid rgba(255,255,255,0.15);border-radius:15px;color:var(--color-white);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.3s ease}
+        .eh-plan-cta:hover{background:rgba(248,176,59,0.2);border-color:rgba(248,176,59,0.5)}
 
-        /* 7. ANCESTRO MAKES IT EASY */
-        .eh-makes-easy{padding:0;overflow:hidden;background:#000}
-        .eh-makes-easy-wrap{display:flex;align-items:center;gap:161px;max-width:1920px;padding:0}
-        .eh-makes-easy-text{flex:0 0 auto;max-width:500px;padding:80px 0 80px 50px}
-        .eh-makes-easy-title{font-size:24px;font-weight:500;color:#fff;margin:0 0 20px}
-        .eh-makes-easy-desc{font-size:14px;font-weight:400;color:#a3a3a3;line-height:1.78;margin:0}
-        .eh-makes-easy-image{flex:1;display:flex;justify-content:flex-end;overflow:hidden}
-        .eh-makes-easy-image img{width:977px;max-width:100%;height:614px;object-fit:cover;border-radius:20px 0 0 20px}
+        /* PRODUCT TABS SHOWCASE */
+        .eh-product-tabs{padding:80px 0}
+        .eh-product-tabs-nav{display:flex;justify-content:center;gap:10px;margin-bottom:30px}
+        .eh-product-tab{padding:12px 32px;background:rgba(255,255,255,0.08);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);border:1px solid rgba(255,255,255,0.12);border-radius:999px;color:rgba(255,255,255,0.8);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.25s ease}
+        .eh-product-tab:hover{background:rgba(255,255,255,0.12);color:var(--color-white)}
+        .eh-product-tab.active{background:var(--color-primary);border-color:var(--color-primary);color:var(--color-black)}
+        .eh-product-stage{width:100%;aspect-ratio:16/10;max-height:800px;border-radius:24px;overflow:hidden;background:rgba(255,255,255,0.04);margin-bottom:40px}
+        .eh-product-image{width:100%;height:100%;object-fit:cover;display:block}
+        .eh-product-features{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;border-top:2px solid #424242;padding-top:28px}
+        .eh-product-feat{padding-top:12px;border-top:2px solid transparent;margin-top:-16px}
+        .eh-product-feat.active{border-top-color:var(--color-primary)}
+        .eh-product-feat-title{font-size:clamp(18px,1.8vw,24px);font-weight:600;color:var(--color-gray);margin:0 0 15px}
+        .eh-product-feat.active .eh-product-feat-title{color:var(--color-primary)}
+        .eh-product-feat-desc{font-size:14px;color:rgba(255,255,255,0.75);line-height:1.6;margin:0}
+        .eh-product-feat.active .eh-product-feat-desc{color:var(--color-white)}
 
-        /* 8. GRID GOES DOWN */
+        /* GRID DOWN */
         .eh-grid-down{position:relative;min-height:720px;padding:200px 0;display:flex;align-items:flex-end}
+        .eh-fullbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
         .eh-grid-down-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.3) 0%,rgba(0,0,0,0.95) 100%)}
-        .eh-grid-down-content{position:relative;z-index:1}
-        .eh-grid-down-title{font-size:34px;font-weight:500;color:#fff;margin:0 0 12px}
-        .eh-grid-down-desc{font-size:14px;font-weight:400;color:#a3a3a3;margin:0;line-height:1.7}
+        .eh-grid-down-content{position:relative}
 
-        /* 9. ANCESTRO APP - text LEFT, phone RIGHT */
-        .eh-app{padding:0;background:#000;overflow:hidden}
-        .eh-app .eh-container{max-width:1922px;padding:0}
-        .eh-app-top{display:flex;align-items:flex-start;gap:60px;padding:80px 50px 0}
-        .eh-app-text{display:flex;flex-direction:column;justify-content:space-between;height:273px;gap:10px;flex:0 0 auto;max-width:500px}
-        .eh-app-title{font-size:34px;font-weight:500;color:#fff;margin:0;text-align:left}
-        .eh-app-desc{font-size:14px;font-weight:400;color:#a3a3a3;line-height:1.7;margin:0;max-width:428px;text-align:left}
-        .eh-app-badge{display:inline-block}
-        .eh-app-badge img{width:232px;height:69px;object-fit:contain}
-        .eh-app-phone{flex:1;display:flex;justify-content:center;position:relative}
-        .eh-app-phone>img{width:700px;max-width:100%;height:auto;object-fit:contain}
-        .eh-app-phone-gradient{position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(180deg,transparent,#000)}
-        .eh-app-features{display:flex;gap:50px;max-width:1128px;margin:60px auto 80px;padding:0 50px}
-        .eh-app-feature{flex:1;padding:20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);border-radius:10px;display:flex;flex-direction:column;gap:10px}
-        .eh-app-feature-title{font-size:24px;font-weight:500;color:#fff;margin:0}
-        .eh-app-feature-desc{font-size:14px;font-weight:400;color:#a3a3a3;line-height:1.78;margin:0}
+        /* APP */
+        .eh-app{padding:140px 0}
+        .eh-app-wrap{display:grid;grid-template-columns:1fr;gap:60px;text-align:center}
+        .eh-app-header{max-width:820px;margin:0 auto}
+        .eh-app-phone{display:flex;justify-content:center}
+        .eh-app-phone img{max-width:360px;height:auto;filter:drop-shadow(0 30px 80px rgba(248,176,59,0.2))}
+        .eh-app-features{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;max-width:1100px;margin:0 auto;text-align:left}
+        .eh-app-feature{padding:24px;background:rgba(255,255,255,0.04);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);border:1px solid rgba(255,255,255,0.08);border-radius:16px}
+        .eh-feature-title{font-size:clamp(18px,1.6vw,24px);font-weight:500;margin:0 0 12px;color:var(--color-white)}
 
-        /* 10. POWER ON */
-        .eh-powerOn{position:relative;min-height:1080px;padding:0;display:flex;align-items:flex-end;overflow:hidden}
+        /* POWER ON */
+        .eh-powerOn{position:relative;min-height:720px;padding:200px 0;display:flex;align-items:flex-end;overflow:hidden}
         .eh-powerOn-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,0.5) 50%,rgba(0,0,0,0.95) 100%)}
-        .eh-powerOn-content{position:relative;z-index:1;max-width:900px;padding:0 24px 80px}
-        .eh-powerOn-title{font-size:34px;font-weight:500;color:#fff;margin:0 0 12px}
-        .eh-powerOn-desc{font-size:14px;font-weight:400;color:#a3a3a3;margin:0;line-height:1.7}
+        .eh-powerOn-content{position:relative;max-width:900px}
 
-        /* 11. INSTALL SOLAR + BATTERY */
-        .eh-install{padding:0 0 0 50px;background:#000;display:flex;align-items:center}
-        .eh-install-wrap{display:flex;align-items:center;gap:80px;max-width:1920px;width:100%;padding:80px 0}
-        .eh-install-text{flex:1}
-        .eh-install-title{font-size:34px;font-weight:600;color:#fff;margin:0 0 16px}
-        .eh-install-desc{font-size:20px;font-weight:400;color:#a3a3a3;margin:0 0 32px;max-width:460px;line-height:1.6}
-        .eh-install-cta{padding:15px 60px}
-        .eh-install-image{flex:0 0 auto;display:flex;justify-content:center}
-        .eh-install-image img{width:438px;height:657px;object-fit:contain;filter:drop-shadow(0 30px 60px rgba(0,0,0,0.6))}
+        /* INSTALL (Battery product showcase) */
+        .eh-install{padding:120px 0}
+        .eh-install-wrap{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+        .eh-install-text h2{margin-bottom:16px}
+        .eh-install-text .eh-muted{margin-bottom:32px;max-width:460px}
+        .eh-install-cta{margin-top:8px}
+        .eh-install-image{display:flex;justify-content:center}
+        .eh-install-image img{max-width:440px;width:100%;height:auto;filter:drop-shadow(0 30px 60px rgba(0,0,0,0.6))}
 
-        /* 12. LATAM */
+        /* LATAM */
         .eh-latam{position:relative;min-height:961px;padding:84px 0 80px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+        .eh-latam .eh-fullbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
         .eh-latam-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:40px;width:100%;max-width:1148px;padding:10px 24px;min-height:850px}
         .eh-latam-header{display:flex;flex-direction:column;align-items:center;gap:28px;text-align:center}
-        .eh-latam-title{font-size:34px;font-weight:500;color:#fff;margin:0}
-        .eh-latam-desc{font-size:18px;font-weight:400;color:#a3a3a3;margin:0;text-align:center;max-width:720px}
+        .eh-latam-title{font-family:Inter,sans-serif;font-size:clamp(26px,3vw,34px);font-weight:500;color:#fff;margin:0;letter-spacing:-0.01em}
+        .eh-latam-desc{font-family:Inter,sans-serif;font-size:clamp(15px,1.4vw,18px);font-weight:400;color:#a3a3a3;margin:0;text-align:center;max-width:720px}
         .eh-flags{display:flex;flex-wrap:wrap;justify-content:center;gap:21px;max-width:634px;margin:0}
         .eh-flag{width:40px;height:27px;border-radius:6px;overflow:hidden;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.4)}
         .eh-flag img{width:100%;height:100%;object-fit:cover;display:block}
@@ -471,87 +482,41 @@ export default function EnergyHomePage({ lang }: Props) {
         .eh-stat-icon{display:flex;align-items:center;justify-content:center;height:74px;flex-shrink:0}
         .eh-stat-icon img{height:74px;width:auto;object-fit:contain}
         .eh-stat-body{display:flex;flex-direction:column;align-items:center;gap:10px}
-        .eh-stat-num{font-size:40px;font-weight:600;color:#fff;line-height:1}
-        .eh-stat-label{font-size:14px;font-weight:400;color:#a3a3a3;text-align:center}
+        .eh-stat-num{font-family:Inter,sans-serif;font-size:clamp(32px,3vw,40px);font-weight:600;color:#fff;line-height:1;letter-spacing:-0.02em}
+        .eh-stat-label{font-family:Inter,sans-serif;font-size:14px;font-weight:400;color:#a3a3a3;text-align:center}
 
-        /* 13. FINAL CTA */
+        /* FINAL CTA */
         .eh-finalcta{position:relative;min-height:560px;padding:140px 0;display:flex;align-items:center;overflow:hidden}
-        .eh-finalcta-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.5) 100%)}
-        .eh-finalcta-content{position:relative;z-index:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px}
-        .eh-finalcta-title{font-size:34px;font-weight:500;color:#fff;margin:0;text-align:center}
-        .eh-finalcta-desc{font-size:14px;font-weight:400;color:#a3a3a3;margin:0;text-align:center;max-width:760px}
+        .eh-finalcta-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.6)}
+        .eh-finalcta-content{position:relative;text-align:center}
 
-        /* RESPONSIVE - 1024px */
         @media(max-width:1024px){
           .eh-section{padding:80px 0}
           .eh-hero{min-height:600px;height:auto;padding:120px 0 80px}
-          .eh-hero-title{font-size:40px}
-          .eh-hero-cta-wrap{position:relative;bottom:auto;left:auto;transform:none;margin-top:40px}
-          .eh-clean{min-height:auto;padding:80px 0}
-          .eh-clean-title{font-size:28px}
-          .eh-clean-desc{font-size:16px}
-          .eh-switching-cards{flex-wrap:wrap;gap:20px}
-          .eh-switching-card{min-width:200px;max-width:none;flex:1 1 calc(50% - 10px)}
-          .eh-switching-card-text{font-size:20px}
-          .eh-flow{min-height:700px}
-          .eh-flow-content{min-height:700px}
-          .eh-flow-heading{padding-top:80px;font-size:28px}
-          .eh-flow-panel{bottom:140px}
-          .eh-flow-title{font-size:28px}
+          .eh-flow-stage{height:600px}
+          .eh-app-features{grid-template-columns:1fr;gap:24px}
+          .eh-switching-grid{grid-template-columns:repeat(2,1fr)}
           .eh-plans-grid{grid-template-columns:1fr;max-width:460px;margin-left:auto;margin-right:auto}
           .eh-product-features{grid-template-columns:repeat(2,1fr)}
-          .eh-makes-easy-wrap{flex-direction:column;gap:40px}
-          .eh-makes-easy-text{padding:40px 24px;max-width:none}
-          .eh-makes-easy-image{width:100%}
-          .eh-makes-easy-image img{width:100%;height:auto;border-radius:20px}
-          .eh-app-top{flex-direction:column;gap:40px;padding:60px 24px 0}
-          .eh-app-text{height:auto;max-width:none}
-          .eh-app-features{flex-direction:column;gap:20px;padding:0 24px;margin:40px auto 60px}
-          .eh-install{padding:0 24px}
-          .eh-install-wrap{flex-direction:column;gap:40px;text-align:center;padding:60px 0}
-          .eh-install-desc{margin-left:auto;margin-right:auto}
-          .eh-install-image img{width:300px;height:auto}
+          .eh-install-wrap{grid-template-columns:1fr;gap:40px;text-align:center}
+          .eh-install-text .eh-muted{margin-left:auto;margin-right:auto}
           .eh-stats{gap:20px}
           .eh-stat{min-height:180px;padding:30px 24px}
           .eh-stat-num{font-size:32px}
-          .eh-powerOn{min-height:600px}
         }
-
-        /* RESPONSIVE - 640px */
         @media(max-width:640px){
           .eh-section{padding:60px 0}
           .eh-container{padding:0 20px}
+          .eh-flow-stage{height:520px}
+          .eh-flow-panel{bottom:90px}
           .eh-hero-title{font-size:34px}
-          .eh-hero-subtitle{font-size:16px}
-          .eh-switching-title{font-size:26px}
-          .eh-switching-cards{flex-direction:column;gap:16px;align-items:center}
-          .eh-switching-card{width:100%;max-width:320px;flex:none}
-          .eh-switching-card-text{font-size:18px}
-          .eh-flow{min-height:520px}
-          .eh-flow-content{min-height:520px}
-          .eh-flow-heading{font-size:24px;padding-top:60px}
-          .eh-flow-panel{bottom:100px}
-          .eh-flow-title{font-size:24px}
-          .eh-flow-desc{font-size:16px}
+          .eh-switching-grid{grid-template-columns:1fr;gap:16px}
           .eh-product-features{grid-template-columns:1fr}
           .eh-product-tab{padding:10px 20px;font-size:13px}
-          .eh-grid-down{min-height:500px;padding:100px 0}
-          .eh-grid-down-title{font-size:26px}
-          .eh-app-phone>img{width:100%}
-          .eh-app-badge img{width:180px;height:auto}
-          .eh-powerOn{min-height:400px}
-          .eh-powerOn-title{font-size:26px}
-          .eh-install-title{font-size:26px}
-          .eh-install-desc{font-size:16px}
           .eh-flags{gap:10px;max-width:100%}
           .eh-flag{width:32px;height:22px}
           .eh-stats{flex-direction:column;align-items:center}
           .eh-stat{width:100%;max-width:300px}
-          .eh-latam-title{font-size:26px}
-          .eh-finalcta-title{font-size:26px}
-          .eh-plans-title{font-size:26px}
-          .eh-clean-title{font-size:24px}
-          .eh-clean-desc{font-size:14px}
         }
       `}</style>
     </div>
