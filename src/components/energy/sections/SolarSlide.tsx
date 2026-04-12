@@ -42,9 +42,9 @@ export default function SolarSlide({ lang }: { lang: string }) {
         .eh-slide-title{font-size:34px;font-weight:600;color:#fff;margin:0}
         .eh-slide-desc{font-size:20px;font-weight:400;color:#a3a3a3;margin:0;max-width:650px}
         .eh-slide-dots{position:absolute;bottom:58px;left:50%;transform:translateX(-50%);display:flex;gap:10px}
-        .eh-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.1);border:none;cursor:pointer;padding:0;transition:all .3s;min-height:44px;min-width:44px;display:flex;align-items:center;justify-content:center;background-clip:content-box;box-sizing:content-box}
-        .eh-dot.active{background:#f8b03b;width:28px;border-radius:999px}
-        .eh-dot:hover:not(.active){background:rgba(255,255,255,.3)}
+        .eh-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.2);border:none;cursor:pointer;padding:0;transition:all .3s}
+        .eh-dot.active{background:#f8b03b;width:24px;border-radius:999px}
+        .eh-dot:hover:not(.active){background:rgba(255,255,255,.4)}
         @media(max-width:1024px){
           .eh-slide{height:700px}
           .eh-slide-heading{font-size:28px;padding-top:100px}
