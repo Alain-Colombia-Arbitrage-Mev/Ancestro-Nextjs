@@ -84,7 +84,8 @@
 
 /* === SolarSlide === */
 .eh-slide{background:#000;position:relative;z-index:1;width:100%;height:750px;overflow:hidden}
-.eh-slide-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+.eh-slide-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;opacity:0;transition:opacity .8s ease}
+.eh-slide-bg-active{opacity:1}
 .eh-slide-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.6) 0%,transparent 35%,transparent 65%,rgba(0,0,0,.9) 100%)}
 .eh-slide-content{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:center}
 .eh-slide-heading{font-size:24px;font-weight:500;color:#fff;text-align:center;margin:0;padding-top:100px}
