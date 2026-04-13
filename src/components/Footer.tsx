@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { t } from '@/i18n/translations';
 import { CDN_URL } from '@/lib/cdn';
+import ChatLink from './ChatLink';
 
 interface FooterProps {
   lang: string;
@@ -27,9 +28,9 @@ export default function Footer({ lang, backgroundImage }: FooterProps) {
   ];
 
   const supportLinks = [
-    { label: t(lang, 'footer.help'), href: '#help' },
-    { label: t(lang, 'footer.contact'), href: '#contact' },
-    { label: t(lang, 'footer.faq'), href: '#faq' },
+    { label: t(lang, 'footer.help'), question: t(lang, 'footer.help') },
+    { label: t(lang, 'footer.contact'), question: t(lang, 'footer.contact') },
+    { label: t(lang, 'footer.faq'), question: t(lang, 'footer.faq') },
   ];
 
   const socialLinks = [
@@ -84,7 +85,7 @@ export default function Footer({ lang, backgroundImage }: FooterProps) {
                   <h4 className="footer-heading">{t(lang, 'footer.support')}</h4>
                   <ul className="footer-list">
                     {supportLinks.map((link) => (
-                      <li key={link.label}><a href={link.href} className="footer-link">{link.label}</a></li>
+                      <li key={link.label}><ChatLink label={link.label} question={link.question} /></li>
                     ))}
                   </ul>
                 </div>
