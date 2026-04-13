@@ -28,17 +28,20 @@ export async function POST(req: NextRequest) {
     const label = `[${profile}] ${name} - ${new Date().toISOString().split('T')[0]}`;
     const dateStr = new Date().toISOString().split('T')[0];
 
+    // ==========================================
+    // INVESTOR → investment_requests + Airtable Invest
+    // ==========================================
     if (profile === 'investor') {
-      // Save to investment_requests
       await query(
         `INSERT INTO investment_requests (
           investment_request, full_name, email, phone, investment_range_usd,
-          message, form_source, follow_up_status, submission_date, notes
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), $9)`,
-        [label, name, email, phone, investment || null, message || null, 'join-page', 'New', notes]
+          message, form_source, follow_up_status, submission_date,
+          department_notified, notes, accreditation_status
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW(),$9,$10,$11)`,
+        [label, name, email, phone, investment || null, message || null,
+         'join-page', 'New', 'Investment', notes, 'pending']
       );
 
-      // Sync to Airtable invest form
       await createAirtableRecord(INVEST_TABLE, {
         'Investment Request': label,
         'Full Name': name,
@@ -48,62 +51,50 @@ export async function POST(req: NextRequest) {
         'Message': message || '',
         'Form Source': 'join-page',
         'Follow-Up Status': 'New',
-        'Date Submitted': dateStr,
+        'Submission Date': dateStr,
+        'Department Notified': 'Investment',
         'Notes': notes,
+        'Accreditation Status': 'Pending',
       }).catch(() => {});
 
-    } else if (profile === 'installer') {
-      // Save to waitlist + mark as installer partner
-      await query(
-        `INSERT INTO waitlist (
-          waitlist_entry, full_name, email, phone, country_of_residence,
-          accepted_terms, form_source, waitlist_status, date_submitted, notes
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), $9)`,
-        [label, name, email, phone, country, true, 'join-installer', 'Pending', notes]
-      );
-
-      await createAirtableRecord(WAITLIST_TABLE, {
-        'Waitlist Entry': label,
-        'Full Name': name,
-        'Email': email,
-        'Phone': phone,
-        'Country of Residence': country,
-        'Form Source': 'join-installer',
-        'Waitlist Status': 'Pending',
-        'Date Submitted': dateStr,
-        'Notes': notes,
-      }).catch(() => {});
-
+    // ==========================================
+    // GOVERNMENT → contacts + Airtable Contact
+    // ==========================================
     } else if (profile === 'government') {
-      // Save to contacts
       await query(
         `INSERT INTO contacts (
-          contact_name, contact_reason, full_name, email, phone, message,
-          form_source, follow_up_status, notes
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-        [label, 'Government Partnership', name, email, phone, message || '', 'join-government', 'New', notes]
+          contact_name, contact_reason, full_name, email, phone,
+          message, form_source, follow_up_status, notes, date_submitted
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`,
+        [label, 'Government Partnership', name, email, phone,
+         message || '', 'join-government', 'New', notes]
       );
 
       await createAirtableRecord(CONTACT_TABLE, {
         'Contact Name': label,
-        'Reason': 'Government Partnership',
+        'Contact Reason': 'Government Partnership',
         'Full Name': name,
         'Email': email,
         'Phone': phone,
-        'Message': notes,
+        'Message': message || notes,
         'Form Source': 'join-government',
         'Follow-Up Status': 'New',
-        'Date Submitted': dateStr,
+        'Notes': notes,
       }).catch(() => {});
 
+    // ==========================================
+    // ALL OTHERS → waitlist + Airtable Waitlist
+    // (strategic, installer, energy, logistics, advisor)
+    // ==========================================
     } else {
-      // strategic, energy, logistics, advisor → waitlist
       await query(
         `INSERT INTO waitlist (
           waitlist_entry, full_name, email, phone, country_of_residence,
-          accepted_terms, form_source, waitlist_status, date_submitted, notes
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), $9)`,
-        [label, name, email, phone, country, true, `join-${profile}`, 'Pending', notes]
+          accepted_terms, form_source, waitlist_status, date_submitted,
+          notes, company, city, profile_type, investment_range, experience
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW(),$9,$10,$11,$12,$13,$14)`,
+        [label, name, email, phone, country, true, `join-${profile}`, 'Pending',
+         notes, company || null, city || null, profile, investment || null, experience || null]
       );
 
       await createAirtableRecord(WAITLIST_TABLE, {
@@ -112,6 +103,7 @@ export async function POST(req: NextRequest) {
         'Email': email,
         'Phone': phone,
         'Country of Residence': country,
+        'Accepted Terms': true,
         'Form Source': `join-${profile}`,
         'Waitlist Status': 'Pending',
         'Date Submitted': dateStr,
