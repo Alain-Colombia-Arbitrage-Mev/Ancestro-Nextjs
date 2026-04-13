@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import JoinPanel from '@/components/JoinPanel';
@@ -21,7 +22,9 @@ export default async function JoinPage({ params }: PageProps) {
     <div className="page-wrapper">
       <Navbar lang={lang} />
       <main id="main-content" role="main">
-        <JoinPanel lang={lang} />
+        <Suspense>
+          <JoinPanel lang={lang} />
+        </Suspense>
       </main>
       <Footer lang={lang} backgroundImage={`${CDN_URL}/images/footer-bg.webp`} />
     </div>

@@ -21,10 +21,10 @@ export default function Footer({ lang, backgroundImage }: FooterProps) {
   ];
 
   const companyLinks = [
-    { label: t(lang, 'footer.distributor'), href: '#distributor' },
-    { label: t(lang, 'footer.installer'), href: '#installer' },
-    { label: t(lang, 'footer.investor'), href: '#investor' },
-    { label: t(lang, 'footer.host'), href: '#host' },
+    { label: t(lang, 'footer.distributor'), href: `/${lang}/join?profile=strategic` },
+    { label: t(lang, 'footer.installer'), href: `/${lang}/join?profile=installer` },
+    { label: t(lang, 'footer.investor'), href: `/${lang}/join?profile=investor` },
+    { label: t(lang, 'footer.host'), href: `/${lang}/join?profile=host` },
   ];
 
   const supportLinks = [

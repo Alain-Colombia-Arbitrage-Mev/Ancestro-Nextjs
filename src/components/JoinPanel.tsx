@@ -1,8 +1,9 @@
 'use client';
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { t } from '@/i18n/translations';
 
-type ProfileType = 'investor' | 'strategic' | 'installer' | 'energy' | 'logistics' | 'advisor' | 'government';
+type ProfileType = 'investor' | 'strategic' | 'installer' | 'energy' | 'logistics' | 'advisor' | 'government' | 'host' | 'supplier';
 
 interface Profile {
   id: ProfileType;
@@ -22,6 +23,8 @@ const profiles: Profile[] = [
   { id: 'logistics', icon: '\u{1F69B}', labelKey: 'join.profile.logistics', descKey: 'join.profile.logistics.desc' },
   { id: 'advisor', icon: '\u{1F9E0}', labelKey: 'join.profile.advisor', descKey: 'join.profile.advisor.desc' },
   { id: 'government', icon: '\u{1F3DB}', labelKey: 'join.profile.government', descKey: 'join.profile.government.desc' },
+  { id: 'host', icon: '\u{1F3E0}', labelKey: 'join.profile.host', descKey: 'join.profile.host.desc' },
+  { id: 'supplier', icon: '\u{1F4E6}', labelKey: 'join.profile.supplier', descKey: 'join.profile.supplier.desc' },
 ];
 
 const investmentRanges = [
@@ -64,6 +67,7 @@ const initialFormData: FormData = {
 };
 
 export default function JoinPanel({ lang }: { lang: string }) {
+  const searchParams = useSearchParams();
   const [step, setStep] = useState<WizardStep>('profile');
   const [form, setForm] = useState<FormData>(initialFormData);
   const [submitting, setSubmitting] = useState(false);
@@ -72,6 +76,15 @@ export default function JoinPanel({ lang }: { lang: string }) {
 
   const stepIndex = WIZARD_STEPS.indexOf(step);
   const isInvestor = form.profile === 'investor';
+
+  // Auto-select profile from URL ?profile=investor
+  useEffect(() => {
+    const urlProfile = searchParams.get('profile') as ProfileType | null;
+    if (urlProfile && profiles.some(p => p.id === urlProfile)) {
+      setForm(prev => ({ ...prev, profile: urlProfile }));
+      setStep('contact');
+    }
+  }, [searchParams]);
 
   const scrollToSection = useCallback(() => {
     setTimeout(() => {
