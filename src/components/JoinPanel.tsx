@@ -75,13 +75,17 @@ export default function JoinPanel({ lang }: { lang: string }) {
   const stepIndex = WIZARD_STEPS.indexOf(step);
   const isInvestor = form.profile === 'investor';
 
-  // Auto-select profile from URL ?profile=investor
+  // Auto-select profile from URL ?profile=investor (client-only)
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const urlProfile = params.get('profile') as ProfileType | null;
-    if (urlProfile && profiles.some(p => p.id === urlProfile)) {
-      setForm(prev => ({ ...prev, profile: urlProfile }));
-      setStep('contact');
+    setMounted(true);
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const urlProfile = params.get('profile') as ProfileType | null;
+      if (urlProfile && profiles.some(p => p.id === urlProfile)) {
+        setForm(prev => ({ ...prev, profile: urlProfile }));
+        setTimeout(() => setStep('contact'), 0);
+      }
     }
   }, []);
 
