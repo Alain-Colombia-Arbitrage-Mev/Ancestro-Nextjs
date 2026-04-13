@@ -32,6 +32,7 @@ export async function POST(req: NextRequest) {
     // INVESTOR → investment_requests + Airtable Invest
     // ==========================================
     if (profile === 'investor') {
+      // RDS - form_source can be any string
       await query(
         `INSERT INTO investment_requests (
           investment_request, full_name, email, phone, investment_range_usd,
@@ -42,6 +43,7 @@ export async function POST(req: NextRequest) {
          'join-page', 'New', 'Investment', notes, 'pending']
       );
 
+      // Airtable - Form Source must be existing option: "Investment Web Form"
       await createAirtableRecord(INVEST_TABLE, {
         'Investment Request': label,
         'Full Name': name,
@@ -49,13 +51,13 @@ export async function POST(req: NextRequest) {
         'Phone': phone,
         'Investment Range (USD)': investment || '',
         'Message': message || '',
-        'Form Source': 'join-page',
+        'Form Source': 'Investment Web Form',
         'Follow-Up Status': 'New',
         'Submission Date': dateStr,
         'Department Notified': 'Investment',
         'Notes': notes,
         'Accreditation Status': 'Pending',
-      }).catch(() => {});
+      }).catch((err) => console.error('[Airtable Invest]', err));
 
     // ==========================================
     // GOVERNMENT → contacts + Airtable Contact
@@ -70,6 +72,7 @@ export async function POST(req: NextRequest) {
          message || '', 'join-government', 'New', notes]
       );
 
+      // Airtable - Form Source must be: "Website"
       await createAirtableRecord(CONTACT_TABLE, {
         'Contact Name': label,
         'Contact Reason': 'Government Partnership',
@@ -77,14 +80,13 @@ export async function POST(req: NextRequest) {
         'Email': email,
         'Phone': phone,
         'Message': message || notes,
-        'Form Source': 'join-government',
+        'Form Source': 'Website',
         'Follow-Up Status': 'New',
         'Notes': notes,
-      }).catch(() => {});
+      }).catch((err) => console.error('[Airtable Contact]', err));
 
     // ==========================================
     // ALL OTHERS → waitlist + Airtable Waitlist
-    // (strategic, installer, energy, logistics, advisor)
     // ==========================================
     } else {
       await query(
@@ -97,18 +99,18 @@ export async function POST(req: NextRequest) {
          notes, company || null, city || null, profile, investment || null, experience || null]
       );
 
+      // Airtable - Form Source must be: "Website"
       await createAirtableRecord(WAITLIST_TABLE, {
         'Waitlist Entry': label,
         'Full Name': name,
         'Email': email,
         'Phone': phone,
         'Country of Residence': country,
-        'Accepted Terms': true,
-        'Form Source': `join-${profile}`,
+        'Form Source': 'Website',
         'Waitlist Status': 'Pending',
         'Date Submitted': dateStr,
         'Notes': notes,
-      }).catch(() => {});
+      }).catch((err) => console.error('[Airtable Waitlist]', err));
     }
 
     return NextResponse.json({ success: true, profile });
