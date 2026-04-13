@@ -28,92 +28,109 @@ export async function POST(req: NextRequest) {
     const label = `[${profile}] ${name} - ${new Date().toISOString().split('T')[0]}`;
     const dateStr = new Date().toISOString().split('T')[0];
 
+    let dbOk = false;
+    let airtableOk = false;
+
     // ==========================================
-    // INVESTOR → investment_requests + Airtable Invest
+    // INVESTOR
     // ==========================================
     if (profile === 'investor') {
-      // RDS - form_source can be any string
-      await query(
-        `INSERT INTO investment_requests (
-          investment_request, full_name, email, phone, investment_range_usd,
-          message, form_source, follow_up_status, submission_date,
-          department_notified, notes, accreditation_status
-        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW(),$9,$10,$11)`,
-        [label, name, email, phone, investment || null, message || null,
-         'join-page', 'New', 'Investment', notes, 'pending']
-      );
+      try {
+        await query(
+          `INSERT INTO investment_requests (
+            investment_request, full_name, email, phone, investment_range_usd,
+            message, form_source, follow_up_status, submission_date,
+            department_notified, notes, accreditation_status
+          ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW(),$9,$10,$11)`,
+          [label, name, email, phone, investment || null, message || null,
+           'join-page', 'New', 'Investment', notes, 'pending']
+        );
+        dbOk = true;
+      } catch (e) { console.error('[DB Invest]', e); }
 
-      // Airtable - Form Source must be existing option: "Investment Web Form"
-      await createAirtableRecord(INVEST_TABLE, {
-        'Investment Request': label,
-        'Full Name': name,
-        'Email': email,
-        'Phone': phone,
-        'Investment Range (USD)': investment || '',
-        'Message': message || '',
-        'Form Source': 'Investment Web Form',
-        'Follow-Up Status': 'New',
-        'Submission Date': dateStr,
-        'Department Notified': 'Investment',
-        'Notes': notes,
-        'Accreditation Status': 'Pending',
-      }).catch((err) => console.error('[Airtable Invest]', err));
+      try {
+        await createAirtableRecord(INVEST_TABLE, {
+          'Investment Request': label,
+          'Full Name': name,
+          'Email': email,
+          'Phone': phone,
+          'Investment Range (USD)': investment || '',
+          'Message': message || '',
+          'Form Source': 'Investment Web Form',
+          'Follow-Up Status': 'New',
+          'Submission Date': dateStr,
+          'Department Notified': 'Investment',
+          'Notes': notes,
+          'Accreditation Status': 'Pending',
+        });
+        airtableOk = true;
+      } catch (e) { console.error('[Airtable Invest]', e); }
 
     // ==========================================
-    // GOVERNMENT → contacts + Airtable Contact
+    // GOVERNMENT
     // ==========================================
     } else if (profile === 'government') {
-      await query(
-        `INSERT INTO contacts (
-          contact_name, contact_reason, full_name, email, phone,
-          message, form_source, follow_up_status, notes, date_submitted
-        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`,
-        [label, 'Government Partnership', name, email, phone,
-         message || '', 'join-government', 'New', notes]
-      );
+      try {
+        await query(
+          `INSERT INTO contacts (
+            contact_name, contact_reason, full_name, email, phone,
+            message, form_source, follow_up_status, notes, date_submitted
+          ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`,
+          [label, 'Information', name, email, phone,
+           message || '', 'join-government', 'New', notes]
+        );
+        dbOk = true;
+      } catch (e) { console.error('[DB Contact]', e); }
 
-      // Airtable - Form Source must be: "Website"
-      await createAirtableRecord(CONTACT_TABLE, {
-        'Contact Name': label,
-        'Contact Reason': 'Government Partnership',
-        'Full Name': name,
-        'Email': email,
-        'Phone': phone,
-        'Message': message || notes,
-        'Form Source': 'Website',
-        'Follow-Up Status': 'New',
-        'Notes': notes,
-      }).catch((err) => console.error('[Airtable Contact]', err));
+      try {
+        await createAirtableRecord(CONTACT_TABLE, {
+          'Contact Name': label,
+          'Contact Reason': 'Information',
+          'Full Name': name,
+          'Email': email,
+          'Phone': phone,
+          'Message': message || notes,
+          'Form Source': 'Website',
+          'Follow-Up Status': 'New',
+          'Notes': notes,
+        });
+        airtableOk = true;
+      } catch (e) { console.error('[Airtable Contact]', e); }
 
     // ==========================================
-    // ALL OTHERS → waitlist + Airtable Waitlist
+    // ALL OTHERS (strategic, installer, energy, logistics, advisor)
     // ==========================================
     } else {
-      await query(
-        `INSERT INTO waitlist (
-          waitlist_entry, full_name, email, phone, country_of_residence,
-          accepted_terms, form_source, waitlist_status, date_submitted,
-          notes, company, city, profile_type, investment_range, experience
-        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW(),$9,$10,$11,$12,$13,$14)`,
-        [label, name, email, phone, country, true, `join-${profile}`, 'Pending',
-         notes, company || null, city || null, profile, investment || null, experience || null]
-      );
+      try {
+        await query(
+          `INSERT INTO waitlist (
+            waitlist_entry, full_name, email, phone, country_of_residence,
+            accepted_terms, form_source, waitlist_status, date_submitted,
+            notes, company, city, profile_type, investment_range, experience
+          ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW(),$9,$10,$11,$12,$13,$14)`,
+          [label, name, email, phone, country, true, `join-${profile}`, 'Pending',
+           notes, company || null, city || null, profile, investment || null, experience || null]
+        );
+        dbOk = true;
+      } catch (e) { console.error('[DB Waitlist]', e); }
 
-      // Airtable - Form Source must be: "Website"
-      await createAirtableRecord(WAITLIST_TABLE, {
-        'Waitlist Entry': label,
-        'Full Name': name,
-        'Email': email,
-        'Phone': phone,
-        'Country of Residence': country,
-        'Form Source': 'Website',
-        'Waitlist Status': 'Pending',
-        'Date Submitted': dateStr,
-        'Notes': notes,
-      }).catch((err) => console.error('[Airtable Waitlist]', err));
+      try {
+        await createAirtableRecord(WAITLIST_TABLE, {
+          'Waitlist Entry': label,
+          'Full Name': name,
+          'Email': email,
+          'Phone': phone,
+          'Country of Residence': country,
+          'Form Source': 'Website',
+          'Waitlist Status': 'Pending',
+          'Date Submitted': dateStr,
+          'Notes': notes,
+        });
+        airtableOk = true;
+      } catch (e) { console.error('[Airtable Waitlist]', e); }
     }
 
-    return NextResponse.json({ success: true, profile });
+    return NextResponse.json({ success: true, profile, db: dbOk, airtable: airtableOk });
   } catch (err) {
     console.error('[Join API]', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
