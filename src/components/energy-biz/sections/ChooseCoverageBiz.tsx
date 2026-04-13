@@ -2,9 +2,34 @@ import { t } from '@/i18n/translations';
 import { IMG_BIZ } from '../EnergyBusinessPage';
 
 const plans = [
-  { key: 'solar', img: 'plan-solar-biz.webp', taglineKey: 'energyBiz.plan.solar.tagline' },
-  { key: 'battery', img: 'plan-battery-biz.webp', taglineKey: 'energyBiz.plan.battery.tagline' },
-  { key: 'bundle', img: 'plan-bundle-biz.webp', taglineKey: 'energyBiz.plan.bundle.tagline', featured: true },
+  {
+    key: 'solar',
+    img: 'plan-solar-biz.webp',
+    icon: '☀️',
+    titleKey: 'energyBiz.plan.solar.name',
+    subtitleKey: 'energyBiz.plan.solar.subtitle',
+    featuresKey: 'energyBiz.plan.solar.features',
+    taglineKey: 'energyBiz.plan.solar.tagline',
+  },
+  {
+    key: 'battery',
+    img: 'plan-battery-biz.webp',
+    icon: '🔋',
+    titleKey: 'energyBiz.plan.battery.name',
+    subtitleKey: 'energyBiz.plan.battery.subtitle',
+    featuresKey: 'energyBiz.plan.battery.features',
+    taglineKey: 'energyBiz.plan.battery.tagline',
+  },
+  {
+    key: 'bundle',
+    img: 'plan-bundle-biz.webp',
+    icon: '⚡',
+    titleKey: 'energyBiz.plan.bundle.name',
+    subtitleKey: 'energyBiz.plan.bundle.subtitle',
+    featuresKey: 'energyBiz.plan.bundle.features',
+    taglineKey: 'energyBiz.plan.bundle.tagline',
+    featured: true,
+  },
 ];
 
 export default function ChooseCoverageBiz({ lang }: { lang: string }) {
@@ -22,8 +47,13 @@ export default function ChooseCoverageBiz({ lang }: { lang: string }) {
                 <img src={`${IMG_BIZ}/${p.img}`} alt="" className="eb-coverage-img" />
               </div>
               <div className="eb-coverage-body">
-                <h3 className="eb-coverage-card-title">{t(lang, `energyBiz.plan.${p.key}.title`)}</h3>
-                <p className="eb-coverage-card-desc">{t(lang, `energyBiz.plan.${p.key}.desc`)}</p>
+                <div className="eb-coverage-card-header">
+                  <span className="eb-coverage-card-title">{t(lang, p.titleKey)}</span>
+                </div>
+                <div className="eb-coverage-card-content">
+                  <h4 className="eb-coverage-card-subtitle">{t(lang, p.subtitleKey)}</h4>
+                  <p className="eb-coverage-card-features">{t(lang, p.featuresKey)}</p>
+                </div>
                 <p className={`eb-coverage-tagline ${p.featured ? 'eb-coverage-tagline-orange' : ''}`}>{t(lang, p.taglineKey)}</p>
               </div>
               <button type="button" className="eb-coverage-card-cta">{t(lang, 'energyBiz.coverage.cta')}</button>

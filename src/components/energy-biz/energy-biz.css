@@ -204,9 +204,12 @@
 .eb-coverage-featured{border-color:rgba(248,176,59,.3)}
 .eb-coverage-img-wrap{height:200px;border-radius:16px;overflow:hidden}
 .eb-coverage-img{width:100%;height:100%;object-fit:cover;display:block;border-radius:16px}
-.eb-coverage-body{padding:8px 20px;flex:1;display:flex;flex-direction:column;gap:8px}
-.eb-coverage-card-title{font-size:16px;font-weight:600;color:#fff;margin:0}
-.eb-coverage-card-desc{font-size:12px;color:#a3a3a3;margin:0;line-height:1.5;flex:1}
+.eb-coverage-body{padding:12px 20px;flex:1;display:flex;flex-direction:column;gap:14px}
+.eb-coverage-card-header{display:flex;align-items:center;gap:8px}
+.eb-coverage-card-title{font-size:20px;font-weight:600;color:#fff}
+.eb-coverage-card-content{flex:1}
+.eb-coverage-card-subtitle{font-size:15px;font-weight:500;color:#fff;margin:0 0 8px}
+.eb-coverage-card-features{font-size:13px;color:#fff;margin:0;line-height:1.5;white-space:pre-line}
 .eb-coverage-tagline{font-size:11px;font-style:italic;color:#a3a3a3;margin:0}
 .eb-coverage-tagline-orange{color:#f8b03b}
 .eb-coverage-card-cta{display:block;margin:0 20px;padding:10px 16px;border-radius:15px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;backdrop-filter:blur(10px);transition:all .3s ease}
