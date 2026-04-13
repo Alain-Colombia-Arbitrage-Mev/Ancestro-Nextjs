@@ -12,7 +12,7 @@ export default function ShopSection({ lang, products }: ShopSectionProps) {
           {products.map((product, i) => (
             <article key={i} className="product-card">
               <div className="card-inner">
-                <div className="product-bg"><Image src={product.backgroundImage} alt={product.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw" quality={75} /></div>
+                <div className="product-bg"><Image src={product.backgroundImage} alt={product.title} fill sizes="(max-width: 580px) 100vw, (max-width: 768px) 50vw, 25vw" quality={90} priority={i < 2} /></div>
                 <div className="product-shine"></div>
                 <div className="product-content">
                   <div className="glass-panel">
