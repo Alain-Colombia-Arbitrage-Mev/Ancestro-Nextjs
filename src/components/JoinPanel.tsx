@@ -1,6 +1,5 @@
 'use client';
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { t } from '@/i18n/translations';
 
 type ProfileType = 'investor' | 'strategic' | 'installer' | 'energy' | 'logistics' | 'advisor' | 'government' | 'host' | 'supplier';
@@ -67,7 +66,6 @@ const initialFormData: FormData = {
 };
 
 export default function JoinPanel({ lang }: { lang: string }) {
-  const searchParams = useSearchParams();
   const [step, setStep] = useState<WizardStep>('profile');
   const [form, setForm] = useState<FormData>(initialFormData);
   const [submitting, setSubmitting] = useState(false);
@@ -79,12 +77,13 @@ export default function JoinPanel({ lang }: { lang: string }) {
 
   // Auto-select profile from URL ?profile=investor
   useEffect(() => {
-    const urlProfile = searchParams.get('profile') as ProfileType | null;
+    const params = new URLSearchParams(window.location.search);
+    const urlProfile = params.get('profile') as ProfileType | null;
     if (urlProfile && profiles.some(p => p.id === urlProfile)) {
       setForm(prev => ({ ...prev, profile: urlProfile }));
       setStep('contact');
     }
-  }, [searchParams]);
+  }, []);
 
   const scrollToSection = useCallback(() => {
     setTimeout(() => {
