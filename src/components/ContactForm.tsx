@@ -89,11 +89,11 @@ export default function ContactForm({ lang }: ContactFormProps) {
             <div className="contact-channels">
               <div className="channel-item">
                 <div className="channel-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" strokeWidth="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" stroke="currentColor" strokeWidth="2"/></svg></div>
-                <div><span className="channel-label">Email</span><span className="channel-value">info@ancestro.co</span></div>
+                <div><span className="channel-label">Email</span><span className="channel-value">info@ancestro.ai</span></div>
               </div>
               <div className="channel-item">
                 <div className="channel-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke="currentColor" strokeWidth="2"/></svg></div>
-                <div><span className="channel-label">Web</span><span className="channel-value">ancestro.co</span></div>
+                <div><span className="channel-label">Web</span><span className="channel-value">ancestro.ai</span></div>
               </div>
             </div>
           </div>

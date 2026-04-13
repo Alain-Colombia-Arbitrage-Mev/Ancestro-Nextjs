@@ -145,7 +145,7 @@ function AccessGate({ onUnlock }: { onUnlock: () => void }) {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
           </form>
-          <p className="access-gate-contact">Need access? Contact <a href="mailto:invest@ancestro.com">invest@ancestro.com</a></p>
+          <p className="access-gate-contact">Need access? Contact <a href="mailto:invest@ancestro.ai">invest@ancestro.ai</a></p>
         </div>
       </div>
       <style>{`
@@ -941,7 +941,7 @@ export default function InvestPage({ lang }: InvestPageProps) {
             </a>
           </div>
           <p className="numbers-contact">
-            Questions? <a href="mailto:invest@ancestro.com">invest@ancestro.com</a>
+            Questions? <a href="mailto:invest@ancestro.ai">invest@ancestro.ai</a>
           </p>
         </div>
       </section>
@@ -1463,8 +1463,8 @@ export default function InvestPage({ lang }: InvestPageProps) {
                 </svg>
               </a>
               <span className="form-alt-sep">&middot;</span>
-              <a href="mailto:invest@ancestro.com" className="form-alt-link">
-                invest@ancestro.com
+              <a href="mailto:invest@ancestro.ai" className="form-alt-link">
+                invest@ancestro.ai
               </a>
             </div>
           </div>
