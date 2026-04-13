@@ -24,10 +24,10 @@ export default async function HomePage({ params }: PageProps) {
     latamMap: `${cdn}/MAPA.svg`,
     footerBg: `${cdn}/images/footer-bg.webp`,
     backgroundSection: `${cdn}/images/nature-bg.webp`,
-    solarPanels: `${cdn}/images/shop-solar.webp`,
-    battery: `${cdn}/images/shop-battery.webp`,
-    charging: `${cdn}/images/shop-charging.webp`,
-    vehicles: `${cdn}/images/shop-vehicles.webp`,
+    solarPanels: `${cdn}/images/shop-solar-v2.webp`,
+    battery: `${cdn}/images/shop-battery-v2.webp`,
+    charging: `${cdn}/images/shop-charging-v2.webp`,
+    vehicles: `${cdn}/images/shop-vehicles-v2.webp`,
   };
 
   const flags = [
