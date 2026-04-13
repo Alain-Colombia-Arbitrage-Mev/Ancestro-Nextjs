@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       await query(
         `INSERT INTO investment_requests (
           investment_request, full_name, email, phone, investment_range_usd,
-          message, form_source, follow_up_status, submitted_date, notes
+          message, form_source, follow_up_status, submission_date, notes
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), $9)`,
         [label, name, email, phone, investment || null, message || null, 'join-page', 'New', notes]
       );
@@ -78,10 +78,10 @@ export async function POST(req: NextRequest) {
       // Save to contacts
       await query(
         `INSERT INTO contacts (
-          contact_name, reason, full_name, email, phone, message,
-          form_source, follow_up_status, date_submitted
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())`,
-        [label, 'Government Partnership', name, email, phone, notes, 'join-government', 'New']
+          contact_name, contact_reason, full_name, email, phone, message,
+          form_source, follow_up_status, notes
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [label, 'Government Partnership', name, email, phone, message || '', 'join-government', 'New', notes]
       );
 
       await createAirtableRecord(CONTACT_TABLE, {
