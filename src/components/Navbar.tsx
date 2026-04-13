@@ -99,13 +99,13 @@ export default function Navbar({ lang }: NavbarProps) {
   const megaMenuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navbarRef = useRef<HTMLElement>(null);
 
-  const megaMenuKeys = ['energy', 'charging', 'vehicles', 'shop'];
+  const megaMenuKeys = ['energy', 'charging', 'vehicles'];
 
   const navItems = [
     { label: t(lang, 'nav.energy'), href: '#energy', key: 'energy' },
     { label: t(lang, 'nav.charging'), href: '#charging', key: 'charging' },
     { label: t(lang, 'nav.vehicles'), href: '#vehicles', key: 'vehicles' },
-    { label: t(lang, 'nav.shop'), href: '#shop', key: 'shop' },
+    // { label: t(lang, 'nav.shop'), href: '#shop', key: 'shop' },
     { label: t(lang, 'nav.team'), href: `/${lang}/team`, key: 'team' },
     { label: t(lang, 'nav.join'), href: `/${lang}/join`, key: 'join' },
     { label: t(lang, 'nav.waitlist'), href: `/${lang}/waitlist`, key: 'waitlist' },
