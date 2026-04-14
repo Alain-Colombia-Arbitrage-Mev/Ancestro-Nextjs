@@ -1,27 +1,28 @@
+import { t } from '@/i18n/translations';
 import { IMG_L3 } from '../constants';
 
 export default function WhatIsL3({ lang }: { lang: string }) {
   const levels = [
-    { name: 'Level 1', time: '8-12 Hours', icon: `${IMG_L3}/icon-level1.png` },
-    { name: 'Level 2', time: '3-5 Hours', icon: `${IMG_L3}/icon-level2.png` },
-    { name: 'Level 3', time: 'Coffee stops or highway break\n~30-40 minutes', icon: `${IMG_L3}/icon-level3.png`, featured: true },
+    { nameKey: 'chargingL3.what.level1', timeKey: 'chargingL3.what.level1Time', icon: `${IMG_L3}/icon-level1.png` },
+    { nameKey: 'chargingL3.what.level2', timeKey: 'chargingL3.what.level2Time', icon: `${IMG_L3}/icon-level2.png` },
+    { nameKey: 'chargingL3.what.level3', timeKey: 'chargingL3.what.level3Time', icon: `${IMG_L3}/icon-level3.png`, featured: true },
   ];
 
   return (
     <section className="cl3-what">
-      <h2 className="cl3-what-title">What level 3 charging means</h2>
+      <h2 className="cl3-what-title">{t(lang, 'chargingL3.what.title')}</h2>
       <div className="cl3-what-grid">
         {levels.map((l) => (
-          <div key={l.name} className={`cl3-what-card ${l.featured ? 'cl3-what-featured' : ''}`}>
-            <img src={l.icon} alt={l.name} className="cl3-what-icon" />
-            <h3 className="cl3-what-name">{l.name}</h3>
-            <p className="cl3-what-time">{l.time}</p>
+          <div key={l.nameKey} className={`cl3-what-card ${l.featured ? 'cl3-what-featured' : ''}`}>
+            <img src={l.icon} alt={t(lang, l.nameKey)} className="cl3-what-icon" />
+            <h3 className="cl3-what-name">{t(lang, l.nameKey)}</h3>
+            <p className="cl3-what-time">{t(lang, l.timeKey)}</p>
           </div>
         ))}
       </div>
       <div className="cl3-what-footer">
-        <p className="cl3-what-note">Level 3 DC Fast Chargers delivers high-power charging for public use where speed, reliability, and throughput matter.</p>
-        <p className="cl3-what-disclaimer">Charging times vary by vehicle and battery state.</p>
+        <p className="cl3-what-note">{t(lang, 'chargingL3.what.note')}</p>
+        <p className="cl3-what-disclaimer">{t(lang, 'chargingL3.what.disclaimer')}</p>
       </div>
     </section>
   );

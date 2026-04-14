@@ -1,25 +1,14 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { t } from '@/i18n/translations';
 import { IMG_L3 } from '../constants';
 
-const slides = [
-  {
-    title: 'municipal and public infrastructure',
-    desc: 'Designed for locations where drivers stop briefly and expect fast, reliable charging.',
-  },
-  {
-    title: 'highway rest stops & gas stations',
-    desc: 'High-traffic corridors where EV drivers need fast, reliable top-ups between cities.',
-  },
-  {
-    title: 'commercial hubs & retail centers',
-    desc: 'Shopping malls, supermarkets, and plazas where customers spend 30-60 minutes.',
-  },
-  {
-    title: 'hotels, resorts & hospitality',
-    desc: 'Destinations where guests charge overnight or during extended stays.',
-  },
+const slideKeys = [
+  { titleKey: 'chargingL3.where.slide1Title', descKey: 'chargingL3.where.slide1Desc' },
+  { titleKey: 'chargingL3.where.slide2Title', descKey: 'chargingL3.where.slide2Desc' },
+  { titleKey: 'chargingL3.where.slide3Title', descKey: 'chargingL3.where.slide3Desc' },
+  { titleKey: 'chargingL3.where.slide4Title', descKey: 'chargingL3.where.slide4Desc' },
 ];
 
 const sectionStyle: React.CSSProperties = {
@@ -41,7 +30,7 @@ export default function WhereChargers({ lang }: { lang: string }) {
   const [active, setActive] = useState(0);
 
   const next = useCallback(() => {
-    setActive((prev) => (prev + 1) % slides.length);
+    setActive((prev) => (prev + 1) % slideKeys.length);
   }, []);
 
   useEffect(() => {
@@ -49,7 +38,7 @@ export default function WhereChargers({ lang }: { lang: string }) {
     return () => clearInterval(iv);
   }, [next]);
 
-  const current = slides[active];
+  const current = slideKeys[active];
   const bgUrl = `${IMG_L3}/where-bg.webp`;
 
   return (
@@ -60,36 +49,32 @@ export default function WhereChargers({ lang }: { lang: string }) {
         backgroundImage: `linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.2) 40%, rgba(0,0,0,.85) 100%), url(${bgUrl})`,
       }}
     >
-      <h2 className="cl3-where-heading" style={{ fontSize: 30, fontWeight: 600, color: '#fff', textAlign: 'center', padding: '100px 32px 0', margin: 0, textShadow: '0 2px 16px rgba(0,0,0,.7)' }}>
-        where Level 3 Chargers Belong
+      <h2 style={{ fontSize: 30, fontWeight: 600, color: '#fff', textAlign: 'center', padding: '100px 32px 0', margin: 0, textShadow: '0 2px 16px rgba(0,0,0,.7)' }}>
+        {t(lang, 'chargingL3.where.heading')}
       </h2>
 
       <div style={{ textAlign: 'center', padding: '0 32px 60px', maxWidth: 800, margin: '0 auto' }}>
         <h3 style={{ fontSize: 30, fontWeight: 500, color: '#fff', margin: '0 0 16px', textShadow: '0 2px 12px rgba(0,0,0,.6)' }}>
-          {current.title}
+          {t(lang, current.titleKey)}
         </h3>
         <p style={{ fontSize: 15, color: '#fff', margin: '0 0 8px', lineHeight: 1.4, textShadow: '0 2px 10px rgba(0,0,0,.6)' }}>
-          {current.desc}
+          {t(lang, current.descKey)}
         </p>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,.5)', fontStyle: 'italic', margin: '0 0 20px', lineHeight: 1.5 }}>
-          When deployed as part of a network, Level 3 Chargers increase traffic, dwell time, and repeat visits while functioning as long-term revenue-generating infrastructure.
+          {t(lang, 'chargingL3.where.note')}
         </p>
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
-          {slides.map((_, i) => (
+          {slideKeys.map((_, i) => (
             <button
               key={i}
               type="button"
               onClick={() => setActive(i)}
               aria-label={`Slide ${i + 1}`}
               style={{
-                width: 10,
-                height: 10,
-                borderRadius: '50%',
-                border: 'none',
+                width: 10, height: 10, borderRadius: '50%', border: 'none',
                 background: i === active ? '#f8b03b' : 'rgba(255,255,255,.3)',
-                cursor: 'pointer',
-                padding: 0,
+                cursor: 'pointer', padding: 0,
                 boxShadow: i === active ? '0 0 8px rgba(248,176,59,.5)' : 'none',
                 transition: 'all .3s ease',
               }}
