@@ -6,7 +6,7 @@ export default function FooterCtaBiz({ lang }: { lang: string }) {
       <div className="eb-cta-inner">
         <h2 className="eb-cta-title">{t(lang, 'energyBiz.cta.title')}</h2>
         <p className="eb-cta-desc">{t(lang, 'energyBiz.cta.desc')}</p>
-        <button type="button" className="eb-cta-button">{t(lang, 'energyBiz.cta.button')}</button>
+        <a href={`/${lang}/join`} className="eb-cta-button" style={{textDecoration:'none'}}>{t(lang, 'energyBiz.cta.button')}</a>
       </div>
     </section>
   );

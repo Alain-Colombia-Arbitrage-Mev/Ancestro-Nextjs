@@ -58,8 +58,8 @@ export default async function HomePage({ params }: PageProps) {
       badge: t(lang, 'hero.badge'),
       title: t(lang, 'hero.title'),
       title2: t(lang, 'hero.title2'),
-      ctaLeft: { text: t(lang, 'hero.cta2'), href: '#learn-more' },
-      ctaRight: { text: t(lang, 'hero.cta'), href: '#' },
+      ctaLeft: { text: t(lang, 'hero.cta2'), href: `/${lang}/energy/home` },
+      ctaRight: { text: t(lang, 'hero.cta'), href: `/${lang}/join` },
     },
     {
       type: 'video' as const,
@@ -67,16 +67,16 @@ export default async function HomePage({ params }: PageProps) {
       badge: t(lang, 'hero.slide2.badge'),
       title: t(lang, 'hero.slide2.title'),
       title2: t(lang, 'hero.slide2.title2'),
-      ctaLeft: { text: t(lang, 'hero.slide2.cta2'), href: '#learn-more' },
-      ctaRight: { text: t(lang, 'hero.slide2.cta'), href: '#' },
+      ctaLeft: { text: t(lang, 'hero.slide2.cta2'), href: `/${lang}/energy/home` },
+      ctaRight: { text: t(lang, 'hero.slide2.cta'), href: `/${lang}/join` },
     },
   ];
 
   const products = [
-    { title: t(lang, 'shop.solar.title'), description: t(lang, 'shop.solar.desc'), backgroundImage: images.solarPanels },
-    { title: t(lang, 'shop.battery.title'), description: t(lang, 'shop.battery.desc'), backgroundImage: images.battery },
-    { title: t(lang, 'shop.charging.title'), description: t(lang, 'shop.charging.desc'), backgroundImage: images.charging },
-    { title: t(lang, 'shop.vehicles.title'), description: t(lang, 'shop.vehicles.desc'), backgroundImage: images.vehicles },
+    { title: t(lang, 'shop.solar.title'), description: t(lang, 'shop.solar.desc'), backgroundImage: images.solarPanels, orderHref: `/${lang}/join`, learnHref: `/${lang}/energy/home` },
+    { title: t(lang, 'shop.battery.title'), description: t(lang, 'shop.battery.desc'), backgroundImage: images.battery, orderHref: `/${lang}/join`, learnHref: `/${lang}/energy/home` },
+    { title: t(lang, 'shop.charging.title'), description: t(lang, 'shop.charging.desc'), backgroundImage: images.charging, orderHref: `/${lang}/join`, learnHref: `/${lang}/coming-soon` },
+    { title: t(lang, 'shop.vehicles.title'), description: t(lang, 'shop.vehicles.desc'), backgroundImage: images.vehicles, orderHref: `/${lang}/join`, learnHref: `/${lang}/coming-soon` },
   ];
 
   return (
@@ -97,7 +97,7 @@ export default async function HomePage({ params }: PageProps) {
 
             <div className="content-grid">
               <div className="content-column">
-                <InfoSection title={t(lang, 'info.title')} subtitle={t(lang, 'info.subtitle')} ctaVariant="secondary" ctaText={t(lang, 'info.cta')} imageUrl={images.infoSection1} />
+                <InfoSection title={t(lang, 'info.title')} subtitle={t(lang, 'info.subtitle')} ctaVariant="secondary" ctaText={t(lang, 'info.cta')} imageUrl={images.infoSection1} ctaHref={`/${lang}/energy/home`} />
                 <div className="charger-card">
                   <div className="charger-card-bg">
                     <Image src={images.charger} alt={t(lang, 'charger.title')} fill sizes="(max-width: 1100px) 100vw, 50vw" quality={75} />
@@ -107,21 +107,21 @@ export default async function HomePage({ params }: PageProps) {
                     <h3 className="charger-title">{t(lang, 'charger.title')}</h3>
                     <p className="charger-subtitle">{t(lang, 'charger.subtitle')}</p>
                     <div className="charger-actions">
-                      <a href="#" className="cta-btn secondary">{t(lang, 'charger.hostBtn')}</a>
-                      <a href="#" className="cta-btn secondary">{t(lang, 'charger.downloadBtn')}</a>
+                      <a href={`/${lang}/join?profile=host`} className="cta-btn secondary">{t(lang, 'charger.hostBtn')}</a>
+                      <a href={`/${lang}/coming-soon`} className="cta-btn secondary">{t(lang, 'charger.downloadBtn')}</a>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="content-column">
-                <InfoSection title={t(lang, 'promo.title')} subtitle={t(lang, 'promo.subtitle')} ctaVariant="primary" ctaText={t(lang, 'shop.order')} imageUrl={images.infoSection2} />
+                <InfoSection title={t(lang, 'promo.title')} subtitle={t(lang, 'promo.subtitle')} ctaVariant="primary" ctaText={t(lang, 'shop.order')} imageUrl={images.infoSection2} ctaHref={`/${lang}/join`} />
                 <div className="vehicle-card">
                   <h3 className="vehicle-title">{t(lang, 'promo.vehicle')}</h3>
                   <div className="vehicle-image">
                     <Image src={images.vehicle} alt={t(lang, 'promo.vehicle')} width={600} height={400} sizes="(max-width: 1100px) 100vw, 50vw" style={{ width: '100%', height: 'auto' }} />
                   </div>
-                  <a href="#" className="cta-btn primary vehicle-order-btn">{t(lang, 'shop.order')}</a>
+                  <a href={`/${lang}/coming-soon`} className="cta-btn primary vehicle-order-btn">{t(lang, 'shop.order')}</a>
                 </div>
               </div>
             </div>

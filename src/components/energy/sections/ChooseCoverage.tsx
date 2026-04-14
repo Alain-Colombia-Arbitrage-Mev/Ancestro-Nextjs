@@ -29,7 +29,7 @@ export default function ChooseCoverage({ lang }: { lang: string }) {
                 {t(lang, `plan.${p.key}.tagline`)}
               </p>
             </div>
-            <button className="eh-cov-cta">{t(lang, 'energyHome.plans.cta')}</button>
+            <a href={`/${lang}/join`} className="eh-cov-cta" style={{display:'block',textAlign:'center',textDecoration:'none'}}>{t(lang, 'energyHome.plans.cta')}</a>
           </div>
         ))}
       </div>

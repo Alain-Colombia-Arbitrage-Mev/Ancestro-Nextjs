@@ -29,7 +29,7 @@ export default function ChooseCoverageBiz({ lang }: { lang: string }) {
               </p>
             </div>
             <div className="eb-strategy-cta-wrap">
-              <button type="button" className="eb-strategy-cta">{t(lang, 'energyBiz.coverage.cta')}</button>
+              <a href={`/${lang}/join`} className="eb-strategy-cta" style={{display:'block',textAlign:'center',textDecoration:'none'}}>{t(lang, 'energyBiz.coverage.cta')}</a>
             </div>
           </div>
         ))}

@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { t } from '@/i18n/translations';
 
-interface Product { title: string; description: string; backgroundImage: string; }
+interface Product { title: string; description: string; backgroundImage: string; orderHref?: string; learnHref?: string; }
 interface ShopSectionProps { lang: string; products: Product[]; }
 
 export default function ShopSection({ lang, products }: ShopSectionProps) {
@@ -21,8 +21,8 @@ export default function ShopSection({ lang, products }: ShopSectionProps) {
                       <p className="product-description">{product.description}</p>
                     </div>
                     <div className="product-actions">
-                      <a href="#" className="cta secondary">{t(lang, 'shop.order')}</a>
-                      <a href="#" className="cta primary">{t(lang, 'shop.learn')}</a>
+                      <a href={product.orderHref || `/${lang}/join`} className="cta secondary">{t(lang, 'shop.order')}</a>
+                      <a href={product.learnHref || `/${lang}/coming-soon`} className="cta primary">{t(lang, 'shop.learn')}</a>
                     </div>
                   </div>
                 </div>

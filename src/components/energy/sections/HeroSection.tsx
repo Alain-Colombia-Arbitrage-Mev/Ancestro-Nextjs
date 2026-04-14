@@ -20,7 +20,7 @@ export default function HeroSection({ lang }: { lang: string }) {
         <p className="eh-hero-sub">{t(lang, 'energyHome.hero.subtitle')}</p>
       </div>
       <div className="eh-hero-cta-wrap">
-        <button type="button" className="eh-cta-glass">{t(lang, 'energyHome.hero.cta')}</button>
+        <a href={`/${lang}/join`} className="eh-cta-glass">{t(lang, 'energyHome.hero.cta')}</a>
       </div>
     </section>
   );

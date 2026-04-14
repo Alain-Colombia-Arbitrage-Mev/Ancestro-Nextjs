@@ -6,9 +6,10 @@ interface InfoSectionProps {
   ctaVariant?: 'primary' | 'secondary';
   ctaText: string;
   imageUrl: string;
+  ctaHref?: string;
 }
 
-export default function InfoSection({ title, subtitle, ctaVariant = 'secondary', ctaText, imageUrl }: InfoSectionProps) {
+export default function InfoSection({ title, subtitle, ctaVariant = 'secondary', ctaText, imageUrl, ctaHref = '#' }: InfoSectionProps) {
   return (
     <>
       <div className="info-section">
@@ -18,7 +19,7 @@ export default function InfoSection({ title, subtitle, ctaVariant = 'secondary',
             <p className="info-subtitle">{subtitle}</p>
           </div>
           <div className="info-cta">
-            <a href="#" className={`cta ${ctaVariant}`}>{ctaText}</a>
+            <a href={ctaHref} className={`cta ${ctaVariant}`}>{ctaText}</a>
           </div>
         </div>
         <div className="info-image">

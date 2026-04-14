@@ -12,7 +12,7 @@ export default function HeroBiz({ lang }: { lang: string }) {
         <p className="eb-hero-sub">{t(lang, 'energyBiz.hero.subtitle')}</p>
       </div>
       <div className="eb-hero-cta-wrap">
-        <button type="button" className="eb-cta-glass">{t(lang, 'energyBiz.hero.cta')}</button>
+        <a href={`/${lang}/join`} className="eb-cta-glass" style={{textDecoration:'none'}}>{t(lang, 'energyBiz.hero.cta')}</a>
       </div>
     </section>
   );

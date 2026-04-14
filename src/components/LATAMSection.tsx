@@ -20,7 +20,7 @@ export default function LATAMSection({ lang, mapImage, flags }: LATAMSectionProp
                   </div>
                 ))}
               </div>
-              <a href="#" className="latam-cta-button">{t(lang, 'hero.cta')}</a>
+              <a href={`/${lang}/join`} className="latam-cta-button">{t(lang, 'hero.cta')}</a>
             </div>
           </div>
           <div className="latam-right">

@@ -386,7 +386,7 @@ export default function JoinPanel({ lang }: { lang: string }) {
                     checked={form.terms}
                     onChange={e => updateField('terms', e.target.checked)}
                   />
-                  <span>{t(lang, 'join.form.terms')} <a href="#" className="terms-link">{t(lang, 'join.form.termsLink')}</a></span>
+                  <span>{t(lang, 'join.form.terms')} <a href={`/${lang}/coming-soon`} className="terms-link">{t(lang, 'join.form.termsLink')}</a></span>
                 </label>
               </div>
 

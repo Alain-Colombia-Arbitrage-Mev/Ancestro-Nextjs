@@ -14,10 +14,10 @@ const FOOTER_BG = `${CDN_URL}/images/footer-bg.webp`;
 export default function Footer({ lang, backgroundImage }: FooterProps) {
   const bg = backgroundImage || FOOTER_BG;
   const productLinks = [
-    { label: t(lang, 'shop.solar.title'), href: '#solar' },
-    { label: t(lang, 'shop.battery.title'), href: '#battery' },
-    { label: t(lang, 'shop.charging.title'), href: '#charging' },
-    { label: t(lang, 'shop.vehicles.title'), href: '#vehicles' },
+    { label: t(lang, 'shop.solar.title'), href: `/${lang}/energy/home` },
+    { label: t(lang, 'shop.battery.title'), href: `/${lang}/energy/home` },
+    { label: t(lang, 'shop.charging.title'), href: `/${lang}/coming-soon` },
+    { label: t(lang, 'shop.vehicles.title'), href: `/${lang}/coming-soon` },
   ];
 
   const companyLinks = [
@@ -57,7 +57,7 @@ export default function Footer({ lang, backgroundImage }: FooterProps) {
                 <p className="footer-tagline">{t(lang, 'footer.tagline')}</p>
                 <div className="social-links">
                   {socialLinks.map((social) => (
-                    <a key={social.label} href="#" className="social-link" aria-label={social.label}>
+                    <a key={social.label} href={`/${lang}/coming-soon`} className="social-link" aria-label={social.label}>
                       <span>{social.icon}</span>
                     </a>
                   ))}
@@ -92,7 +92,7 @@ export default function Footer({ lang, backgroundImage }: FooterProps) {
                 <div className="footer-column">
                   <h4 className="footer-heading">{t(lang, 'footer.findCharger')}</h4>
                   <p className="footer-description">{t(lang, 'footer.chargerDesc')}</p>
-                  <a href="#" className="cta-button">
+                  <a href={`/${lang}/coming-soon`} className="cta-button">
                     <span>{t(lang, 'footer.openMap')}</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -105,8 +105,8 @@ export default function Footer({ lang, backgroundImage }: FooterProps) {
             <div className="footer-bottom">
               <p className="copyright">&copy; 2026 Ancestro. {t(lang, 'footer.rights')}</p>
               <div className="legal-links">
-                <a href="#" className="legal-link">{t(lang, 'footer.terms')}</a>
-                <a href="#" className="legal-link">{t(lang, 'footer.privacy')}</a>
+                <a href={`/${lang}/coming-soon`} className="legal-link">{t(lang, 'footer.terms')}</a>
+                <a href={`/${lang}/coming-soon`} className="legal-link">{t(lang, 'footer.privacy')}</a>
               </div>
             </div>
           </div>

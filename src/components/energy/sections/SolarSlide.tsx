@@ -51,7 +51,7 @@ export default function SolarSlide({ lang }: { lang: string }) {
         <div className="eh-slide-panel">
           <h3 className="eh-slide-title">{t(lang, slides[active].titleKey)}</h3>
           <p className="eh-slide-desc">{t(lang, slides[active].descKey)}</p>
-          <button type="button" className="eh-cta-glass" style={{marginTop:12}}>{t(lang, 'energyHome.flow.cta')}</button>
+          <a href={`/${lang}/join`} className="eh-cta-glass" style={{marginTop:12,display:'inline-block',textDecoration:'none'}}>{t(lang, 'energyHome.flow.cta')}</a>
         </div>
         <div className="eh-slide-dots">
           {slides.map((_, i) => (

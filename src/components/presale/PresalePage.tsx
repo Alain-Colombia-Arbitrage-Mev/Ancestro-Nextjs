@@ -621,7 +621,7 @@ export default function PresalePage({ lang }: { lang: string }) {
               <div className="form-group checkbox-group">
                 <input type="checkbox" id="terms" required />
                 <label htmlFor="terms">
-                  {t(lang, 'presale.buy.termsAccept')} <a href="#">{t(lang, 'presale.buy.termsLink')}</a> {t(lang, 'presale.buy.termsAnd')} <a href="#">{t(lang, 'presale.buy.privacyLink')}</a>
+                  {t(lang, 'presale.buy.termsAccept')} <a href={`/${lang}/coming-soon`}>{t(lang, 'presale.buy.termsLink')}</a> {t(lang, 'presale.buy.termsAnd')} <a href={`/${lang}/coming-soon`}>{t(lang, 'presale.buy.privacyLink')}</a>
                 </label>
               </div>
 

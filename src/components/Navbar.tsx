@@ -33,56 +33,56 @@ const megaMenuData: Record<string, MegaMenuData> = {
       { title: 'Business', image: `${CDN_URL}/megamenu/energy-business.png`, href: '/LANG/energy/business' },
     ],
     links: [
-      { label: 'Get a Proposal', href: '#proposal' },
-      { label: 'Incentives', href: '#incentives' },
-      { label: 'Partner with Ancestro', href: '#partner' },
-      { label: 'Host land or roof', href: '#host' },
-      { label: 'Equipment', href: '#equipment' },
+      { label: 'Get a Proposal', href: '/LANG/join' },
+      { label: 'Incentives', href: '/LANG/coming-soon' },
+      { label: 'Partner with Ancestro', href: '/LANG/join?profile=strategic' },
+      { label: 'Host land or roof', href: '/LANG/join?profile=host' },
+      { label: 'Equipment', href: '/LANG/coming-soon' },
     ],
   },
   charging: {
     cards: [
-      { title: 'Level 3\nFast Charger', image: `${CDN_URL}/megamenu/charging-l3.webp`, href: '#charging-l3' },
-      { title: 'Level 2\nFast Charger', image: `${CDN_URL}/megamenu/charging-l2.webp`, href: '#charging-l2' },
-      { title: 'Home Charging', image: `${CDN_URL}/megamenu/charging-home.webp`, href: '#charging-home' },
+      { title: 'Level 3\nFast Charger', image: `${CDN_URL}/megamenu/charging-l3.webp`, href: '/LANG/coming-soon' },
+      { title: 'Level 2\nFast Charger', image: `${CDN_URL}/megamenu/charging-l2.webp`, href: '/LANG/coming-soon' },
+      { title: 'Home Charging', image: `${CDN_URL}/megamenu/charging-home.webp`, href: '/LANG/coming-soon' },
     ],
     links: [
-      { label: 'Download Charging App', href: '#charging-app' },
-      { label: 'Help Me Charge', href: '#help-charge' },
-      { label: 'Charging Calculator', href: '#calculator' },
-      { label: 'Ancestro Charging Map', href: '#charging-map' },
-      { label: 'Host a Charger', href: '#host-charger' },
-      { label: 'Incentives', href: '#charging-incentives' },
-      { label: 'Equipment', href: '#charging-equipment' },
+      { label: 'Download Charging App', href: '/LANG/coming-soon' },
+      { label: 'Help Me Charge', href: '/LANG/coming-soon' },
+      { label: 'Charging Calculator', href: '/LANG/coming-soon' },
+      { label: 'Ancestro Charging Map', href: '/LANG/coming-soon' },
+      { label: 'Host a Charger', href: '/LANG/join?profile=host' },
+      { label: 'Incentives', href: '/LANG/coming-soon' },
+      { label: 'Equipment', href: '/LANG/coming-soon' },
     ],
   },
   vehicles: {
     cards: [
-      { title: 'Cars', image: `${CDN_URL}/megamenu/vehicles-cars.webp`, href: '#vehicles-cars' },
-      { title: 'Trucks', image: `${CDN_URL}/megamenu/vehicles-trucks.webp`, href: '#vehicles-trucks' },
-      { title: 'Bus', image: `${CDN_URL}/megamenu/vehicles-bus.webp`, href: '#vehicles-bus' },
-      { title: 'e-Motorcycle', image: `${CDN_URL}/megamenu/vehicles-motorcycle.webp`, href: '#vehicles-motorcycle' },
-      { title: 'e-Scooter', image: `${CDN_URL}/megamenu/vehicles-scooter.webp`, href: '#vehicles-scooter' },
-      { title: 'Golf Cart', image: `${CDN_URL}/megamenu/vehicles-golf.webp`, href: '#vehicles-golf' },
+      { title: 'Cars', image: `${CDN_URL}/megamenu/vehicles-cars.webp`, href: '/LANG/coming-soon' },
+      { title: 'Trucks', image: `${CDN_URL}/megamenu/vehicles-trucks.webp`, href: '/LANG/coming-soon' },
+      { title: 'Bus', image: `${CDN_URL}/megamenu/vehicles-bus.webp`, href: '/LANG/coming-soon' },
+      { title: 'e-Motorcycle', image: `${CDN_URL}/megamenu/vehicles-motorcycle.webp`, href: '/LANG/coming-soon' },
+      { title: 'e-Scooter', image: `${CDN_URL}/megamenu/vehicles-scooter.webp`, href: '/LANG/coming-soon' },
+      { title: 'Golf Cart', image: `${CDN_URL}/megamenu/vehicles-golf.webp`, href: '/LANG/coming-soon' },
     ],
     links: [
-      { label: 'Trade-in', href: '#trade-in' },
-      { label: 'Find Collision Center', href: '#collision' },
-      { label: 'Financing', href: '#financing' },
-      { label: 'Find a Charger', href: '#find-charger' },
-      { label: 'Fleet', href: '#fleet' },
-      { label: 'Incentives', href: '#vehicle-incentives' },
-      { label: 'Semi', href: '#semi' },
-      { label: 'Insurance', href: '#insurance' },
+      { label: 'Trade-in', href: '/LANG/coming-soon' },
+      { label: 'Find Collision Center', href: '/LANG/coming-soon' },
+      { label: 'Financing', href: '/LANG/coming-soon' },
+      { label: 'Find a Charger', href: '/LANG/coming-soon' },
+      { label: 'Fleet', href: '/LANG/coming-soon' },
+      { label: 'Incentives', href: '/LANG/coming-soon' },
+      { label: 'Semi', href: '/LANG/coming-soon' },
+      { label: 'Insurance', href: '/LANG/coming-soon' },
     ],
   },
   shop: {
     cards: [
-      { title: 'Stays', image: `${CDN_URL}/megamenu/shop-stays.webp`, href: '#shop-stays' },
-      { title: 'Experiences', image: `${CDN_URL}/megamenu/shop-experiences.png`, href: '#shop-experiences' },
-      { title: 'Health', image: `${CDN_URL}/megamenu/shop-health.webp`, href: '#shop-health' },
-      { title: 'Lifestyle', image: `${CDN_URL}/megamenu/shop-lifestyle.webp`, href: '#shop-lifestyle' },
-      { title: 'Dining', image: `${CDN_URL}/megamenu/shop-dining.webp`, href: '#shop-dining' },
+      { title: 'Stays', image: `${CDN_URL}/megamenu/shop-stays.webp`, href: '/LANG/coming-soon' },
+      { title: 'Experiences', image: `${CDN_URL}/megamenu/shop-experiences.png`, href: '/LANG/coming-soon' },
+      { title: 'Health', image: `${CDN_URL}/megamenu/shop-health.webp`, href: '/LANG/coming-soon' },
+      { title: 'Lifestyle', image: `${CDN_URL}/megamenu/shop-lifestyle.webp`, href: '/LANG/coming-soon' },
+      { title: 'Dining', image: `${CDN_URL}/megamenu/shop-dining.webp`, href: '/LANG/coming-soon' },
     ],
     links: [],
   },
@@ -411,9 +411,9 @@ export default function Navbar({ lang }: NavbarProps) {
             <div className="mobile-footer">
               <p>{t(lang, 'nav.mobile.tagline')}</p>
               <div className="mobile-socials">
-                <a href="#" aria-label="Twitter"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></a>
-                <a href="#" aria-label="Instagram"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" strokeWidth="2"/><circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2"/><circle cx="18" cy="6" r="1" fill="currentColor"/></svg></a>
-                <a href="#" aria-label="LinkedIn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" stroke="currentColor" strokeWidth="2"/><rect x="2" y="9" width="4" height="12" stroke="currentColor" strokeWidth="2"/><circle cx="4" cy="4" r="2" stroke="currentColor" strokeWidth="2"/></svg></a>
+                <a href={`/${lang}/coming-soon`} aria-label="Twitter"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></a>
+                <a href={`/${lang}/coming-soon`} aria-label="Instagram"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" strokeWidth="2"/><circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2"/><circle cx="18" cy="6" r="1" fill="currentColor"/></svg></a>
+                <a href={`/${lang}/coming-soon`} aria-label="LinkedIn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" stroke="currentColor" strokeWidth="2"/><rect x="2" y="9" width="4" height="12" stroke="currentColor" strokeWidth="2"/><circle cx="4" cy="4" r="2" stroke="currentColor" strokeWidth="2"/></svg></a>
               </div>
             </div>
           </div>
