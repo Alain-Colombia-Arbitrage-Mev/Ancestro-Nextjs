@@ -28,7 +28,10 @@ export default function AskBox({ lang }: AskBoxProps) {
   }, [questions.length]);
 
   function handleClick() {
-    window.dispatchEvent(new CustomEvent('open-chat', { detail: { question: questions[index] } }));
+    const w = window as unknown as { AncestroWidget?: { open: () => void; sendMessage?: (msg: string) => void } };
+    if (w.AncestroWidget) {
+      w.AncestroWidget.open();
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {

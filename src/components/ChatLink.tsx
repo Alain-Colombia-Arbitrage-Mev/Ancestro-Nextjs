@@ -3,7 +3,10 @@
 export default function ChatLink({ label, question }: { label: string; question: string }) {
   function handleClick(e: React.MouseEvent) {
     e.preventDefault();
-    window.dispatchEvent(new CustomEvent('open-chat', { detail: { question } }));
+    const w = window as unknown as { AncestroWidget?: { open: () => void } };
+    if (w.AncestroWidget) {
+      w.AncestroWidget.open();
+    }
   }
 
   return (
