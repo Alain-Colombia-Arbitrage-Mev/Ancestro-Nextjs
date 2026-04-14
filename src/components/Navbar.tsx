@@ -326,7 +326,7 @@ export default function Navbar({ lang }: NavbarProps) {
                   <div className="megamenu-divider"></div>
                   <div className="megamenu-links">
                     {currentMegaMenu.links.map((link) => (
-                      <a key={link.label} href={link.href} className="megamenu-link">
+                      <a key={link.label} href={link.href.replace('/LANG/', `/${lang}/`)} className="megamenu-link">
                         {link.label}
                       </a>
                     ))}
@@ -373,7 +373,7 @@ export default function Navbar({ lang }: NavbarProps) {
                         {menuData.links.length > 0 && (
                           <div className="mobile-nav-sublinks">
                             {menuData.links.map((link) => (
-                              <a key={link.label} href={link.href} className="mobile-nav-sublink" onClick={closeMenu}>
+                              <a key={link.label} href={link.href.replace('/LANG/', `/${lang}/`)} className="mobile-nav-sublink" onClick={closeMenu}>
                                 {link.label}
                               </a>
                             ))}
