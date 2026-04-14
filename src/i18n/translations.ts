@@ -799,6 +799,16 @@ export const translations = {
     'energyBiz.cta.title': 'Obtén una propuesta de energía empresarial.',
     'energyBiz.cta.desc': 'Ve cómo Ancestro puede reducir costos y proteger operaciones — adaptado a tu negocio.',
     'energyBiz.cta.button': 'Solicitar Propuesta',
+
+    // Coming Soon
+    'comingSoon.title': 'Algo Grande se Acerca',
+    'comingSoon.subtitle': 'Estamos construyendo el futuro de la energía limpia en Latinoamérica.',
+    'comingSoon.splash': 'Toca para entrar',
+    'comingSoon.cta': 'Únete a la Lista de Espera',
+    'comingSoon.days': 'Días',
+    'comingSoon.hours': 'Horas',
+    'comingSoon.minutes': 'Minutos',
+    'comingSoon.seconds': 'Segundos',
   },
 
   en: {
@@ -1601,6 +1611,16 @@ export const translations = {
     'energyBiz.cta.title': 'Get a custom business energy proposal.',
     'energyBiz.cta.desc': 'See how Ancestro can lower costs and protect operations — tailored to your business.',
     'energyBiz.cta.button': 'Get a Proposal',
+
+    // Coming Soon
+    'comingSoon.title': 'Something Big is Coming',
+    'comingSoon.subtitle': 'We are building the future of clean energy in Latin America.',
+    'comingSoon.splash': 'Tap to enter',
+    'comingSoon.cta': 'Join the Waitlist',
+    'comingSoon.days': 'Days',
+    'comingSoon.hours': 'Hours',
+    'comingSoon.minutes': 'Minutes',
+    'comingSoon.seconds': 'Seconds',
   },
 
   pt: {
@@ -2293,6 +2313,16 @@ export const translations = {
     'energyHome.finalCta.title': 'Instalar Painéis Solares',
     'energyHome.finalCta.desc': 'Obtenha uma proposta instantânea e experimente um processo de checkout simples. Mudar para energia renovável nunca foi tão fácil.',
     'energyHome.finalCta.cta': 'Obter Proposta',
+
+    // Coming Soon
+    'comingSoon.title': 'Algo Grande Está Chegando',
+    'comingSoon.subtitle': 'Estamos construindo o futuro da energia limpa na América Latina.',
+    'comingSoon.splash': 'Toque para entrar',
+    'comingSoon.cta': 'Entre na Lista de Espera',
+    'comingSoon.days': 'Dias',
+    'comingSoon.hours': 'Horas',
+    'comingSoon.minutes': 'Minutos',
+    'comingSoon.seconds': 'Segundos',
   },
 
   zh: {
@@ -2985,6 +3015,16 @@ export const translations = {
     'energyHome.finalCta.title': '安装太阳能板',
     'energyHome.finalCta.desc': '获取即时方案并体验简单的自助结账流程。切换到可再生能源从未如此简单。',
     'energyHome.finalCta.cta': '获取方案',
+
+    // Coming Soon
+    'comingSoon.title': '大事即将来临',
+    'comingSoon.subtitle': '我们正在拉丁美洲构建清洁能源的未来。',
+    'comingSoon.splash': '点击进入',
+    'comingSoon.cta': '加入等候名单',
+    'comingSoon.days': '天',
+    'comingSoon.hours': '时',
+    'comingSoon.minutes': '分',
+    'comingSoon.seconds': '秒',
   },
 
   ar: {
@@ -3677,6 +3717,16 @@ export const translations = {
     'energyHome.finalCta.title': 'ثبّت الألواح الشمسية',
     'energyHome.finalCta.desc': 'احصل على عرض فوري واستمتع بعملية دفع ذاتية بسيطة. التحول إلى الطاقة المتجددة لم يكن أسهل من أي وقت مضى.',
     'energyHome.finalCta.cta': 'احصل على عرض',
+
+    // Coming Soon
+    'comingSoon.title': 'شيء كبير قادم',
+    'comingSoon.subtitle': 'نحن نبني مستقبل الطاقة النظيفة في أمريكا اللاتينية.',
+    'comingSoon.splash': 'اضغط للدخول',
+    'comingSoon.cta': 'انضم لقائمة الانتظار',
+    'comingSoon.days': 'أيام',
+    'comingSoon.hours': 'ساعات',
+    'comingSoon.minutes': 'دقائق',
+    'comingSoon.seconds': 'ثوانٍ',
   },
 } as const;
 
