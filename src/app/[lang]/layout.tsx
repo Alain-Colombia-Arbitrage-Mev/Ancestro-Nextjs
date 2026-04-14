@@ -10,11 +10,12 @@ interface LangLayoutProps {
   params: Promise<{ lang: string }>;
 }
 
-export default async function LangLayout({ children }: LangLayoutProps) {
+export default async function LangLayout({ children, params }: LangLayoutProps) {
+  const { lang } = await params;
   return (
     <>
       {children}
-      <ChatWidget />
+      <ChatWidget lang={lang} />
     </>
   );
 }
