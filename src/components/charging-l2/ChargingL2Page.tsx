@@ -217,13 +217,6 @@ export default function ChargingL2Page({ lang }: { lang: string }) {
 
       {/* ─── Footer CTA ─── */}
       <section className="cl2-footercta">
-        <img
-          className="cl2-footercta-bg"
-          src={`${IMG_L2}/footercta-bg.webp`}
-          alt=""
-          aria-hidden="true"
-        />
-        <div className="cl2-footercta-overlay" />
         <div className="cl2-footercta-inner">
           <h2 className="cl2-footercta-title">{t(lang, 'chargingL2.cta.title')}</h2>
           <p className="cl2-footercta-desc">{t(lang, 'chargingL2.cta.desc')}</p>
