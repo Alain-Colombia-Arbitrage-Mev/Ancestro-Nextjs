@@ -1,5 +1,5 @@
 import { t } from '@/i18n/translations';
-import { IMG } from '../EnergyHomePage';
+import { imgUrl } from '../cdn';
 
 export default function ChooseCoverage({ lang }: { lang: string }) {
   const plans = [
@@ -16,7 +16,7 @@ export default function ChooseCoverage({ lang }: { lang: string }) {
           <div key={p.key} className={`eh-cov-card${p.featured ? ' eh-cov-featured' : ''}`}>
             <div className="eh-cov-img-wrap">
               <img
-                src={`${IMG}/${p.img}`}
+                src={imgUrl(p.img)}
                 alt=""
                 className="eh-cov-img"
                 style={{ objectFit: p.fit }}

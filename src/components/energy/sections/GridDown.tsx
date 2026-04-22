@@ -1,8 +1,8 @@
 import { t } from '@/i18n/translations';
-import { CDN_URL } from '@/lib/cdn';
+import { bgUrl as mkBgUrl } from '../cdn';
 
 export default function GridDown({ lang }: { lang: string }) {
-  const bgUrl = `${CDN_URL}/energy-home/grid-down-bg.webp`;
+  const bgUrl = mkBgUrl('grid-down-bg.webp');
 
   return (
     <section

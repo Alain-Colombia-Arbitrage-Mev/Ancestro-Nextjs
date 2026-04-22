@@ -1,5 +1,5 @@
 import { t } from '@/i18n/translations';
-import { IMG, FLAGS } from '../EnergyHomePage';
+import { IMG, FLAGS } from '../cdn';
 
 const FLAG_COUNTRIES = [
   'colombia', 'panama', 'dominican-republic', 'mexico', 'peru',
