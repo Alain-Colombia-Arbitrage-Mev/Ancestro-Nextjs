@@ -190,7 +190,13 @@ export async function POST(req: NextRequest) {
       console.warn('[Join API] Partial success', { profile, email, db: dbOk, airtable: airtableOk, errors });
     }
 
-    return NextResponse.json({ success: true, profile, db: dbOk, airtable: airtableOk });
+    return NextResponse.json({
+      success: true,
+      profile,
+      db: dbOk,
+      airtable: airtableOk,
+      ...((errors.db || errors.airtable) && { errors }),
+    });
   } catch (err) {
     console.error('[Join API] Uncaught', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
