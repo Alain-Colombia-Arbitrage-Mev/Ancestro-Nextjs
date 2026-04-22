@@ -18,7 +18,7 @@ export default function ChargingL2Page({ lang }: { lang: string }) {
       <section className="cl2-hero">
         <img
           className="cl2-hero-bg"
-          src={`${IMG_L2}/hero-bg.webp`}
+          src={`${IMG_L2}/hero-bg.webp?v=2`}
           alt=""
           aria-hidden="true"
         />
@@ -66,7 +66,7 @@ export default function ChargingL2Page({ lang }: { lang: string }) {
       <section className="cl2-dest">
         <img
           className="cl2-dest-bg"
-          src={`${IMG_L2}/dest-bg.webp`}
+          src={`${IMG_L2}/dest-bg.webp?v=2`}
           alt=""
           aria-hidden="true"
         />
@@ -116,7 +116,7 @@ export default function ChargingL2Page({ lang }: { lang: string }) {
           </div>
           <div
             className="cl2-split-img left"
-            style={{ backgroundImage: `url(${IMG_L2}/managed.webp)` }}
+            style={{ backgroundImage: `url(${IMG_L2}/managed.webp?v=2)` }}
           />
         </div>
       </section>
@@ -210,7 +210,7 @@ export default function ChargingL2Page({ lang }: { lang: string }) {
           </div>
           <div
             className="cl2-split-img right"
-            style={{ backgroundImage: `url(${IMG_L2}/software.webp)` }}
+            style={{ backgroundImage: `url(${IMG_L2}/software.webp?v=2)` }}
           />
         </div>
       </section>
