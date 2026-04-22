@@ -163,20 +163,34 @@ export default function JoinPanel({ lang }: { lang: string }) {
     };
 
     try {
-      await fetch('/api/join', {
+      const res = await fetch('/api/join', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
+      const body = await res.json().catch(() => ({} as { db?: boolean; airtable?: boolean; error?: string }));
+
+      if (!res.ok) {
+        console.error('[Join] HTTP', res.status, body);
+        alert(t(lang, 'join.form.error'));
+        return;
+      }
+
+      if (body.db === false && body.airtable === false) {
+        console.error('[Join] Both DB and Airtable failed', body);
+        alert(t(lang, 'join.form.error'));
+        return;
+      }
+
+      if (body.db === false || body.airtable === false) {
+        console.warn('[Join] Partial success', { db: body.db, airtable: body.airtable });
+      }
+
       setStep('done');
       scrollToSection();
-    } catch {
-      if (isInvestor) {
-        setStep('done');
-        scrollToSection();
-      } else {
-        alert(t(lang, 'join.form.error'));
-      }
+    } catch (err) {
+      console.error('[Join] Network error', err);
+      alert(t(lang, 'join.form.error'));
     } finally {
       setSubmitting(false);
     }

@@ -11,8 +11,15 @@ export async function POST(req: NextRequest) {
     const data = await req.json();
     const { profile, name, email, phone, company, country, city, investment, experience, message, lang } = data;
 
-    if (!profile || !name || !email || !phone || !country) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    const missing: string[] = [];
+    if (!profile) missing.push('profile');
+    if (!name) missing.push('name');
+    if (!email) missing.push('email');
+    if (!phone) missing.push('phone');
+    if (!country) missing.push('country');
+    if (missing.length) {
+      console.warn('[Join API] Missing fields:', missing, { profile, hasEmail: !!email });
+      return NextResponse.json({ error: 'Missing required fields', missing }, { status: 400 });
     }
 
     const notes = [
@@ -46,7 +53,7 @@ export async function POST(req: NextRequest) {
            'join-page', 'New', 'Investment', notes, 'pending']
         );
         dbOk = true;
-      } catch (e) { console.error('[DB Invest]', e); }
+      } catch (e) { console.error("[DB Invest]", { email, name, err: e instanceof Error ? e.message : e }); }
 
       try {
         await createAirtableRecord(INVEST_TABLE, {
@@ -64,7 +71,7 @@ export async function POST(req: NextRequest) {
           'Accreditation Status': 'Pending',
         });
         airtableOk = true;
-      } catch (e) { console.error('[Airtable Invest]', e); }
+      } catch (e) { console.error("[Airtable Invest]", { email, table: INVEST_TABLE, err: e instanceof Error ? e.message : e }); }
 
     // ==========================================
     // GOVERNMENT
@@ -80,7 +87,7 @@ export async function POST(req: NextRequest) {
            message || '', 'join-government', 'New', notes]
         );
         dbOk = true;
-      } catch (e) { console.error('[DB Contact]', e); }
+      } catch (e) { console.error("[DB Contact]", { email, err: e instanceof Error ? e.message : e }); }
 
       try {
         await createAirtableRecord(CONTACT_TABLE, {
@@ -95,7 +102,7 @@ export async function POST(req: NextRequest) {
           'Notes': notes,
         });
         airtableOk = true;
-      } catch (e) { console.error('[Airtable Contact]', e); }
+      } catch (e) { console.error("[Airtable Contact]", { email, table: CONTACT_TABLE, err: e instanceof Error ? e.message : e }); }
 
     // ==========================================
     // ALL OTHERS (strategic, installer, energy, logistics, advisor)
@@ -112,7 +119,7 @@ export async function POST(req: NextRequest) {
            notes, company || null, city || null, profile, investment || null, experience || null]
         );
         dbOk = true;
-      } catch (e) { console.error('[DB Waitlist]', e); }
+      } catch (e) { console.error("[DB Waitlist]", { email, profile, err: e instanceof Error ? e.message : e }); }
 
       try {
         await createAirtableRecord(WAITLIST_TABLE, {
@@ -127,7 +134,19 @@ export async function POST(req: NextRequest) {
           'Notes': notes,
         });
         airtableOk = true;
-      } catch (e) { console.error('[Airtable Waitlist]', e); }
+      } catch (e) { console.error("[Airtable Waitlist]", { email, profile, table: WAITLIST_TABLE, err: e instanceof Error ? e.message : e }); }
+    }
+
+    if (!dbOk && !airtableOk) {
+      console.error('[Join API] BOTH sinks failed', { profile, email });
+      return NextResponse.json(
+        { success: false, error: 'All storage backends failed', db: false, airtable: false },
+        { status: 502 }
+      );
+    }
+
+    if (!dbOk || !airtableOk) {
+      console.warn('[Join API] Partial success', { profile, email, db: dbOk, airtable: airtableOk });
     }
 
     return NextResponse.json({ success: true, profile, db: dbOk, airtable: airtableOk });
