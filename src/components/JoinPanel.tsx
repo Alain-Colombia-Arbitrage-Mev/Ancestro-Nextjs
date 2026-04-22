@@ -1,6 +1,79 @@
 'use client';
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, memo } from 'react';
 import { t } from '@/i18n/translations';
+
+// ─── Memoized form primitives ─────────────────────────────────────
+// Each field only re-renders when its own value / error props change,
+// so typing in one input no longer re-runs the whole JoinPanel tree
+// (which was causing brief freezes on fast typing).
+type FieldChange = (name: string, value: string) => void;
+
+interface TextFieldProps {
+  name: string;
+  type?: string;
+  value: string;
+  label: string;
+  error?: boolean;
+  required?: boolean;
+  placeholder?: string;
+  onChange: FieldChange;
+  fullWidth?: boolean;
+}
+
+const TextField = memo(function TextField({
+  name, type = 'text', value, label, error, required, placeholder, onChange, fullWidth,
+}: TextFieldProps) {
+  return (
+    <div className={`form-field ${fullWidth ? 'full-width' : ''} ${error ? 'has-error' : ''}`}>
+      <label>{label}{required ? ' *' : ''}</label>
+      <input
+        type={type}
+        name={name}
+        value={value}
+        placeholder={placeholder}
+        required={required}
+        autoComplete={AUTOCOMPLETE[name] || 'off'}
+        onChange={e => onChange(name, e.currentTarget.value)}
+      />
+    </div>
+  );
+});
+
+interface TextareaFieldProps {
+  name: string;
+  value: string;
+  label: string;
+  error?: boolean;
+  rows?: number;
+  placeholder?: string;
+  onChange: FieldChange;
+}
+
+const TextareaField = memo(function TextareaField({
+  name, value, label, error, rows = 3, placeholder, onChange,
+}: TextareaFieldProps) {
+  return (
+    <div className={`form-field full-width ${error ? 'has-error' : ''}`}>
+      <label>{label}</label>
+      <textarea
+        name={name}
+        value={value}
+        rows={rows}
+        placeholder={placeholder}
+        onChange={e => onChange(name, e.currentTarget.value)}
+      />
+    </div>
+  );
+});
+
+const AUTOCOMPLETE: Record<string, string> = {
+  name: 'name',
+  email: 'email',
+  phone: 'tel',
+  company: 'organization',
+  country: 'country-name',
+  city: 'address-level2',
+};
 
 type ProfileType = 'investor' | 'strategic' | 'installer' | 'energy' | 'logistics' | 'advisor' | 'government' | 'host' | 'supplier';
 
@@ -99,6 +172,11 @@ export default function JoinPanel({ lang }: { lang: string }) {
     setForm(prev => (prev[key] === value ? prev : { ...prev, [key]: value }));
     setErrors(prev => (prev[key] ? { ...prev, [key]: false } : prev));
   }, []);
+
+  // Single stable onChange reference shared by every memoized field.
+  const handleFieldChange = useCallback<FieldChange>((name, value) => {
+    updateField(name as keyof FormData, value as FormData[keyof FormData]);
+  }, [updateField]);
 
   const handleSelectProfile = useCallback((id: ProfileType) => {
     updateField('profile', id);
@@ -314,42 +392,10 @@ export default function JoinPanel({ lang }: { lang: string }) {
 
             <div className="join-form">
               <div className="form-grid">
-                <div className={`form-field ${errors.name ? 'has-error' : ''}`}>
-                  <label>{t(lang, 'join.form.name')} *</label>
-                  <input
-                    type="text"
-                    value={form.name}
-                    onChange={e => updateField('name', e.target.value)}
-                    required
-                  />
-                </div>
-                <div className={`form-field ${errors.email ? 'has-error' : ''}`}>
-                  <label>{t(lang, 'join.form.email')} *</label>
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={e => updateField('email', e.target.value)}
-                    required
-                  />
-                </div>
-                <div className={`form-field ${errors.phone ? 'has-error' : ''}`}>
-                  <label>{t(lang, 'join.form.phone')} *</label>
-                  <input
-                    type="tel"
-                    value={form.phone}
-                    onChange={e => updateField('phone', e.target.value)}
-                    placeholder="+1 (555) 000-0000"
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label>{t(lang, 'join.form.company')}</label>
-                  <input
-                    type="text"
-                    value={form.company}
-                    onChange={e => updateField('company', e.target.value)}
-                  />
-                </div>
+                <TextField name="name" type="text" label={t(lang, 'join.form.name')} value={form.name} error={errors.name} required onChange={handleFieldChange} />
+                <TextField name="email" type="email" label={t(lang, 'join.form.email')} value={form.email} error={errors.email} required onChange={handleFieldChange} />
+                <TextField name="phone" type="tel" label={t(lang, 'join.form.phone')} value={form.phone} error={errors.phone} required placeholder="+1 (555) 000-0000" onChange={handleFieldChange} />
+                <TextField name="company" type="text" label={t(lang, 'join.form.company')} value={form.company} onChange={handleFieldChange} />
               </div>
 
               <div className="wizard-nav">
@@ -379,23 +425,8 @@ export default function JoinPanel({ lang }: { lang: string }) {
 
             <div className="join-form">
               <div className="form-grid">
-                <div className={`form-field ${errors.country ? 'has-error' : ''}`}>
-                  <label>{t(lang, 'join.form.country')} *</label>
-                  <input
-                    type="text"
-                    value={form.country}
-                    onChange={e => updateField('country', e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label>{t(lang, 'join.form.city')}</label>
-                  <input
-                    type="text"
-                    value={form.city}
-                    onChange={e => updateField('city', e.target.value)}
-                  />
-                </div>
+                <TextField name="country" type="text" label={t(lang, 'join.form.country')} value={form.country} error={errors.country} required onChange={handleFieldChange} />
+                <TextField name="city" type="text" label={t(lang, 'join.form.city')} value={form.city} onChange={handleFieldChange} />
 
                 {isInvestor && (
                   <div className={`form-field full-width ${errors.investment ? 'has-error' : ''}`}>
@@ -413,24 +444,8 @@ export default function JoinPanel({ lang }: { lang: string }) {
                   </div>
                 )}
 
-                <div className="form-field full-width">
-                  <label>{t(lang, 'join.form.experience')}</label>
-                  <textarea
-                    value={form.experience}
-                    onChange={e => updateField('experience', e.target.value)}
-                    rows={3}
-                    placeholder={t(lang, 'join.form.experience.placeholder')}
-                  />
-                </div>
-                <div className="form-field full-width">
-                  <label>{t(lang, 'join.form.message')}</label>
-                  <textarea
-                    value={form.message}
-                    onChange={e => updateField('message', e.target.value)}
-                    rows={3}
-                    placeholder={t(lang, 'join.form.message.placeholder')}
-                  />
-                </div>
+                <TextareaField name="experience" label={t(lang, 'join.form.experience')} value={form.experience} placeholder={t(lang, 'join.form.experience.placeholder')} onChange={handleFieldChange} />
+                <TextareaField name="message" label={t(lang, 'join.form.message')} value={form.message} placeholder={t(lang, 'join.form.message.placeholder')} onChange={handleFieldChange} />
               </div>
 
               <div className="form-footer">
