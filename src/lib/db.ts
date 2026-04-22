@@ -4,8 +4,17 @@ const { Pool } = pg;
 
 let pool: pg.Pool | null = null;
 
-export function getPool(): pg.Pool | null {
-  if (!process.env.DB_HOST) return null;
+export class DBNotConfiguredError extends Error {
+  constructor() {
+    super('[DB] DB_HOST env var is missing — database is not configured');
+    this.name = 'DBNotConfiguredError';
+  }
+}
+
+export function getPool(): pg.Pool {
+  if (!process.env.DB_HOST) {
+    throw new DBNotConfiguredError();
+  }
 
   if (!pool) {
     pool = new Pool({
@@ -18,19 +27,16 @@ export function getPool(): pg.Pool | null {
       max: 5,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 5000,
+      statement_timeout: 8000,
+      query_timeout: 8000,
     });
   }
 
   return pool;
 }
 
-export async function query(text: string, params?: unknown[]): Promise<pg.QueryResult | null> {
+export async function query(text: string, params?: unknown[]): Promise<pg.QueryResult> {
   const p = getPool();
-  if (!p) {
-    console.warn('[DB] No database configured, skipping query');
-    return null;
-  }
-
   const client = await p.connect();
   try {
     return await client.query(text, params);

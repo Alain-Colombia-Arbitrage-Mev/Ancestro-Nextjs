@@ -1,8 +1,8 @@
 'use client';
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { t } from '@/i18n/translations';
 
-type ProfileType = 'investor' | 'strategic' | 'installer' | 'energy' | 'logistics' | 'advisor' | 'government';
+type ProfileType = 'investor' | 'strategic' | 'installer' | 'energy' | 'logistics' | 'advisor' | 'government' | 'host' | 'supplier';
 
 interface Profile {
   id: ProfileType;
@@ -22,6 +22,8 @@ const profiles: Profile[] = [
   { id: 'logistics', icon: '\u{1F69B}', labelKey: 'join.profile.logistics', descKey: 'join.profile.logistics.desc' },
   { id: 'advisor', icon: '\u{1F9E0}', labelKey: 'join.profile.advisor', descKey: 'join.profile.advisor.desc' },
   { id: 'government', icon: '\u{1F3DB}', labelKey: 'join.profile.government', descKey: 'join.profile.government.desc' },
+  { id: 'host', icon: '\u{1F3E0}', labelKey: 'join.profile.host', descKey: 'join.profile.host.desc' },
+  { id: 'supplier', icon: '\u{1F4E6}', labelKey: 'join.profile.supplier', descKey: 'join.profile.supplier.desc' },
 ];
 
 const investmentRanges = [
@@ -72,6 +74,20 @@ export default function JoinPanel({ lang }: { lang: string }) {
 
   const stepIndex = WIZARD_STEPS.indexOf(step);
   const isInvestor = form.profile === 'investor';
+
+  // Auto-select profile from URL ?profile=investor (client-only)
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const urlProfile = params.get('profile') as ProfileType | null;
+      if (urlProfile && profiles.some(p => p.id === urlProfile)) {
+        setForm(prev => ({ ...prev, profile: urlProfile }));
+        setTimeout(() => setStep('contact'), 0);
+      }
+    }
+  }, []);
 
   const scrollToSection = useCallback(() => {
     setTimeout(() => {
@@ -146,24 +162,85 @@ export default function JoinPanel({ lang }: { lang: string }) {
       lang,
     };
 
-    try {
-      await fetch('/api/join', {
+    // If we're on the apex domain (ancestro.ai), the CloudFront 302 → www.ancestro.ai
+    // redirect kills the CORS preflight. Hit the www host directly to avoid it.
+    const endpoint = typeof window !== 'undefined'
+      && window.location.hostname === 'ancestro.ai'
+      ? 'https://www.ancestro.ai/api/join'
+      : '/api/join';
+
+    async function postOnce(): Promise<{ ok: boolean; body: { db?: boolean; airtable?: boolean; error?: string } }> {
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      setStep('done');
-      scrollToSection();
-    } catch {
-      if (isInvestor) {
+      const body = await res.json().catch(() => ({}));
+      return { ok: res.ok, body };
+    }
+
+    const MAX_ATTEMPTS = 3;
+    let lastError: unknown = null;
+
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      try {
+        const { ok, body } = await postOnce();
+
+        if (!ok) {
+          console.error('[Join] HTTP error', { attempt, body });
+          if (attempt < MAX_ATTEMPTS) {
+            await new Promise(r => setTimeout(r, 500 * attempt));
+            continue;
+          }
+          alert(t(lang, 'join.form.error'));
+          return;
+        }
+
+        if (body.db === false && body.airtable === false) {
+          console.error('[Join] Both sinks failed', body);
+          if (attempt < MAX_ATTEMPTS) {
+            await new Promise(r => setTimeout(r, 500 * attempt));
+            continue;
+          }
+          alert(t(lang, 'join.form.error'));
+          return;
+        }
+
+        if (body.db === false || body.airtable === false) {
+          console.warn('[Join] Partial success', { db: body.db, airtable: body.airtable });
+        }
+
+        // Clear any previously saved offline submission for this email.
+        try { localStorage.removeItem(`join:pending:${form.email}`); } catch {}
+
         setStep('done');
         scrollToSection();
-      } else {
-        alert(t(lang, 'join.form.error'));
+        return;
+      } catch (err) {
+        lastError = err;
+        console.error('[Join] Network error', { attempt, err });
+        if (attempt < MAX_ATTEMPTS) {
+          await new Promise(r => setTimeout(r, 500 * attempt));
+          continue;
+        }
+      } finally {
+        if (attempt === MAX_ATTEMPTS) setSubmitting(false);
       }
-    } finally {
-      setSubmitting(false);
     }
+
+    // All attempts exhausted — persist locally so the user doesn't lose their input.
+    try {
+      localStorage.setItem(
+        `join:pending:${form.email}`,
+        JSON.stringify({ data, savedAt: new Date().toISOString(), lastError: String(lastError) })
+      );
+      console.warn('[Join] Saved submission to localStorage — will retry on next load');
+    } catch (storageErr) {
+      console.error('[Join] Could not persist to localStorage', storageErr);
+    }
+
+    alert(t(lang, 'join.form.error'));
+    setSubmitting(false);
   }
 
   const stepLabels = [
@@ -370,7 +447,7 @@ export default function JoinPanel({ lang }: { lang: string }) {
                     checked={form.terms}
                     onChange={e => updateField('terms', e.target.checked)}
                   />
-                  <span>{t(lang, 'join.form.terms')} <a href="#" className="terms-link">{t(lang, 'join.form.termsLink')}</a></span>
+                  <span>{t(lang, 'join.form.terms')} <a href={`/${lang}/coming-soon`} className="terms-link">{t(lang, 'join.form.termsLink')}</a></span>
                 </label>
               </div>
 
