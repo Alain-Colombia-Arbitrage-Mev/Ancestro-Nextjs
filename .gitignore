@@ -48,6 +48,7 @@ yarn-error.log*
 
 # temp files
 ssr-debug.html
+nul
 
 # typescript
 *.tsbuildinfo
