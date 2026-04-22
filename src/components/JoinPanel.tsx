@@ -100,11 +100,11 @@ export default function JoinPanel({ lang }: { lang: string }) {
     setErrors(prev => (prev[key] ? { ...prev, [key]: false } : prev));
   }, []);
 
-  function handleSelectProfile(id: ProfileType) {
+  const handleSelectProfile = useCallback((id: ProfileType) => {
     updateField('profile', id);
     setStep('contact');
     scrollToSection();
-  }
+  }, [updateField, scrollToSection]);
 
   function validateContact(): boolean {
     const errs: Partial<Record<keyof FormData, boolean>> = {};
