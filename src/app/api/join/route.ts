@@ -6,6 +6,18 @@ const WAITLIST_TABLE = process.env.AIRTABLE_WAITLIST_FORM || '';
 const INVEST_TABLE = process.env.AIRTABLE_INVEST_FORM || '';
 const CONTACT_TABLE = process.env.AIRTABLE_CONTACT_FORM || '';
 
+// Airtable singleSelect fields reject empty strings with
+// INVALID_MULTIPLE_CHOICE_OPTIONS ("Insufficient permissions to create new option").
+// Strip keys whose value is null/undefined/empty string before sending.
+function clean(fields: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(fields)) {
+    if (v === null || v === undefined || v === '') continue;
+    out[k] = v;
+  }
+  return out;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
@@ -63,7 +75,7 @@ export async function POST(req: NextRequest) {
       }
 
       try {
-        await createAirtableRecord(INVEST_TABLE, {
+        await createAirtableRecord(INVEST_TABLE, clean({
           'Investment Request': label,
           'Full Name': name,
           'Email': email,
@@ -80,7 +92,7 @@ export async function POST(req: NextRequest) {
           'City': city || '',
           'Company': company || '',
           'Experience': experience || '',
-        });
+        }));
         airtableOk = true;
       } catch (e) {
         errors.airtable = e instanceof Error ? e.message : String(e);
@@ -111,7 +123,7 @@ export async function POST(req: NextRequest) {
       }
 
       try {
-        await createAirtableRecord(CONTACT_TABLE, {
+        await createAirtableRecord(CONTACT_TABLE, clean({
           'Contact Name': label,
           'Contact Reason': 'Information',
           'Full Name': name,
@@ -126,7 +138,7 @@ export async function POST(req: NextRequest) {
           'Company': company || '',
           'Experience': experience || '',
           'Profile Type': profile,
-        });
+        }));
         airtableOk = true;
       } catch (e) {
         errors.airtable = e instanceof Error ? e.message : String(e);
@@ -155,7 +167,7 @@ export async function POST(req: NextRequest) {
       }
 
       try {
-        await createAirtableRecord(WAITLIST_TABLE, {
+        await createAirtableRecord(WAITLIST_TABLE, clean({
           'Waitlist Entry': label,
           'Full Name': name,
           'Email': email,
@@ -170,7 +182,7 @@ export async function POST(req: NextRequest) {
           'Profile Type': profile,
           'Investment Range': investment || '',
           'Experience': experience || '',
-        });
+        }));
         airtableOk = true;
       } catch (e) {
         errors.airtable = e instanceof Error ? e.message : String(e);

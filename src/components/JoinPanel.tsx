@@ -162,15 +162,8 @@ export default function JoinPanel({ lang }: { lang: string }) {
       lang,
     };
 
-    // If we're on the apex domain (ancestro.ai), the CloudFront 302 → www.ancestro.ai
-    // redirect kills the CORS preflight. Hit the www host directly to avoid it.
-    const endpoint = typeof window !== 'undefined'
-      && window.location.hostname === 'ancestro.ai'
-      ? 'https://www.ancestro.ai/api/join'
-      : '/api/join';
-
     async function postOnce(): Promise<{ ok: boolean; body: { db?: boolean; airtable?: boolean; error?: string } }> {
-      const res = await fetch(endpoint, {
+      const res = await fetch('/api/join', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
