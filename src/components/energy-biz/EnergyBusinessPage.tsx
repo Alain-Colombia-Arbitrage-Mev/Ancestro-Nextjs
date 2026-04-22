@@ -1,4 +1,5 @@
 import './energy-biz.css';
+import '../energy/energy-home.css';
 import { CDN_URL } from '@/lib/cdn';
 import HeroBiz from './sections/HeroBiz';
 import EnergyVariable from './sections/EnergyVariable';
