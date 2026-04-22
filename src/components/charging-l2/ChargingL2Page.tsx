@@ -159,7 +159,7 @@ export default function ChargingL2Page({ lang }: { lang: string }) {
             </ul>
           </div>
           <div className="cl2-app-img">
-            <img src={`${CDN_URL}/energy-home/app-phone-v2.webp`} alt="" />
+            <img src={`${IMG_L2}/phone.webp`} alt="" />
           </div>
         </div>
       </section>
