@@ -513,8 +513,9 @@
   .chome-hero {
     aspect-ratio: auto;
     min-height: 620px;
-    padding: 100px 24px 90px;
+    padding: 100px 24px 110px;
     gap: 36px;
+    justify-content: center;
   }
 
   .chome-hero-bg {
@@ -570,8 +571,8 @@
 
 @media (max-width: 680px) {
   .chome-hero {
-    min-height: 540px;
-    padding: 90px 20px 70px;
+    min-height: 560px;
+    padding: 100px 20px 100px;
     gap: 28px;
   }
 
