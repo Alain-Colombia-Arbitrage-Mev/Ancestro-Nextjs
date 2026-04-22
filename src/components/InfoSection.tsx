@@ -23,7 +23,7 @@ export default function InfoSection({ title, subtitle, ctaVariant = 'secondary',
           </div>
         </div>
         <div className="info-image">
-          <Image src={imageUrl} alt="" fill sizes="(max-width: 1024px) 180px, 289px" style={{ objectFit: 'cover' }} />
+          <Image src={imageUrl} alt="" fill quality={90} sizes="(max-width: 600px) 100vw, (max-width: 1024px) 400px, 640px" style={{ objectFit: 'cover' }} />
         </div>
       </div>
 
