@@ -95,10 +95,10 @@ export default function JoinPanel({ lang }: { lang: string }) {
     }, 100);
   }, []);
 
-  function updateField<K extends keyof FormData>(key: K, value: FormData[K]) {
-    setForm(prev => ({ ...prev, [key]: value }));
-    setErrors(prev => ({ ...prev, [key]: false }));
-  }
+  const updateField = useCallback(<K extends keyof FormData>(key: K, value: FormData[K]) => {
+    setForm(prev => (prev[key] === value ? prev : { ...prev, [key]: value }));
+    setErrors(prev => (prev[key] ? { ...prev, [key]: false } : prev));
+  }, []);
 
   function handleSelectProfile(id: ProfileType) {
     updateField('profile', id);
