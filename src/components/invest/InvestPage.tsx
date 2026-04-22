@@ -13,7 +13,7 @@ interface InvestPageProps {
 /* ── Data ── */
 
 const INVESTMENT = {
-  valuationCap: '$25M',
+  valuationCap: '$50M',
 };
 
 const deepDivePanels = [
