@@ -1,3 +1,5 @@
+import AutoplayVideo from "./AutoplayVideo";
+
 export const metadata = {
   title: "Ancestro · Brasil",
   description:
@@ -27,32 +29,8 @@ export default function LandingPage() {
           color: "#FFFFFF",
         }}
       >
-        {/* K61Pes — Video full bleed (autoplay) */}
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          controls={false}
-          disablePictureInPicture
-          disableRemotePlayback
-          preload="auto"
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            minWidth: "100%",
-            minHeight: "100%",
-            width: "auto",
-            height: "auto",
-            objectFit: "cover",
-            pointerEvents: "none",
-            zIndex: 0,
-          }}
-        >
-          <source src={videoSrc} type="video/mp4" />
-        </video>
+        {/* K61Pes — Video full bleed (autoplay, mobile-friendly) */}
+        <AutoplayVideo src={videoSrc} />
 
         {/* On1OW — Top overlay: #0A0A0Add → transparent (180°) */}
         <div
