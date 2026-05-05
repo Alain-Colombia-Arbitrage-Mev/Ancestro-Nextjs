@@ -75,7 +75,7 @@ const AUTOCOMPLETE: Record<string, string> = {
   city: 'address-level2',
 };
 
-type ProfileType = 'investor' | 'strategic' | 'installer' | 'energy' | 'logistics' | 'advisor' | 'government' | 'host' | 'supplier';
+type ProfileType = 'investor' | 'distributor' | 'installer' | 'capital' | 'host' | 'customer' | 'supplier';
 
 interface Profile {
   id: ProfileType;
@@ -89,14 +89,12 @@ const CALENDLY_URL = process.env.NEXT_PUBLIC_CALENDLY_INVEST_URL || 'https://cal
 
 const profiles: Profile[] = [
   { id: 'investor', icon: '\u{1F4C8}', labelKey: 'join.profile.investor', descKey: 'join.profile.investor.desc', featured: true },
-  { id: 'strategic', icon: '\u{1F91D}', labelKey: 'join.profile.strategic', descKey: 'join.profile.strategic.desc' },
   { id: 'installer', icon: '\u{1F527}', labelKey: 'join.profile.installer', descKey: 'join.profile.installer.desc' },
-  { id: 'energy', icon: '\u26A1', labelKey: 'join.profile.energy', descKey: 'join.profile.energy.desc' },
-  { id: 'logistics', icon: '\u{1F69B}', labelKey: 'join.profile.logistics', descKey: 'join.profile.logistics.desc' },
-  { id: 'advisor', icon: '\u{1F9E0}', labelKey: 'join.profile.advisor', descKey: 'join.profile.advisor.desc' },
-  { id: 'government', icon: '\u{1F3DB}', labelKey: 'join.profile.government', descKey: 'join.profile.government.desc' },
+  { id: 'distributor', icon: '\u{1F4E6}', labelKey: 'join.profile.distributor', descKey: 'join.profile.distributor.desc' },
+  { id: 'capital', icon: '\u{1F4B0}', labelKey: 'join.profile.capital', descKey: 'join.profile.capital.desc' },
   { id: 'host', icon: '\u{1F3E0}', labelKey: 'join.profile.host', descKey: 'join.profile.host.desc' },
-  { id: 'supplier', icon: '\u{1F4E6}', labelKey: 'join.profile.supplier', descKey: 'join.profile.supplier.desc' },
+  { id: 'customer', icon: '\u{1F9D1}\u200D\u{1F91D}\u200D\u{1F9D1}', labelKey: 'join.profile.customer', descKey: 'join.profile.customer.desc' },
+  { id: 'supplier', icon: '\u{1F3ED}', labelKey: 'join.profile.supplier', descKey: 'join.profile.supplier.desc' },
 ];
 
 const investmentRanges = [
@@ -334,7 +332,7 @@ export default function JoinPanel({ lang }: { lang: string }) {
             <div className="stat-divider" />
             <div className="stat"><span className="stat-num">200+</span><span className="stat-label">{t(lang, 'join.stats.partners')}</span></div>
             <div className="stat-divider" />
-            <div className="stat"><span className="stat-num">$5M+</span><span className="stat-label">{t(lang, 'join.stats.invested')}</span></div>
+            <div className="stat"><span className="stat-num">$500M+</span><span className="stat-label">{t(lang, 'join.stats.invested')}</span></div>
           </div>
         </div>
 

@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
       }
 
     // ==========================================
-    // ALL OTHERS (strategic, installer, energy, logistics, advisor, host, supplier)
+    // ALL OTHERS (distributor, installer, capital, host, customer, supplier + legacy)
     // ==========================================
     } else {
       try {

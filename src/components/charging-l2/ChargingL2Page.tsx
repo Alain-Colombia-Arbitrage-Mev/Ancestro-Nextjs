@@ -29,7 +29,7 @@ export default function ChargingL2Page({ lang }: { lang: string }) {
         </div>
         <div className="cl2-hero-ctas">
           <a href={`/${lang}/join?profile=host`} className="cl2-cta-primary">{t(lang, 'chargingL2.hero.ctaHost')}</a>
-          <a href={`/${lang}/join?profile=energy`} className="cl2-cta-secondary">{t(lang, 'chargingL2.hero.ctaBuy')}</a>
+          <a href={`/${lang}/join?profile=customer`} className="cl2-cta-secondary">{t(lang, 'chargingL2.hero.ctaBuy')}</a>
         </div>
       </section>
 
@@ -178,7 +178,7 @@ export default function ChargingL2Page({ lang }: { lang: string }) {
                 {t(lang, 'chargingL2.hosting.buyDesc')}
               </p>
             </div>
-            <a href={`/${lang}/join?profile=energy`} className="cl2-hosting-cta buy">
+            <a href={`/${lang}/join?profile=customer`} className="cl2-hosting-cta buy">
               {t(lang, 'chargingL2.hosting.buyCta')}
             </a>
           </div>
@@ -225,7 +225,7 @@ export default function ChargingL2Page({ lang }: { lang: string }) {
           <a href={`/${lang}/join?profile=host`} className="cl2-cta-primary">
             {t(lang, 'chargingL2.hero.ctaHost')}
           </a>
-          <a href={`/${lang}/join?profile=energy`} className="cl2-cta-secondary">
+          <a href={`/${lang}/join?profile=customer`} className="cl2-cta-secondary">
             {t(lang, 'chargingL2.hero.ctaBuy')}
           </a>
         </div>

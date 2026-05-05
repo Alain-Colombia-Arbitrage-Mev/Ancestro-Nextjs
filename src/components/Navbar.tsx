@@ -35,7 +35,7 @@ const megaMenuData: Record<string, MegaMenuData> = {
     links: [
       { label: 'Get a Proposal', href: '/LANG/join' },
       { label: 'Incentives', href: '/LANG/coming-soon' },
-      { label: 'Partner with Ancestro', href: '/LANG/join?profile=strategic' },
+      { label: 'Partner with Ancestro', href: '/LANG/join?profile=distributor' },
       { label: 'Host land or roof', href: '/LANG/join?profile=host' },
       { label: 'Equipment', href: '/LANG/coming-soon' },
     ],
