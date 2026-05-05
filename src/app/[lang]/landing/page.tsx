@@ -165,64 +165,6 @@ export default function LandingPage() {
           </div>
         </nav>
 
-        {/* RR2Rt — Play button decorativo (rings + filled center) */}
-        <div
-          style={{
-            position: "absolute",
-            top: "38%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 120,
-            height: 120,
-            zIndex: 2,
-            pointerEvents: "none",
-          }}
-        >
-          {/* Outer ring 120×120 */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              borderRadius: "50%",
-              background: "rgba(255,255,255,0.08)",
-              border: "1.5px solid rgba(255,255,255,0.25)",
-            }}
-          />
-          {/* Mid ring 90×90 */}
-          <div
-            style={{
-              position: "absolute",
-              top: 15,
-              left: 15,
-              width: 90,
-              height: 90,
-              borderRadius: "50%",
-              background: "rgba(255,255,255,0.13)",
-              border: "1.5px solid rgba(255,255,255,0.38)",
-            }}
-          />
-          {/* Filled inner button 60×60 */}
-          <div
-            style={{
-              position: "absolute",
-              top: 30,
-              left: 30,
-              width: 60,
-              height: 60,
-              borderRadius: "50%",
-              background: "#FFFFFF",
-              boxShadow: "0 0 40px rgba(255,255,255,0.38)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <svg width={24} height={24} viewBox="0 0 24 24" fill="#0A0A0A">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          </div>
-        </div>
-
         {/* IjTLY — Hero content: layout vertical gap 12, width 737, anchored bottom-left */}
         <section
           style={{

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 interface Props {
   src: string;
@@ -9,7 +9,6 @@ interface Props {
 
 export default function AutoplayVideo({ src, poster }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [needsTap, setNeedsTap] = useState(false);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -26,90 +25,108 @@ export default function AutoplayVideo({ src, poster }: Props) {
     v.setAttribute("x5-video-player-fullscreen", "false");
 
     let cancelled = false;
+    let attempts = 0;
 
-    const tryPlay = async () => {
-      if (cancelled || !videoRef.current) return;
-      try {
-        await videoRef.current.play();
-        setNeedsTap(false);
-      } catch {
-        if (!cancelled) setNeedsTap(true);
-      }
+    const tryPlay = (): Promise<void> => {
+      const node = videoRef.current;
+      if (cancelled || !node) return Promise.resolve();
+      node.muted = true;
+      const result = node.play();
+      return result instanceof Promise
+        ? result.catch((err) => {
+            if (cancelled) return;
+            if (attempts++ < 8) {
+              setTimeout(tryPlay, 250 * Math.min(attempts, 4));
+            }
+            return Promise.reject(err);
+          })
+        : Promise.resolve();
     };
 
-    tryPlay();
+    tryPlay().catch(() => {});
 
+    const wake = () => {
+      tryPlay().catch(() => {});
+    };
+
+    const onMeta = () => wake();
+    const onCanPlay = () => wake();
     const onVisibility = () => {
-      if (document.visibilityState === "visible") tryPlay();
+      if (document.visibilityState === "visible") wake();
     };
-    const onFirstInteraction = () => {
-      tryPlay();
-      window.removeEventListener("touchstart", onFirstInteraction);
-      window.removeEventListener("click", onFirstInteraction);
-    };
+
+    v.addEventListener("loadedmetadata", onMeta);
+    v.addEventListener("canplay", onCanPlay);
     document.addEventListener("visibilitychange", onVisibility);
-    window.addEventListener("touchstart", onFirstInteraction, { passive: true });
-    window.addEventListener("click", onFirstInteraction);
+
+    const userEvents: Array<keyof WindowEventMap> = [
+      "touchstart",
+      "touchend",
+      "touchmove",
+      "click",
+      "pointerdown",
+      "scroll",
+      "keydown",
+      "mousemove",
+    ];
+    const onUserEvent = () => {
+      wake();
+    };
+    userEvents.forEach((evt) =>
+      window.addEventListener(evt, onUserEvent, { passive: true } as AddEventListenerOptions),
+    );
+
+    let observer: IntersectionObserver | null = null;
+    if ("IntersectionObserver" in window) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) if (e.isIntersecting) wake();
+        },
+        { threshold: 0.05 },
+      );
+      observer.observe(v);
+    }
 
     return () => {
       cancelled = true;
+      v.removeEventListener("loadedmetadata", onMeta);
+      v.removeEventListener("canplay", onCanPlay);
       document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("touchstart", onFirstInteraction);
-      window.removeEventListener("click", onFirstInteraction);
+      userEvents.forEach((evt) =>
+        window.removeEventListener(evt, onUserEvent as EventListener),
+      );
+      observer?.disconnect();
     };
   }, []);
 
   return (
-    <>
-      <video
-        ref={videoRef}
-        autoPlay
-        loop
-        muted
-        playsInline
-        controls={false}
-        disablePictureInPicture
-        disableRemotePlayback
-        preload="auto"
-        poster={poster}
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          minWidth: "100%",
-          minHeight: "100%",
-          width: "auto",
-          height: "auto",
-          objectFit: "cover",
-          pointerEvents: "none",
-          zIndex: 0,
-          backgroundColor: "#0A0A0A",
-        }}
-      >
-        <source src={src} type="video/mp4" />
-      </video>
-
-      {needsTap && (
-        <button
-          type="button"
-          aria-label="Tocar para reproduzir vídeo"
-          onClick={() => {
-            videoRef.current?.play().then(() => setNeedsTap(false)).catch(() => {});
-          }}
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 5,
-            background: "transparent",
-            border: 0,
-            cursor: "pointer",
-            color: "transparent",
-          }}
-        >
-          tocar para reproduzir
-        </button>
-      )}
-    </>
+    <video
+      ref={videoRef}
+      autoPlay
+      loop
+      muted
+      playsInline
+      controls={false}
+      disablePictureInPicture
+      disableRemotePlayback
+      preload="auto"
+      poster={poster}
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        minWidth: "100%",
+        minHeight: "100%",
+        width: "auto",
+        height: "auto",
+        objectFit: "cover",
+        pointerEvents: "none",
+        zIndex: 0,
+        backgroundColor: "#0A0A0A",
+      }}
+    >
+      <source src={src} type="video/mp4" />
+    </video>
   );
 }
