@@ -6,7 +6,8 @@ export const metadata = {
 
 export default function LandingPage() {
   const videoSrc = "https://assets.ancestro.ai/ancestr-%20brasil(1)%20(1).mp4";
-  const joinHref = "https://ancestro.ai/es/join";
+  const joinHref = "https://ancestro.ai/pt/join";
+  const instagramHref = "https://www.instagram.com/ancestro.ai";
 
   return (
     <>
@@ -127,6 +128,42 @@ export default function LandingPage() {
               ANCESTRO
             </span>
           </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <a
+              href={instagramHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram @ancestro.ai"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 38,
+                height: 38,
+                borderRadius: 9999,
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.18)",
+                color: "#FFFFFF",
+                textDecoration: "none",
+                backdropFilter: "blur(6px)",
+              }}
+            >
+              <svg
+                width={16}
+                height={16}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+              </svg>
+            </a>
           <a
             href={joinHref}
             style={{
@@ -147,6 +184,7 @@ export default function LandingPage() {
           >
             Junte-se
           </a>
+          </div>
         </nav>
 
         {/* RR2Rt — Play button decorativo (rings + filled center) */}
