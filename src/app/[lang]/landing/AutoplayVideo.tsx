@@ -102,6 +102,7 @@ export default function AutoplayVideo({ src, poster }: Props) {
   return (
     <video
       ref={videoRef}
+      className="landing-video"
       autoPlay
       loop
       muted

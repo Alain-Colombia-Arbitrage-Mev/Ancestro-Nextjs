@@ -17,7 +17,61 @@ export default function LandingPage() {
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700;800&display=swap"
       />
+      <style>{`
+        @media (max-width: 767px) {
+          .landing-main {
+            height: auto !important;
+            min-height: 100svh !important;
+            display: flex !important;
+            flex-direction: column !important;
+          }
+          .landing-video-wrap {
+            position: relative !important;
+            width: 100% !important;
+            aspect-ratio: 16 / 9;
+            flex-shrink: 0;
+          }
+          .landing-video {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            transform: none !important;
+            min-width: 0 !important;
+            min-height: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain !important;
+            object-position: center !important;
+          }
+          .landing-overlay-top { display: none !important; }
+          .landing-overlay-mid { display: none !important; }
+          .landing-overlay-bottom { display: none !important; }
+          .landing-nav {
+            position: relative !important;
+            background: rgba(10,10,10,0.9) !important;
+            order: 1;
+          }
+          .landing-video-wrap { order: 2; }
+          .landing-hero {
+            position: relative !important;
+            inset: auto !important;
+            top: auto !important;
+            bottom: auto !important;
+            left: auto !important;
+            right: auto !important;
+            max-width: 100% !important;
+            padding: 24px 20px 32px !important;
+            gap: 14px !important;
+            flex: 1;
+            justify-content: flex-end;
+            order: 3;
+          }
+        }
+      `}</style>
       <main
+        className="landing-main"
         style={{
           position: "relative",
           width: "100vw",
@@ -30,10 +84,13 @@ export default function LandingPage() {
         }}
       >
         {/* K61Pes — Video full bleed (autoplay, mobile-friendly) */}
-        <AutoplayVideo src={videoSrc} />
+        <div className="landing-video-wrap">
+          <AutoplayVideo src={videoSrc} />
+        </div>
 
         {/* On1OW — Top overlay: #0A0A0Add → transparent (180°) */}
         <div
+          className="landing-overlay-top"
           style={{
             position: "absolute",
             top: 0,
@@ -47,6 +104,7 @@ export default function LandingPage() {
         />
         {/* tZcPk — Mid overlay: solid #0A0A0A55 */}
         <div
+          className="landing-overlay-mid"
           style={{
             position: "absolute",
             inset: 0,
@@ -56,6 +114,7 @@ export default function LandingPage() {
         />
         {/* sN5yz — Bottom overlay: transparent → #0A0A0Aaa@35% → #0A0A0Aff (180°) */}
         <div
+          className="landing-overlay-bottom"
           style={{
             position: "absolute",
             left: 0,
@@ -70,6 +129,7 @@ export default function LandingPage() {
 
         {/* Top nav (menu kept): logo + amber CTA */}
         <nav
+          className="landing-nav"
           style={{
             position: "absolute",
             top: 0,
@@ -167,6 +227,7 @@ export default function LandingPage() {
 
         {/* IjTLY — Hero content: layout vertical gap 12, width 737, anchored bottom-left */}
         <section
+          className="landing-hero"
           style={{
             position: "absolute",
             left: "max(20px, 4vw)",
