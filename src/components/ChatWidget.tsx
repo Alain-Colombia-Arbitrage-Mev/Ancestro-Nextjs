@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 import Script from 'next/script';
 
 function WidgetLangSync() {
@@ -19,6 +19,8 @@ function WidgetLangSync() {
 }
 
 export default function ChatWidget({ lang }: { lang: string }) {
+  const pathname = usePathname() ?? '';
+  if (/\/landing(\/|$)/.test(pathname)) return null;
   return (
     <>
       <WidgetLangSync />

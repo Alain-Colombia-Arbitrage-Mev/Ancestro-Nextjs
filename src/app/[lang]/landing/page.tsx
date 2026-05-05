@@ -169,13 +169,13 @@ export default function LandingPage() {
         <section
           style={{
             position: "absolute",
-            left: "max(32px, 4vw)",
-            right: "max(32px, 4vw)",
-            bottom: "max(48px, 6vh)",
+            left: "max(20px, 4vw)",
+            right: "max(20px, 4vw)",
+            bottom: "max(24px, 5vh)",
             maxWidth: 737,
             display: "flex",
             flexDirection: "column",
-            gap: 16,
+            gap: 14,
             zIndex: 3,
           }}
         >
@@ -183,7 +183,7 @@ export default function LandingPage() {
           <h1
             style={{
               fontFamily: "Urbanist, sans-serif",
-              fontSize: "clamp(36px, 5vw, 56px)",
+              fontSize: "clamp(30px, 7vw, 56px)",
               fontWeight: 800,
               lineHeight: 1.05,
               letterSpacing: -1.4,
