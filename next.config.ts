@@ -18,6 +18,15 @@ const nextConfig: NextConfig = {
   },
   compress: true,
   poweredByHeader: false,
+  async redirects() {
+    return [
+      { source: '/landing', destination: '/pt/landing', permanent: false },
+      { source: '/es/landing', destination: '/pt/landing', permanent: false },
+      { source: '/en/landing', destination: '/pt/landing', permanent: false },
+      { source: '/zh/landing', destination: '/pt/landing', permanent: false },
+      { source: '/ar/landing', destination: '/pt/landing', permanent: false },
+    ];
+  },
   async headers() {
     return [
       {
