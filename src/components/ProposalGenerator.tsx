@@ -120,19 +120,20 @@ interface FormData {
   roofType: string;
   billRange: string;
   system: string;
+  paymentType: 'subscription' | 'purchase';
   terms: boolean;
 }
 
 const initialForm: FormData = {
   name: '', email: '', phone: '', address: '',
   propertyType: '', roofType: '', billRange: '',
-  system: '', terms: false,
+  system: '', paymentType: 'subscription', terms: false,
 };
 
 const SYSTEMS = [
-  { id: 'starter', tier: 'proposal.systems.starter.tier', title: 'proposal.systems.starter.title', price: '15', specs: ['16 panels · 6.4 kW', '~70% energy coverage', '15-year warranty'], color: '#FFFFFF' },
-  { id: 'pro', tier: 'proposal.systems.pro.tier', title: 'proposal.systems.pro.title', price: '20', specs: ['24 panels · 9.6 kW', '104% coverage · sells back to grid', '20-year coverage · monitoring app', 'Battery backup ready'], color: '#A78BFA', tierColor: '#A78BFA' },
-  { id: 'max', tier: 'proposal.systems.max.tier', title: 'proposal.systems.max.title', price: '25', specs: ['32 panels + 13.5 kWh battery', '100% off-grid capable', 'Backup during outages'], color: '#FBBF24', popular: true },
+  { id: 'starter', tier: 'proposal.systems.starter.tier', title: 'proposal.systems.starter.title', price: '15', purchasePrice: '8,500', specs: ['16 panels · 6.4 kW', '~70% energy coverage', '15-year warranty'], color: '#FFFFFF' },
+  { id: 'pro', tier: 'proposal.systems.pro.tier', title: 'proposal.systems.pro.title', price: '20', purchasePrice: '13,500', specs: ['24 panels · 9.6 kW', '104% coverage · sells back to grid', '20-year coverage · monitoring app', 'Battery backup ready'], color: '#A78BFA', tierColor: '#A78BFA' },
+  { id: 'max', tier: 'proposal.systems.max.tier', title: 'proposal.systems.max.title', price: '25', purchasePrice: '22,500', specs: ['32 panels + 13.5 kWh battery', '100% off-grid capable', 'Backup during outages'], color: '#FBBF24', popular: true },
 ];
 
 const ROOF_OPTIONS = [
@@ -195,6 +196,8 @@ export default function ProposalGenerator({ lang }: { lang: string }) {
   }
 
   const systemPrice = SYSTEMS.find(s => s.id === form.system)?.price || '25';
+  const systemPurchasePrice = SYSTEMS.find(s => s.id === form.system)?.purchasePrice || '22,500';
+  const isPurchase = form.paymentType === 'purchase';
   const isSystemSelected = !!form.system;
 
   return (
@@ -405,6 +408,37 @@ export default function ProposalGenerator({ lang }: { lang: string }) {
             <p style={{ color: '#FBBF24', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, margin: 0 }}>{t(lang, 'proposal.step3.badge')}</p>
             <h2 style={{ color: '#fff', fontSize: 42, fontWeight: 800, letterSpacing: -1.2, margin: 0 }}>{t(lang, 'proposal.step3.title')}</h2>
             <p style={{ color: '#A1A1AA', fontSize: 14, margin: 0 }}>{t(lang, 'proposal.step3.subtitle')}</p>
+
+            {/* Payment Type Toggle */}
+            <div style={{
+              display: 'flex', background: '#FFFFFF08', borderRadius: 12, border: '1px solid #FFFFFF14',
+              padding: 4, gap: 4,
+            }}>
+              <button
+                onClick={() => update('paymentType', 'subscription')}
+                style={{
+                  padding: '10px 24px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                  fontFamily: 'inherit', fontSize: 14, fontWeight: 700,
+                  background: form.paymentType === 'subscription' ? '#FBBF24' : 'transparent',
+                  color: form.paymentType === 'subscription' ? '#0A0617' : '#A1A1AA',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                {t(lang, 'proposal.payment.monthly')}
+              </button>
+              <button
+                onClick={() => update('paymentType', 'purchase')}
+                style={{
+                  padding: '10px 24px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                  fontFamily: 'inherit', fontSize: 14, fontWeight: 700,
+                  background: form.paymentType === 'purchase' ? '#10B981' : 'transparent',
+                  color: form.paymentType === 'purchase' ? '#fff' : '#A1A1AA',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                {t(lang, 'proposal.payment.purchase')}
+              </button>
+            </div>
           </div>
 
           {/* 3 cards */}
@@ -426,10 +460,17 @@ export default function ProposalGenerator({ lang }: { lang: string }) {
                   )}
                   {!sys.popular && <p style={{ color: sys.tierColor || '#A1A1AA', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, margin: 0 }}>{t(lang, sys.tier)}</p>}
                   <h3 style={{ color: sys.color === '#FBBF24' ? '#FBBF24' : '#fff', fontSize: sys.popular && sel ? 28 : 24, fontWeight: 800, margin: 0 }}>{t(lang, sys.title)}</h3>
-                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6 }}>
-                    <span style={{ color: sys.color === '#FBBF24' ? '#FBBF24' : '#fff', fontSize: sys.popular ? 42 : 36, fontWeight: 800, letterSpacing: -1.2 }}>${sys.price}</span>
-                    <span style={{ color: sys.popular ? '#A1A1AA' : '#71717A', fontSize: 14, marginBottom: 4 }}>/month</span>
-                  </div>
+                  {form.paymentType === 'purchase' ? (
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6 }}>
+                      <span style={{ color: '#10B981', fontSize: sys.popular ? 42 : 36, fontWeight: 800, letterSpacing: -1.2 }}>${sys.purchasePrice}</span>
+                      <span style={{ color: sys.popular ? '#A1A1AA' : '#71717A', fontSize: 14, marginBottom: 4 }}>{t(lang, 'proposal.payment.onetime')}</span>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6 }}>
+                      <span style={{ color: sys.color === '#FBBF24' ? '#FBBF24' : '#fff', fontSize: sys.popular ? 42 : 36, fontWeight: 800, letterSpacing: -1.2 }}>${sys.price}</span>
+                      <span style={{ color: sys.popular ? '#A1A1AA' : '#71717A', fontSize: 14, marginBottom: 4 }}>/month</span>
+                    </div>
+                  )}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
                     {sys.specs.map((spec, si) => (
                       <div key={si} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -525,7 +566,7 @@ export default function ProposalGenerator({ lang }: { lang: string }) {
                   <p style={{ color: '#fff', fontSize: 14, fontWeight: 700, margin: 0 }}>{t(lang, SYSTEMS.find(s => s.id === form.system)?.title || 'proposal.systems.pro.title')} · {SYSTEMS.find(s => s.id === form.system)?.specs?.[0] || '9.6 kW'}</p>
                   <p style={{ color: '#71717A', fontSize: 12, margin: '2px 0 0' }}>{t(lang, 'proposal.confirm.specs')}</p>
                 </div>
-                <span style={{ color: '#FBBF24', fontSize: 16, fontWeight: 800 }}>${systemPrice}/mo</span>
+                <span style={{ color: '#FBBF24', fontSize: 16, fontWeight: 800 }}>{isPurchase ? `$${systemPurchasePrice}` : `$${systemPrice}/mo`}</span>
               </div>
 
               {/* Address */}
@@ -549,19 +590,27 @@ export default function ProposalGenerator({ lang }: { lang: string }) {
 
             {/* Total sidebar */}
             <GlassCard style={{ width: 380, display: 'flex', flexDirection: 'column', gap: 16, padding: 32, justifyContent: 'center' }}>
-              <p style={{ color: '#FBBF24', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, margin: 0, textTransform: 'uppercase' }}>{t(lang, 'proposal.confirm.totalLabel')}</p>
+              <p style={{ color: '#FBBF24', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, margin: 0, textTransform: 'uppercase' }}>{isPurchase ? t(lang, 'proposal.confirm.totalPurchase') : t(lang, 'proposal.confirm.totalLabel')}</p>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6 }}>
-                <span style={{ color: '#FBBF24', fontSize: 64, fontWeight: 800, letterSpacing: -2 }}>${systemPrice}</span>
-                <span style={{ color: '#A1A1AA', fontSize: 16, fontWeight: 600, marginBottom: 6 }}>/month</span>
+                <span style={{ color: isPurchase ? '#10B981' : '#FBBF24', fontSize: isPurchase ? 52 : 64, fontWeight: 800, letterSpacing: -2 }}>${isPurchase ? systemPurchasePrice : systemPrice}</span>
+                {!isPurchase && <span style={{ color: '#A1A1AA', fontSize: 16, fontWeight: 600, marginBottom: 6 }}>/month</span>}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', background: '#10B98120', borderRadius: 8, border: '1px solid #10B98140' }}>
-                <Icon name="trending-down" size={14} color="#34D399" />
-                <span style={{ color: '#34D399', fontSize: 12, fontWeight: 800 }}>{t(lang, 'proposal.confirm.savings')}</span>
-              </div>
+              {!isPurchase && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', background: '#10B98120', borderRadius: 8, border: '1px solid #10B98140' }}>
+                  <Icon name="trending-down" size={14} color="#34D399" />
+                  <span style={{ color: '#34D399', fontSize: 12, fontWeight: 800 }}>{t(lang, 'proposal.confirm.savings')}</span>
+                </div>
+              )}
+              {isPurchase && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', background: '#FBBF2420', borderRadius: 8, border: '1px solid #FBBF2440' }}>
+                  <Icon name="shield-check" size={14} color="#FBBF24" />
+                  <span style={{ color: '#FBBF24', fontSize: 12, fontWeight: 800 }}>{t(lang, 'proposal.confirm.owned')}</span>
+                </div>
+              )}
               <div style={{ width: '100%', height: 1, background: '#FFFFFF14' }} />
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: '#A1A1AA', fontSize: 12 }}>{t(lang, 'proposal.confirm.subscription')}</span>
-                <span style={{ color: '#fff', fontSize: 12, fontWeight: 700 }}>${systemPrice}</span>
+                <span style={{ color: '#A1A1AA', fontSize: 12 }}>{isPurchase ? t(lang, 'proposal.confirm.systemCost') : t(lang, 'proposal.confirm.subscription')}</span>
+                <span style={{ color: '#fff', fontSize: 12, fontWeight: 700 }}>${isPurchase ? systemPurchasePrice : systemPrice}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: '#A1A1AA', fontSize: 12 }}>{t(lang, 'proposal.confirm.setup')}</span>
