@@ -130,9 +130,9 @@ const initialForm: FormData = {
 };
 
 const SYSTEMS = [
-  { id: 'starter', tier: 'proposal.systems.starter.tier', title: 'proposal.systems.starter.title', price: '99', specs: ['16 panels · 6.4 kW', '~70% energy coverage', '15-year warranty'], color: '#FFFFFF' },
-  { id: 'pro', tier: 'proposal.systems.pro.tier', title: 'proposal.systems.pro.title', price: '150', specs: ['24 panels · 9.6 kW', '104% coverage · sells back to grid', '20-year coverage · monitoring app', 'Battery backup ready'], color: '#FBBF24', popular: true },
-  { id: 'max', tier: 'proposal.systems.max.tier', title: 'proposal.systems.max.title', price: '219', specs: ['32 panels + 13.5 kWh battery', '100% off-grid capable', 'Backup during outages'], color: '#A78BFA', tierColor: '#A78BFA' },
+  { id: 'starter', tier: 'proposal.systems.starter.tier', title: 'proposal.systems.starter.title', price: '15', specs: ['16 panels · 6.4 kW', '~70% energy coverage', '15-year warranty'], color: '#FFFFFF' },
+  { id: 'pro', tier: 'proposal.systems.pro.tier', title: 'proposal.systems.pro.title', price: '20', specs: ['24 panels · 9.6 kW', '104% coverage · sells back to grid', '20-year coverage · monitoring app', 'Battery backup ready'], color: '#A78BFA', tierColor: '#A78BFA' },
+  { id: 'max', tier: 'proposal.systems.max.tier', title: 'proposal.systems.max.title', price: '25', specs: ['32 panels + 13.5 kWh battery', '100% off-grid capable', 'Backup during outages'], color: '#FBBF24', popular: true },
 ];
 
 const ROOF_OPTIONS = [
@@ -194,7 +194,7 @@ export default function ProposalGenerator({ lang }: { lang: string }) {
     return Object.keys(e).length === 0;
   }
 
-  const systemPrice = SYSTEMS.find(s => s.id === form.system)?.price || '150';
+  const systemPrice = SYSTEMS.find(s => s.id === form.system)?.price || '25';
   const isSystemSelected = !!form.system;
 
   return (
