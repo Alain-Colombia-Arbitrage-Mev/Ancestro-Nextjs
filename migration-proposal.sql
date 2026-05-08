@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS proposal_requests (
   form_source VARCHAR(50) DEFAULT 'proposal-page',
   follow_up_status VARCHAR(20) DEFAULT 'New',
   notes TEXT,
+  r2_url TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
