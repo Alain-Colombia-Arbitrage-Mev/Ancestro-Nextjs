@@ -11,7 +11,7 @@ applications:
             # Without this, vars set in the Amplify Console are visible at
             # build time but missing in the SSR Lambda at request time, so
             # /api/join sees DB_HOST/AIRTABLE_TOKEN as undefined.
-            - env | grep -E "^(DB_|AIRTABLE_|NEXT_PUBLIC_|COGNITO_|JWT_)" >> .env.production || true
+            - env | grep -E "^(DB_|AIRTABLE_|NEXT_PUBLIC_|R2_|COGNITO_|JWT_)" >> .env.production || true
             - npm run build
       artifacts:
         baseDirectory: .next
