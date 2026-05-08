@@ -721,3 +721,4 @@ const btnSecondary: React.CSSProperties = {
   background: '#FFFFFF08', borderRadius: 12, border: '1px solid #FFFFFF18',
   cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, color: '#fff',
 };
+
