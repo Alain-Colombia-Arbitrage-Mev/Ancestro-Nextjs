@@ -161,6 +161,8 @@ export default function ProposalGenerator({ lang }: { lang: string }) {
   const [step, setStep] = useState<Step>('landing');
   const [form, setForm] = useState<FormData>(initialForm);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, boolean>>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const scrollToTop = useCallback(() => {
@@ -193,6 +195,39 @@ export default function ProposalGenerator({ lang }: { lang: string }) {
     if (!form.billRange) e.billRange = true;
     setErrors(e);
     return Object.keys(e).length === 0;
+  }
+
+  async function handleSubmit() {
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/proposal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: form.name,
+          email: form.email,
+          phone: form.phone,
+          address: form.address,
+          property_type: form.propertyType,
+          roof_type: form.roofType,
+          bill_range: form.billRange,
+          system_selected: form.system,
+          payment_type: form.paymentType,
+          price: isPurchase ? `$${systemPurchasePrice}` : `$${systemPrice}/mo`,
+          lang,
+        }),
+      });
+      const body = await res.json();
+      if (body.success) {
+        setSubmitted(true);
+      } else {
+        console.error('[Proposal] Submit failed', body);
+      }
+    } catch (err) {
+      console.error('[Proposal] Network error', err);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const systemPrice = SYSTEMS.find(s => s.id === form.system)?.price || '25';
@@ -617,11 +652,13 @@ export default function ProposalGenerator({ lang }: { lang: string }) {
                 <span style={{ color: '#34D399', fontSize: 12, fontWeight: 800 }}>{t(lang, 'proposal.confirm.free')}</span>
               </div>
               <button
-                onClick={() => setStep('landing')}
-                style={{ ...btnPrimary, width: '100%', height: 60, marginTop: 8 }}
+                onClick={handleSubmit}
+                disabled={submitting}
+                style={{ ...btnPrimary, width: '100%', height: 60, marginTop: 8, opacity: submitting ? 0.6 : 1 }}
               >
-                {t(lang, 'proposal.confirm.cta')}
-                <Icon name="arrow-right" size={16} color="#0A0617" />
+                {submitting ? '...' : submitted ? t(lang, 'proposal.confirm.done') : t(lang, 'proposal.confirm.cta')}
+                {!submitting && !submitted && <Icon name="arrow-right" size={16} color="#0A0617" />}
+                {submitted && <Icon name="check" size={16} color="#0A0617" />}
               </button>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                 <Icon name="shield-check" size={12} color="#34D399" />
