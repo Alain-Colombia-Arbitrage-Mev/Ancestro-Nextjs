@@ -1,5 +1,5 @@
 import { t } from '@/i18n/translations';
-import { IMG } from '../EnergyHomePage';
+import { imgUrl } from '../cdn';
 
 export default function MakesItEasy({ lang }: { lang: string }) {
   return (
@@ -10,7 +10,7 @@ export default function MakesItEasy({ lang }: { lang: string }) {
           <p className="eh-easy-desc">{t(lang, 'energyHome.makesEasy.desc')}</p>
         </div>
         <div className="eh-easy-img-wrap">
-          <img src={`${IMG}/installer-man.webp`} alt="" className="eh-easy-img" />
+          <img src={imgUrl('installer-man.webp')} alt="" className="eh-easy-img" />
         </div>
       </div>
     </section>

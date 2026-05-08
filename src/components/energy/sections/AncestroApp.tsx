@@ -1,5 +1,5 @@
 import { t } from '@/i18n/translations';
-import { IMG } from '../EnergyHomePage';
+import { imgUrl } from '../cdn';
 
 export default function AncestroApp({ lang }: { lang: string }) {
   const features = [
@@ -15,13 +15,13 @@ export default function AncestroApp({ lang }: { lang: string }) {
           <h2 className="eh-app-title">{t(lang, 'energyHome.app.title')}</h2>
           <p className="eh-app-desc">{t(lang, 'energyHome.app.desc')}</p>
           <img
-            src={`${IMG}/google-play-badge.webp`}
+            src={imgUrl('google-play-badge.webp')}
             alt="Google Play"
             className="eh-app-badge"
           />
         </div>
         <div className="eh-app-phone-wrap">
-          <img src={`${IMG}/app-phone-v2.webp`} alt="" className="eh-app-phone" />
+          <img src={imgUrl('app-phone-v2.webp')} alt="" className="eh-app-phone" />
           <div className="eh-app-phone-fade" />
         </div>
       </div>

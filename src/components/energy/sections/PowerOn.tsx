@@ -1,17 +1,18 @@
 import { t } from '@/i18n/translations';
-import { CDN_URL } from '@/lib/cdn';
+import { bgUrl } from '../cdn';
 
-const BG_URL = `${CDN_URL}/energy-home/power-on-bg.webp`;
+const BG_URL = bgUrl('power-on-bg.webp');
 
 export default function PowerOn({ lang }: { lang: string }) {
   return (
     <section
       className="eh-power-section"
-      style={{ backgroundImage: `linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.85) 100%), url(${BG_URL})` }}
+      style={{ backgroundImage: `url(${BG_URL})` }}
     >
-      <div className="eh-power-text">
-        <h2>{t(lang, 'energyHome.powerOn.title')}</h2>
-        <p>{t(lang, 'energyHome.powerOn.desc')}</p>
+      <div className="eh-power-gradient" aria-hidden />
+      <div className="eh-power-inner">
+        <h2 className="eh-power-title">{t(lang, 'energyHome.powerOn.title')}</h2>
+        <p className="eh-power-desc">{t(lang, 'energyHome.powerOn.desc')}</p>
       </div>
     </section>
   );

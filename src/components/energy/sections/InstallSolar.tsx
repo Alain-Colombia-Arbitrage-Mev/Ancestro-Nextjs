@@ -1,5 +1,5 @@
 import { t } from '@/i18n/translations';
-import { IMG } from '../EnergyHomePage';
+import { imgUrl } from '../cdn';
 
 export default function InstallSolar({ lang }: { lang: string }) {
   return (
@@ -11,7 +11,7 @@ export default function InstallSolar({ lang }: { lang: string }) {
           <button className="eh-install-cta">{t(lang, 'energyHome.installCta.cta')}</button>
         </div>
         <div className="eh-install-img-wrap">
-          <img src={`${IMG}/battery-product.webp`} alt="" className="eh-install-img" />
+          <img src={imgUrl('battery-product.webp')} alt="" className="eh-install-img" />
         </div>
       </div>
     </section>

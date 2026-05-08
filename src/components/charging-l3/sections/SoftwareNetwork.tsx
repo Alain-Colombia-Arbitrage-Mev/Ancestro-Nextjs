@@ -13,7 +13,7 @@ export default function SoftwareNetwork({ lang }: { lang: string }) {
       </div>
       <div className="cl3-software-img" style={{
         flex: 1, minHeight: 487, borderRadius: '20px 0 0 20px',
-        backgroundImage: `url(${IMG_L3}/software-bg.webp)`, backgroundSize: 'cover', backgroundPosition: 'center',
+        backgroundImage: `url(${IMG_L3}/software-bg.webp?v=2)`, backgroundSize: 'cover', backgroundPosition: 'center',
         border: '1px solid rgba(255,255,255,.1)', borderRight: 'none',
       }} />
     </section>

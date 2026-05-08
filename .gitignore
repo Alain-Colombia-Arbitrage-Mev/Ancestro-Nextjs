@@ -48,6 +48,16 @@ yarn-error.log*
 
 # temp files
 ssr-debug.html
+nul
+
+# local image sources (pre-CDN)
+images/
+screenshots/
+exports-l3/
+*.mp4
+*.png
+!public/**/*.png
+!src/**/*.png
 
 # typescript
 *.tsbuildinfo

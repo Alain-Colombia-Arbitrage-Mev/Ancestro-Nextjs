@@ -17,8 +17,8 @@ export default async function HomePage({ params }: PageProps) {
 
   const images = {
     heroBg: `${cdn}/1.webp`,
-    infoSection1: `${cdn}/images/info-section-1.webp`,
-    infoSection2: `${cdn}/images/info-section-2.webp`,
+    infoSection1: `${cdn}/images/info-section-1.webp?v=3`,
+    infoSection2: `${cdn}/images/info-section-2.webp?v=3`,
     charger: `${cdn}/images/charger-bg.webp`,
     vehicle: `${cdn}/images/vehicle.webp`,
     latamMap: `${cdn}/MAPA.svg`,

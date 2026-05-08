@@ -1,0 +1,24 @@
+version: 1
+applications:
+  - frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm ci --cache .npm --prefer-offline
+        build:
+          commands:
+            # Expose Amplify-managed env vars to the Next.js build AND runtime.
+            # Without this, vars set in the Amplify Console are visible at
+            # build time but missing in the SSR Lambda at request time, so
+            # /api/join sees DB_HOST/AIRTABLE_TOKEN as undefined.
+            - env | grep -E "^(DB_|AIRTABLE_|NEXT_PUBLIC_|COGNITO_|JWT_)" >> .env.production || true
+            - npm run build
+      artifacts:
+        baseDirectory: .next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - .next/cache/**/*
+          - .npm/**/*
+          - node_modules/**/*

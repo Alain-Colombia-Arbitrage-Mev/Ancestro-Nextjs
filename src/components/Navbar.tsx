@@ -35,7 +35,7 @@ const megaMenuData: Record<string, MegaMenuData> = {
     links: [
       { label: 'Get a Proposal', href: '/LANG/join' },
       { label: 'Incentives', href: '/LANG/coming-soon' },
-      { label: 'Partner with Ancestro', href: '/LANG/join?profile=strategic' },
+      { label: 'Partner with Ancestro', href: '/LANG/join?profile=distributor' },
       { label: 'Host land or roof', href: '/LANG/join?profile=host' },
       { label: 'Equipment', href: '/LANG/coming-soon' },
     ],
@@ -43,8 +43,8 @@ const megaMenuData: Record<string, MegaMenuData> = {
   charging: {
     cards: [
       { title: 'Level 3\nFast Charger', image: `${CDN_URL}/megamenu/charging-l3.webp`, href: '/LANG/charging/level-3' },
-      { title: 'Level 2\nFast Charger', image: `${CDN_URL}/megamenu/charging-l2.webp`, href: '/LANG/coming-soon' },
-      { title: 'Home Charging', image: `${CDN_URL}/megamenu/charging-home.webp`, href: '/LANG/coming-soon' },
+      { title: 'Level 2\nFast Charger', image: `${CDN_URL}/megamenu/charging-l2.webp`, href: '/LANG/charging/level-2' },
+      { title: 'Home Charging', image: `${CDN_URL}/megamenu/charging-home.webp`, href: '/LANG/charging/home' },
     ],
     links: [
       { label: 'Download Charging App', href: '/LANG/coming-soon' },

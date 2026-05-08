@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { t } from '@/i18n/translations';
-import { IMG } from '../EnergyHomePage';
+import { imgUrl } from '../cdn';
 
 const slides = [
   { titleKey: 'energyHome.flow.wifi.title', descKey: 'energyHome.flow.wifi.desc', bg: 'slide-wifi.webp' },
@@ -37,7 +37,7 @@ export default function SolarSlide({ lang }: { lang: string }) {
       {slides.map((slide, i) => (
         <img
           key={slide.bg}
-          src={`${IMG}/${slide.bg}`}
+          src={imgUrl(slide.bg)}
           alt=""
           className={`eh-slide-bg ${i === active ? 'eh-slide-bg-active' : ''}`}
         />

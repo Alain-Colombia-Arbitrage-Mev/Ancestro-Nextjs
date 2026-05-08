@@ -1,5 +1,5 @@
 import { t } from '@/i18n/translations';
-import { IMG } from '../EnergyHomePage';
+import { IMG } from '../cdn';
 
 export default function HeroSection({ lang }: { lang: string }) {
   return (

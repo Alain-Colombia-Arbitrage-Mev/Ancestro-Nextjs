@@ -1,0 +1,477 @@
+{
+  "version": "2.11",
+  "children": [
+    {
+      "type": "frame",
+      "id": "bi8Au",
+      "x": 139,
+      "y": -188,
+      "name": "Frame",
+      "clip": true,
+      "width": 801,
+      "height": 641,
+      "fill": {
+        "type": "gradient",
+        "gradientType": "linear",
+        "enabled": true,
+        "rotation": 135,
+        "size": {
+          "height": 1
+        },
+        "colors": [
+          {
+            "color": "#0A0A0A",
+            "position": 0
+          },
+          {
+            "color": "#1A1208",
+            "position": 0.5
+          },
+          {
+            "color": "#0A0A0A",
+            "position": 1
+          }
+        ]
+      },
+      "layout": "none",
+      "children": [
+        {
+          "type": "rectangle",
+          "id": "K61Pes",
+          "x": 0,
+          "y": 0,
+          "name": "videoFull",
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "../../images%5Ccloseup-hand-of-a-man-put-ev-charger-to-recharge-electric-car-free-photo.webp",
+            "mode": "fill"
+          },
+          "width": 801,
+          "height": 600
+        },
+        {
+          "type": "rectangle",
+          "id": "On1OW",
+          "x": 0,
+          "y": 0,
+          "name": "overlayTop",
+          "fill": {
+            "type": "gradient",
+            "gradientType": "linear",
+            "enabled": true,
+            "rotation": 180,
+            "size": {
+              "height": 1
+            },
+            "colors": [
+              {
+                "color": "#0A0A0Add",
+                "position": 0
+              },
+              {
+                "color": "#0A0A0A00",
+                "position": 1
+              }
+            ]
+          },
+          "width": 801,
+          "height": 160
+        },
+        {
+          "type": "rectangle",
+          "id": "tZcPk",
+          "x": 0,
+          "y": -20,
+          "name": "overlay1",
+          "fill": "#0A0A0A55",
+          "width": 801,
+          "height": 620
+        },
+        {
+          "type": "rectangle",
+          "id": "sN5yz",
+          "x": 0,
+          "y": 160,
+          "name": "overlayBottom",
+          "fill": {
+            "type": "gradient",
+            "gradientType": "linear",
+            "enabled": true,
+            "rotation": 180,
+            "size": {
+              "height": 1
+            },
+            "colors": [
+              {
+                "color": "#0A0A0A00",
+                "position": 0
+              },
+              {
+                "color": "#0A0A0Aaa",
+                "position": 0.35
+              },
+              {
+                "color": "#0A0A0Aff",
+                "position": 1
+              }
+            ]
+          },
+          "width": 801,
+          "height": 440
+        },
+        {
+          "type": "frame",
+          "id": "IjTLY",
+          "x": 32,
+          "y": 308,
+          "name": "heroContent",
+          "width": 737,
+          "height": 230,
+          "layout": "vertical",
+          "gap": 12,
+          "children": [
+            {
+              "type": "text",
+              "id": "IckG5",
+              "name": "hcTitle",
+              "fill": "#FFFFFF",
+              "textGrowth": "fixed-width",
+              "width": 737,
+              "content": "Sua energia. Seu controle.\nSeu futuro.",
+              "lineHeight": 1.05,
+              "fontFamily": "Urbanist",
+              "fontSize": 42,
+              "fontWeight": "800",
+              "letterSpacing": -1.4
+            },
+            {
+              "type": "text",
+              "id": "c24rQ",
+              "name": "hcSub",
+              "fill": "#D4D4D8",
+              "textGrowth": "fixed-width",
+              "width": 580,
+              "content": "Conectamos tecnologia, eficiência e inovação para que você viva uma energia limpa — simples, acessível e inteligente.",
+              "lineHeight": 1.55,
+              "fontFamily": "Urbanist",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "rqlGC",
+              "name": "pillarsRow",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "g3GfF8",
+                  "name": "pl1",
+                  "height": 36,
+                  "fill": "#10B98115",
+                  "cornerRadius": 10,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#10B98140"
+                  },
+                  "gap": 8,
+                  "padding": [
+                    0,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "V7sq7",
+                      "name": "pl1I",
+                      "width": 14,
+                      "height": 14,
+                      "iconFontName": "sprout",
+                      "iconFontFamily": "lucide",
+                      "fill": "#10B981"
+                    },
+                    {
+                      "type": "text",
+                      "id": "J6itnH",
+                      "name": "pl1L",
+                      "fill": "#FFFFFF",
+                      "content": "Liberdade",
+                      "fontFamily": "Urbanist",
+                      "fontSize": 12,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ChN1S",
+                      "name": "pl1S",
+                      "fill": "#A1A1AA",
+                      "content": "para crescer",
+                      "fontFamily": "Urbanist",
+                      "fontSize": 11,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "jmcbq",
+                  "name": "pl2",
+                  "height": 36,
+                  "fill": "#FBBF2415",
+                  "cornerRadius": 10,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#FBBF2440"
+                  },
+                  "gap": 8,
+                  "padding": [
+                    0,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "G4Kr9",
+                      "name": "pl2I",
+                      "width": 14,
+                      "height": 14,
+                      "iconFontName": "shield-check",
+                      "iconFontFamily": "lucide",
+                      "fill": "#FBBF24"
+                    },
+                    {
+                      "type": "text",
+                      "id": "DsVrn",
+                      "name": "pl2L",
+                      "fill": "#FFFFFF",
+                      "content": "Segurança",
+                      "fontFamily": "Urbanist",
+                      "fontSize": 12,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "tnVeN",
+                      "name": "pl2S",
+                      "fill": "#A1A1AA",
+                      "content": "para planejar",
+                      "fontFamily": "Urbanist",
+                      "fontSize": 11,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "efUlN",
+                  "name": "pl3",
+                  "height": 36,
+                  "fill": "#A78BFA15",
+                  "cornerRadius": 10,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#A78BFA40"
+                  },
+                  "gap": 8,
+                  "padding": [
+                    0,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "vASNJ",
+                      "name": "pl3I",
+                      "width": 14,
+                      "height": 14,
+                      "iconFontName": "zap",
+                      "iconFontFamily": "lucide",
+                      "fill": "#A78BFA"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Y4F7B",
+                      "name": "pl3L",
+                      "fill": "#FFFFFF",
+                      "content": "Poder",
+                      "fontFamily": "Urbanist",
+                      "fontSize": 12,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Hw5zA",
+                      "name": "pl3S",
+                      "fill": "#A1A1AA",
+                      "content": "para ir mais longe",
+                      "fontFamily": "Urbanist",
+                      "fontSize": 11,
+                      "fontWeight": "500"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "gnke7",
+              "name": "hcRow",
+              "width": "fill_container",
+              "gap": 14,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "YTGCY",
+                  "name": "hcCtaWrap",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "k6iEg",
+                      "name": "hcCtaP",
+                      "height": 52,
+                      "fill": {
+                        "type": "gradient",
+                        "gradientType": "linear",
+                        "enabled": true,
+                        "rotation": 135,
+                        "size": {
+                          "height": 1
+                        },
+                        "colors": [
+                          {
+                            "color": "#FBBF24",
+                            "position": 0
+                          },
+                          {
+                            "color": "#F59E0B",
+                            "position": 1
+                          }
+                        ]
+                      },
+                      "cornerRadius": 14,
+                      "effect": {
+                        "type": "shadow",
+                        "shadowType": "outer",
+                        "color": "#FBBF2480",
+                        "offset": {
+                          "x": 0,
+                          "y": 10
+                        },
+                        "blur": 40
+                      },
+                      "gap": 10,
+                      "padding": [
+                        0,
+                        28
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "wsM5k",
+                          "name": "hcCtaPT",
+                          "fill": "#0A0A0A",
+                          "content": "Comece a economizar",
+                          "fontFamily": "Urbanist",
+                          "fontSize": 15,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "icon_font",
+                          "id": "kmTCu",
+                          "name": "hcCtaPI",
+                          "width": 18,
+                          "height": 18,
+                          "iconFontName": "arrow-right",
+                          "iconFontFamily": "lucide",
+                          "fill": "#0A0A0A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "id": "RR2Rt",
+          "x": 341,
+          "y": 160,
+          "children": [
+            {
+              "type": "ellipse",
+              "id": "i85pmw",
+              "x": 30,
+              "y": 30,
+              "name": "playBtnFull",
+              "fill": "#FFFFFF",
+              "width": 60,
+              "height": 60,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#FFFFFF60",
+                "blur": 40
+              }
+            },
+            {
+              "type": "ellipse",
+              "id": "MR883",
+              "x": 15,
+              "y": 15,
+              "name": "playBtnRing2",
+              "fill": "#FFFFFF22",
+              "width": 90,
+              "height": 90,
+              "stroke": {
+                "align": "center",
+                "thickness": 1.5,
+                "fill": "#FFFFFF60"
+              }
+            },
+            {
+              "type": "ellipse",
+              "id": "OGEDR",
+              "x": 0,
+              "y": 0,
+              "name": "playBtnRing",
+              "fill": "#FFFFFF14",
+              "width": 120,
+              "height": 120,
+              "stroke": {
+                "align": "center",
+                "thickness": 1.5,
+                "fill": "#FFFFFF40"
+              }
+            },
+            {
+              "type": "icon_font",
+              "id": "fVoJ4",
+              "x": 48,
+              "y": 48,
+              "name": "playBtnFullI",
+              "width": 24,
+              "height": 24,
+              "iconFontName": "play",
+              "iconFontFamily": "lucide",
+              "fill": "#0A0A0A"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

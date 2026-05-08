@@ -1,5 +1,5 @@
 import './energy-home.css';
-import { CDN_URL } from '@/lib/cdn';
+export { IMG, FLAGS, imgUrl, bgUrl } from './cdn';
 import HeroSection from './sections/HeroSection';
 import CleanEnergy from './sections/CleanEnergy';
 import SwitchAncestro from './sections/SwitchAncestro';
@@ -16,8 +16,6 @@ import FinalCta from './sections/FinalCta';
 
 interface Props { lang: string }
 
-export const IMG = `${CDN_URL}/energy-home`;
-export const FLAGS = `${CDN_URL}/images/flags`;
 
 export default function EnergyHomePage({ lang }: Props) {
   return (

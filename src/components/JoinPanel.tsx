@@ -1,29 +1,100 @@
 'use client';
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, memo } from 'react';
 import { t } from '@/i18n/translations';
 
-type ProfileType = 'investor' | 'strategic' | 'installer' | 'energy' | 'logistics' | 'advisor' | 'government' | 'host' | 'supplier';
+// ─── Memoized form primitives ─────────────────────────────────────
+// Each field only re-renders when its own value / error props change,
+// so typing in one input no longer re-runs the whole JoinPanel tree
+// (which was causing brief freezes on fast typing).
+type FieldChange = (name: string, value: string) => void;
+
+interface TextFieldProps {
+  name: string;
+  type?: string;
+  value: string;
+  label: string;
+  error?: boolean;
+  required?: boolean;
+  placeholder?: string;
+  onChange: FieldChange;
+  fullWidth?: boolean;
+}
+
+const TextField = memo(function TextField({
+  name, type = 'text', value, label, error, required, placeholder, onChange, fullWidth,
+}: TextFieldProps) {
+  return (
+    <div className={`form-field ${fullWidth ? 'full-width' : ''} ${error ? 'has-error' : ''}`}>
+      <label>{label}{required ? ' *' : ''}</label>
+      <input
+        type={type}
+        name={name}
+        value={value}
+        placeholder={placeholder}
+        required={required}
+        autoComplete={AUTOCOMPLETE[name] || 'off'}
+        onChange={e => onChange(name, e.currentTarget.value)}
+      />
+    </div>
+  );
+});
+
+interface TextareaFieldProps {
+  name: string;
+  value: string;
+  label: string;
+  error?: boolean;
+  rows?: number;
+  placeholder?: string;
+  onChange: FieldChange;
+}
+
+const TextareaField = memo(function TextareaField({
+  name, value, label, error, rows = 3, placeholder, onChange,
+}: TextareaFieldProps) {
+  return (
+    <div className={`form-field full-width ${error ? 'has-error' : ''}`}>
+      <label>{label}</label>
+      <textarea
+        name={name}
+        value={value}
+        rows={rows}
+        placeholder={placeholder}
+        onChange={e => onChange(name, e.currentTarget.value)}
+      />
+    </div>
+  );
+});
+
+const AUTOCOMPLETE: Record<string, string> = {
+  name: 'name',
+  email: 'email',
+  phone: 'tel',
+  company: 'organization',
+  country: 'country-name',
+  city: 'address-level2',
+};
+
+type ProfileType = 'investor' | 'distributor' | 'installer' | 'capital' | 'host' | 'customer';
 
 interface Profile {
   id: ProfileType;
   icon: string;
   labelKey: string;
   descKey: string;
+  tagKey?: string;
   featured?: boolean;
 }
 
 const CALENDLY_URL = process.env.NEXT_PUBLIC_CALENDLY_INVEST_URL || 'https://calendly.com/ancestro/invest';
 
 const profiles: Profile[] = [
-  { id: 'investor', icon: '\u{1F4C8}', labelKey: 'join.profile.investor', descKey: 'join.profile.investor.desc', featured: true },
-  { id: 'strategic', icon: '\u{1F91D}', labelKey: 'join.profile.strategic', descKey: 'join.profile.strategic.desc' },
-  { id: 'installer', icon: '\u{1F527}', labelKey: 'join.profile.installer', descKey: 'join.profile.installer.desc' },
-  { id: 'energy', icon: '\u26A1', labelKey: 'join.profile.energy', descKey: 'join.profile.energy.desc' },
-  { id: 'logistics', icon: '\u{1F69B}', labelKey: 'join.profile.logistics', descKey: 'join.profile.logistics.desc' },
-  { id: 'advisor', icon: '\u{1F9E0}', labelKey: 'join.profile.advisor', descKey: 'join.profile.advisor.desc' },
-  { id: 'government', icon: '\u{1F3DB}', labelKey: 'join.profile.government', descKey: 'join.profile.government.desc' },
+  { id: 'customer', icon: '\u{1F9D1}\u200D\u{1F91D}\u200D\u{1F9D1}', labelKey: 'join.profile.customer', descKey: 'join.profile.customer.desc', tagKey: 'join.profile.customer.tag', featured: true },
+  { id: 'capital', icon: '\u{1F4B0}', labelKey: 'join.profile.capital', descKey: 'join.profile.capital.desc' },
+  { id: 'investor', icon: '\u{1F4C8}', labelKey: 'join.profile.investor', descKey: 'join.profile.investor.desc' },
   { id: 'host', icon: '\u{1F3E0}', labelKey: 'join.profile.host', descKey: 'join.profile.host.desc' },
-  { id: 'supplier', icon: '\u{1F4E6}', labelKey: 'join.profile.supplier', descKey: 'join.profile.supplier.desc' },
+  { id: 'installer', icon: '\u{1F527}', labelKey: 'join.profile.installer', descKey: 'join.profile.installer.desc' },
+  { id: 'distributor', icon: '\u{1F4E6}', labelKey: 'join.profile.distributor', descKey: 'join.profile.distributor.desc' },
 ];
 
 const investmentRanges = [
@@ -95,16 +166,21 @@ export default function JoinPanel({ lang }: { lang: string }) {
     }, 100);
   }, []);
 
-  function updateField<K extends keyof FormData>(key: K, value: FormData[K]) {
-    setForm(prev => ({ ...prev, [key]: value }));
-    setErrors(prev => ({ ...prev, [key]: false }));
-  }
+  const updateField = useCallback(<K extends keyof FormData>(key: K, value: FormData[K]) => {
+    setForm(prev => (prev[key] === value ? prev : { ...prev, [key]: value }));
+    setErrors(prev => (prev[key] ? { ...prev, [key]: false } : prev));
+  }, []);
 
-  function handleSelectProfile(id: ProfileType) {
+  // Single stable onChange reference shared by every memoized field.
+  const handleFieldChange = useCallback<FieldChange>((name, value) => {
+    updateField(name as keyof FormData, value as FormData[keyof FormData]);
+  }, [updateField]);
+
+  const handleSelectProfile = useCallback((id: ProfileType) => {
     updateField('profile', id);
     setStep('contact');
     scrollToSection();
-  }
+  }, [updateField, scrollToSection]);
 
   function validateContact(): boolean {
     const errs: Partial<Record<keyof FormData, boolean>> = {};
@@ -162,15 +238,8 @@ export default function JoinPanel({ lang }: { lang: string }) {
       lang,
     };
 
-    // If we're on the apex domain (ancestro.ai), the CloudFront 302 → www.ancestro.ai
-    // redirect kills the CORS preflight. Hit the www host directly to avoid it.
-    const endpoint = typeof window !== 'undefined'
-      && window.location.hostname === 'ancestro.ai'
-      ? 'https://www.ancestro.ai/api/join'
-      : '/api/join';
-
     async function postOnce(): Promise<{ ok: boolean; body: { db?: boolean; airtable?: boolean; error?: string } }> {
-      const res = await fetch(endpoint, {
+      const res = await fetch('/api/join', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -263,7 +332,7 @@ export default function JoinPanel({ lang }: { lang: string }) {
             <div className="stat-divider" />
             <div className="stat"><span className="stat-num">200+</span><span className="stat-label">{t(lang, 'join.stats.partners')}</span></div>
             <div className="stat-divider" />
-            <div className="stat"><span className="stat-num">$5M+</span><span className="stat-label">{t(lang, 'join.stats.invested')}</span></div>
+            <div className="stat"><span className="stat-num">$500M+</span><span className="stat-label">{t(lang, 'join.stats.invested')}</span></div>
           </div>
         </div>
 
@@ -295,7 +364,7 @@ export default function JoinPanel({ lang }: { lang: string }) {
                   className={`profile-card ${p.featured ? 'featured' : ''} ${form.profile === p.id ? 'selected' : ''}`}
                   onClick={() => handleSelectProfile(p.id)}
                 >
-                  {p.featured && <span className="card-tag">{t(lang, 'join.profile.investor.tag')}</span>}
+                  {p.featured && p.tagKey && <span className="card-tag">{t(lang, p.tagKey)}</span>}
                   <span className="card-icon">{p.icon}</span>
                   <h3 className="card-title">{t(lang, p.labelKey)}</h3>
                   <p className="card-desc">{t(lang, p.descKey)}</p>
@@ -321,42 +390,10 @@ export default function JoinPanel({ lang }: { lang: string }) {
 
             <div className="join-form">
               <div className="form-grid">
-                <div className={`form-field ${errors.name ? 'has-error' : ''}`}>
-                  <label>{t(lang, 'join.form.name')} *</label>
-                  <input
-                    type="text"
-                    value={form.name}
-                    onChange={e => updateField('name', e.target.value)}
-                    required
-                  />
-                </div>
-                <div className={`form-field ${errors.email ? 'has-error' : ''}`}>
-                  <label>{t(lang, 'join.form.email')} *</label>
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={e => updateField('email', e.target.value)}
-                    required
-                  />
-                </div>
-                <div className={`form-field ${errors.phone ? 'has-error' : ''}`}>
-                  <label>{t(lang, 'join.form.phone')} *</label>
-                  <input
-                    type="tel"
-                    value={form.phone}
-                    onChange={e => updateField('phone', e.target.value)}
-                    placeholder="+1 (555) 000-0000"
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label>{t(lang, 'join.form.company')}</label>
-                  <input
-                    type="text"
-                    value={form.company}
-                    onChange={e => updateField('company', e.target.value)}
-                  />
-                </div>
+                <TextField name="name" type="text" label={t(lang, 'join.form.name')} value={form.name} error={errors.name} required onChange={handleFieldChange} />
+                <TextField name="email" type="email" label={t(lang, 'join.form.email')} value={form.email} error={errors.email} required onChange={handleFieldChange} />
+                <TextField name="phone" type="tel" label={t(lang, 'join.form.phone')} value={form.phone} error={errors.phone} required placeholder="+1 (555) 000-0000" onChange={handleFieldChange} />
+                <TextField name="company" type="text" label={t(lang, 'join.form.company')} value={form.company} onChange={handleFieldChange} />
               </div>
 
               <div className="wizard-nav">
@@ -386,23 +423,8 @@ export default function JoinPanel({ lang }: { lang: string }) {
 
             <div className="join-form">
               <div className="form-grid">
-                <div className={`form-field ${errors.country ? 'has-error' : ''}`}>
-                  <label>{t(lang, 'join.form.country')} *</label>
-                  <input
-                    type="text"
-                    value={form.country}
-                    onChange={e => updateField('country', e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label>{t(lang, 'join.form.city')}</label>
-                  <input
-                    type="text"
-                    value={form.city}
-                    onChange={e => updateField('city', e.target.value)}
-                  />
-                </div>
+                <TextField name="country" type="text" label={t(lang, 'join.form.country')} value={form.country} error={errors.country} required onChange={handleFieldChange} />
+                <TextField name="city" type="text" label={t(lang, 'join.form.city')} value={form.city} onChange={handleFieldChange} />
 
                 {isInvestor && (
                   <div className={`form-field full-width ${errors.investment ? 'has-error' : ''}`}>
@@ -420,24 +442,8 @@ export default function JoinPanel({ lang }: { lang: string }) {
                   </div>
                 )}
 
-                <div className="form-field full-width">
-                  <label>{t(lang, 'join.form.experience')}</label>
-                  <textarea
-                    value={form.experience}
-                    onChange={e => updateField('experience', e.target.value)}
-                    rows={3}
-                    placeholder={t(lang, 'join.form.experience.placeholder')}
-                  />
-                </div>
-                <div className="form-field full-width">
-                  <label>{t(lang, 'join.form.message')}</label>
-                  <textarea
-                    value={form.message}
-                    onChange={e => updateField('message', e.target.value)}
-                    rows={3}
-                    placeholder={t(lang, 'join.form.message.placeholder')}
-                  />
-                </div>
+                <TextareaField name="experience" label={t(lang, 'join.form.experience')} value={form.experience} placeholder={t(lang, 'join.form.experience.placeholder')} onChange={handleFieldChange} />
+                <TextareaField name="message" label={t(lang, 'join.form.message')} value={form.message} placeholder={t(lang, 'join.form.message.placeholder')} onChange={handleFieldChange} />
               </div>
 
               <div className="form-footer">
