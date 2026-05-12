@@ -211,9 +211,21 @@ const centered: React.CSSProperties = { minHeight: '100vh', background: '#000', 
 // ═══════════════════════════════════════════════════════
 // AFFILIATE VIEW
 // ═══════════════════════════════════════════════════════
-function AffiliateView({ lang, user }: { lang: string; user: { name: string; email: string } }) {
+function AffiliateView({ lang, user }: { lang: string; user: { name: string; email: string; id?: string } }) {
   const [copied, setCopied] = useState(false);
-  const refCode = `ancestro.ai/r/${(user.email.split('@')[0]).substring(0, 8)}-${Math.floor(Math.random() * 9000) + 1000}`;
+  const [refCode, setRefCode] = useState('');
+  const refUrl = refCode ? `ancestro.ai/r/${refCode}` : '';
+  const fullRefUrl = refCode ? `${typeof window !== 'undefined' ? window.location.origin : ''}/${lang}/r/${refCode}` : '';
+
+  useEffect(() => {
+    const code = `${(user.email.split('@')[0]).substring(0, 8)}-${Math.floor(Math.random() * 9000) + 1000}`;
+    setRefCode(code);
+    fetch('/api/referrals', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: user.id || user.email, code, action: 'create' }),
+    }).catch(() => {});
+  }, [user.email]);
 
   const referrals = [
     { name: 'Sara Chen', date: 'Jul 8', status: 'Active' as const, revenue: '$1,240', tier: 'Platinum' },
@@ -242,8 +254,8 @@ function AffiliateView({ lang, user }: { lang: string; user: { name: string; ema
           <p style={{ color: '#848E9C', fontSize: 13, margin: 0, lineHeight: 1.5 }}>{t(lang, 'dashboard.affiliate.linkDesc')}</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', background: '#0A0A0A', borderRadius: 12, border: '1px solid #F59E0B40' }}>
             <Ic n="link" s={16} c="#F59E0B" />
-            <span style={{ color: '#F59E0B', fontSize: 14, fontWeight: 600, flex: 1 }}>{refCode}</span>
-            <button onClick={() => { navigator.clipboard.writeText(refCode); setCopied(true); setTimeout(() => setCopied(false), 2000); }} style={{
+            <span style={{ color: '#F59E0B', fontSize: 14, fontWeight: 600, flex: 1 }}>{refUrl}</span>
+            <button onClick={() => { navigator.clipboard.writeText(refUrl); setCopied(true); setTimeout(() => setCopied(false), 2000); }} style={{
               ...btnP, height: 32, fontSize: 12, padding: '0 14px',
             }}>
               <Ic n="copy" s={12} />
