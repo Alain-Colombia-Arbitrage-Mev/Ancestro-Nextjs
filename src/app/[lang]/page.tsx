@@ -85,7 +85,6 @@ export default async function HomePage({ params }: PageProps) {
       <div className="page-wrapper">
         <Navbar lang={lang} />
         <ReferralTracker />
-        <ReferralTracker />
         <main id="main-content" role="main">
           <div className="hero-section">
             <HeroBanner slides={heroSlides} />

@@ -200,7 +200,7 @@ export default function Dashboard({ lang }: { lang: string }) {
             {epcTab === 'schedule' && <EpcScheduleView lang={lang} />}
           </>
         )}
-        {role === 'customer' && <CustomerView lang={lang} />}
+        {role === 'customer' && <CustomerView lang={lang} user={user} />}
       </div>
     </div>
   );
@@ -211,28 +211,67 @@ const centered: React.CSSProperties = { minHeight: '100vh', background: '#000', 
 // ═══════════════════════════════════════════════════════
 // AFFILIATE VIEW
 // ═══════════════════════════════════════════════════════
+interface RecentRef {
+  email: string;
+  amount: number;
+  commission: number;
+  status: string;
+  created_at: string;
+}
+interface Stats {
+  code: string | null;
+  clicks: number;
+  signups: number;
+  conversion: number;
+  commission_total: number;
+  commission_pending: number;
+  commission_paid: number;
+  tier: string;
+  recent?: RecentRef[];
+}
+
+function fmtMoney(n: number): string {
+  return `$${Math.round(n).toLocaleString('en-US')}`;
+}
+
 function AffiliateView({ lang, user }: { lang: string; user: { name: string; email: string; id?: string } }) {
   const [copied, setCopied] = useState(false);
   const [refCode, setRefCode] = useState('');
-  const refUrl = refCode ? `ancestro.ai/r/${refCode}` : '';
-  const fullRefUrl = refCode ? `${typeof window !== 'undefined' ? window.location.origin : ''}/${lang}/r/${refCode}` : '';
+  const [stats, setStats] = useState<Stats | null>(null);
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const refUrl = refCode ? `${origin}/${lang}/r/${refCode}` : '';
 
   useEffect(() => {
-    const code = `${(user.email.split('@')[0]).substring(0, 8)}-${Math.floor(Math.random() * 9000) + 1000}`;
-    setRefCode(code);
-    fetch('/api/referrals', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: user.id || user.email, code, action: 'create' }),
-    }).catch(() => {});
-  }, [user.email]);
+    let cancelled = false;
+    const userId = user.id || user.email;
+    const proposed = `${(user.email.split('@')[0]).substring(0, 8)}-${Math.floor(Math.random() * 9000) + 1000}`;
 
-  const referrals = [
-    { name: 'Sara Chen', date: 'Jul 8', status: 'Active' as const, revenue: '$1,240', tier: 'Platinum' },
-    { name: 'Marcus Webb', date: 'Jul 5', status: 'Pending' as const, revenue: '$0', tier: 'Gold' },
-    { name: 'Priya Patel', date: 'Jul 3', status: 'Active' as const, revenue: '$890', tier: 'Silver' },
-  ];
-  const tiers: Record<string, string> = { Platinum: '#A78BFA', Gold: '#F59E0B', Silver: '#848E9C' };
+    (async () => {
+      try {
+        const createRes = await fetch('/api/referrals', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: userId, code: proposed, action: 'create',
+            user_email: user.email, user_name: user.name,
+          }),
+        });
+        const link = createRes.ok ? await createRes.json() : null;
+        if (!cancelled && link?.code) setRefCode(link.code);
+
+        const statsRes = await fetch(`/api/referrals/stats?user_id=${encodeURIComponent(userId)}`);
+        if (statsRes.ok) {
+          const s = await statsRes.json();
+          if (!cancelled) setStats(s);
+        }
+      } catch {
+        /* ignore */
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user.email, user.id, user.name]);
+
+  const tiers: Record<string, string> = { Platinum: '#A78BFA', Gold: '#F59E0B', Silver: '#848E9C', Bronze: '#CD7F32' };
 
   return (
     <>
@@ -243,10 +282,10 @@ function AffiliateView({ lang, user }: { lang: string; user: { name: string; ema
         </div>
       </div>
       <div style={{ display: 'flex', gap: 16 }}>
-        <StatCard icon="link" label={t(lang, 'dashboard.affiliate.clicks')} value="12,840" sub={t(lang, 'dashboard.affiliate.clicksSub')} sc="#848E9C" />
-        <StatCard icon="users" label={t(lang, 'dashboard.affiliate.signups')} value="364" sub={t(lang, 'dashboard.affiliate.signupsSub')} sc="#02C076" />
-        <StatCard icon="dollar-sign" label={t(lang, 'dashboard.affiliate.commissions')} value="$8,420" sub={t(lang, 'dashboard.affiliate.commissionsSub')} sc="#02C076" />
-        <StatCard icon="star" label={t(lang, 'dashboard.affiliate.tier')} value="Platinum" sub={t(lang, 'dashboard.affiliate.tierSub')} sc="#A78BFA" />
+        <StatCard icon="link" label={t(lang, 'dashboard.affiliate.clicks')} value={(stats?.clicks ?? 0).toLocaleString('en-US')} sub={t(lang, 'dashboard.affiliate.clicksSub')} sc="#848E9C" />
+        <StatCard icon="users" label={t(lang, 'dashboard.affiliate.signups')} value={(stats?.signups ?? 0).toLocaleString('en-US')} sub={t(lang, 'dashboard.affiliate.signupsSub')} sc="#02C076" />
+        <StatCard icon="dollar-sign" label={t(lang, 'dashboard.affiliate.commissions')} value={fmtMoney(stats?.commission_total ?? 0)} sub={t(lang, 'dashboard.affiliate.commissionsSub')} sc="#02C076" />
+        <StatCard icon="star" label={t(lang, 'dashboard.affiliate.tier')} value={stats?.tier ?? 'Bronze'} sub={t(lang, 'dashboard.affiliate.tierSub')} sc={tiers[stats?.tier ?? 'Bronze']} />
       </div>
       <div style={{ display: 'flex', gap: 16 }}>
         <Card style={{ flex: 1, minHeight: 280 }}>
@@ -255,7 +294,7 @@ function AffiliateView({ lang, user }: { lang: string; user: { name: string; ema
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', background: '#0A0A0A', borderRadius: 12, border: '1px solid #F59E0B40' }}>
             <Ic n="link" s={16} c="#F59E0B" />
             <span style={{ color: '#F59E0B', fontSize: 14, fontWeight: 600, flex: 1 }}>{refUrl}</span>
-            <button onClick={() => { navigator.clipboard.writeText(refUrl); setCopied(true); setTimeout(() => setCopied(false), 2000); }} style={{
+            <button disabled={!refUrl} onClick={() => { if (!refUrl) return; navigator.clipboard.writeText(refUrl); setCopied(true); setTimeout(() => setCopied(false), 2000); }} style={{
               ...btnP, height: 32, fontSize: 12, padding: '0 14px',
             }}>
               <Ic n="copy" s={12} />
@@ -264,22 +303,22 @@ function AffiliateView({ lang, user }: { lang: string; user: { name: string; ema
           </div>
           <div style={{ display: 'flex', gap: 12 }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, padding: 16, background: '#0A0A0A', borderRadius: 12 }}>
-              <span style={{ color: '#F59E0B', fontSize: 28, fontWeight: 800 }}>1,240</span>
+              <span style={{ color: '#F59E0B', fontSize: 28, fontWeight: 800 }}>{(stats?.clicks ?? 0).toLocaleString('en-US')}</span>
               <span style={{ color: '#848E9C', fontSize: 11 }}>{t(lang, 'dashboard.affiliate.clicksTotal')}</span>
             </div>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, padding: 16, background: '#0A0A0A', borderRadius: 12 }}>
-              <span style={{ color: '#02C076', fontSize: 28, fontWeight: 800 }}>8.2%</span>
+              <span style={{ color: '#02C076', fontSize: 28, fontWeight: 800 }}>{(stats?.conversion ?? 0)}%</span>
               <span style={{ color: '#848E9C', fontSize: 11 }}>{t(lang, 'dashboard.affiliate.conversion')}</span>
             </div>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, padding: 16, background: '#0A0A0A', borderRadius: 12 }}>
-              <span style={{ color: '#A78BFA', fontSize: 28, fontWeight: 800 }}>15%</span>
+              <span style={{ color: '#A78BFA', fontSize: 28, fontWeight: 800 }}>{fmtMoney(stats?.commission_pending ?? 0)}</span>
               <span style={{ color: '#848E9C', fontSize: 11 }}>{t(lang, 'dashboard.affiliate.commission')}</span>
             </div>
           </div>
         </Card>
         <Card style={{ width: 360 }}>
           <span style={{ color: '#EAECEF', fontSize: 16, fontWeight: 800 }}>{t(lang, 'dashboard.affiliate.nextPayout')}</span>
-          <span style={{ color: '#F59E0B', fontSize: 42, fontWeight: 800, letterSpacing: -1.2 }}>$2,840</span>
+          <span style={{ color: '#F59E0B', fontSize: 42, fontWeight: 800, letterSpacing: -1.2 }}>{fmtMoney(stats?.commission_pending ?? 0)}</span>
           <span style={{ color: '#848E9C', fontSize: 13 }}>{t(lang, 'dashboard.affiliate.payoutDate')}</span>
           <div style={{ height: 1, background: '#1A1A1A' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -295,20 +334,27 @@ function AffiliateView({ lang, user }: { lang: string; user: { name: string; ema
           <span style={{ color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t(lang, 'dashboard.affiliate.viewAll')}</span>
         </div>
         <div style={{ height: 1, background: '#1A1A1A' }} />
-        {referrals.map((r, i) => (
-          <div key={i}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, height: 56, padding: '0 24px' }}>
-              <div style={{ width: 32, height: 32, borderRadius: 16, background: '#FBBF2420', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F59E0B', fontSize: 13, fontWeight: 800 }}>{r.name[0]}</div>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <span style={{ color: '#EAECEF', fontSize: 14, fontWeight: 600 }}>{r.name}</span>
-                <span style={{ color: '#5E6673', fontSize: 11 }}>{r.date} · <span style={{ color: r.status === 'Active' ? '#02C076' : '#F59E0B' }}>{r.status}</span></span>
+        {(stats?.recent ?? []).length === 0 && (
+          <div style={{ padding: 24, color: '#5E6673', fontSize: 13, textAlign: 'center' }}>{t(lang, 'dashboard.affiliate.empty')}</div>
+        )}
+        {(stats?.recent ?? []).map((r, i, arr) => {
+          const date = new Date(r.created_at).toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { month: 'short', day: 'numeric' });
+          const initial = (r.email || '?')[0].toUpperCase();
+          const statusColor = r.status === 'paid' ? '#02C076' : r.status === 'pending' ? '#F59E0B' : '#848E9C';
+          return (
+            <div key={i}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, height: 56, padding: '0 24px' }}>
+                <div style={{ width: 32, height: 32, borderRadius: 16, background: '#FBBF2420', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F59E0B', fontSize: 13, fontWeight: 800 }}>{initial}</div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <span style={{ color: '#EAECEF', fontSize: 14, fontWeight: 600 }}>{r.email}</span>
+                  <span style={{ color: '#5E6673', fontSize: 11 }}>{date} · <span style={{ color: statusColor }}>{r.status}</span></span>
+                </div>
+                <span style={{ color: '#EAECEF', fontSize: 14, fontWeight: 800, width: 100, textAlign: 'right' }}>{fmtMoney(r.commission)}</span>
               </div>
-              <span style={{ color: tiers[r.tier], fontSize: 12, fontWeight: 700, background: `${tiers[r.tier]}18`, padding: '2px 10px', borderRadius: 6 }}>{r.tier}</span>
-              <span style={{ color: '#EAECEF', fontSize: 14, fontWeight: 800, width: 100, textAlign: 'right' }}>{r.revenue}</span>
+              {i < arr.length - 1 && <div style={{ height: 1, background: '#0A0A0A' }} />}
             </div>
-            {i < referrals.length - 1 && <div style={{ height: 1, background: '#0A0A0A' }} />}
-          </div>
-        ))}
+          );
+        })}
       </Card>
     </>
   );
@@ -317,7 +363,31 @@ function AffiliateView({ lang, user }: { lang: string; user: { name: string; ema
 // ═══════════════════════════════════════════════════════
 // CUSTOMER VIEW
 // ═══════════════════════════════════════════════════════
-function CustomerView({ lang }: { lang: string }) {
+function CustomerView({ lang, user }: { lang: string; user: { name: string; email: string; id?: string } }) {
+  const [refCode, setRefCode] = useState('');
+  const [stats, setStats] = useState<Stats | null>(null);
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const refUrl = refCode ? `${origin}/${lang}/r/${refCode}` : '';
+
+  useEffect(() => {
+    let cancelled = false;
+    const userId = user.id || user.email;
+    const proposed = `${(user.email.split('@')[0]).substring(0, 8)}-${Math.floor(Math.random() * 9000) + 1000}`;
+    (async () => {
+      try {
+        const r = await fetch('/api/referrals', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId, code: proposed, action: 'create', user_email: user.email, user_name: user.name }),
+        });
+        const link = r.ok ? await r.json() : null;
+        if (!cancelled && link?.code) setRefCode(link.code);
+        const s = await fetch(`/api/referrals/stats?user_id=${encodeURIComponent(userId)}`);
+        if (s.ok && !cancelled) setStats(await s.json());
+      } catch {}
+    })();
+    return () => { cancelled = true; };
+  }, [user.email, user.id, user.name]);
+
   return (
     <>
       <div>
@@ -332,14 +402,14 @@ function CustomerView({ lang }: { lang: string }) {
             <p style={{ color: '#C4C4D0', fontSize: 14, margin: '8px 0 0', lineHeight: 1.5 }}>{t(lang, 'dashboard.customer.referDesc')}</p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', background: '#0A0617', borderRadius: 12, border: '1px solid #A78BFA40' }}>
-            <span style={{ color: '#A78BFA', fontSize: 14, fontWeight: 600, flex: 1 }}>ancestro.ai/r/john-4823</span>
-            <span style={{ color: '#02C076', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>{t(lang, 'dashboard.customer.copy')}</span>
+            <span style={{ color: '#A78BFA', fontSize: 14, fontWeight: 600, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{refUrl || '...'}</span>
+            <span onClick={() => refUrl && navigator.clipboard.writeText(refUrl)} style={{ color: '#02C076', fontSize: 12, fontWeight: 700, cursor: refUrl ? 'pointer' : 'default', opacity: refUrl ? 1 : 0.5 }}>{t(lang, 'dashboard.customer.copy')}</span>
           </div>
         </Card>
         <Card style={{ width: 360, gap: 12 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#848E9C', fontSize: 13 }}>{t(lang, 'dashboard.customer.referrals')}</span><span style={{ color: '#02C076', fontSize: 13, fontWeight: 700 }}>+3</span></div>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#848E9C', fontSize: 13 }}>{t(lang, 'dashboard.customer.earned')}</span><span style={{ color: '#A78BFA', fontSize: 13, fontWeight: 800 }}>$180</span></div>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#848E9C', fontSize: 13 }}>{t(lang, 'dashboard.customer.nextReward')}</span><span style={{ color: '#F59E0B', fontSize: 13, fontWeight: 700 }}>$60 pending</span></div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#848E9C', fontSize: 13 }}>{t(lang, 'dashboard.customer.referrals')}</span><span style={{ color: '#02C076', fontSize: 13, fontWeight: 700 }}>{stats?.signups ?? 0}</span></div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#848E9C', fontSize: 13 }}>{t(lang, 'dashboard.customer.earned')}</span><span style={{ color: '#A78BFA', fontSize: 13, fontWeight: 800 }}>{fmtMoney(stats?.commission_paid ?? 0)}</span></div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#848E9C', fontSize: 13 }}>{t(lang, 'dashboard.customer.nextReward')}</span><span style={{ color: '#F59E0B', fontSize: 13, fontWeight: 700 }}>{fmtMoney(stats?.commission_pending ?? 0)} pending</span></div>
         </Card>
       </div>
       <div style={{ display: 'flex', gap: 16 }}>

@@ -12,5 +12,5 @@ export default async function ReferralRedirect({ params }: Props) {
     // Silent — redirect even if tracking fails
   }
 
-  redirect(`/${lang}?ref=${code}`);
+  redirect(`/${lang}?ref=${code}&via=r`);
 }

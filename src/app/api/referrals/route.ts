@@ -16,16 +16,17 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { user_id, code, action } = await req.json();
+    const body = await req.json();
+    const { user_id, code, action, user_email, user_name } = body;
     if (!code) return NextResponse.json({ error: 'Missing code' }, { status: 400 });
 
     if (action === 'create') {
-      const existing = await query('SELECT id FROM referral_links WHERE user_id = $1', [user_id]);
+      const existing = await query('SELECT * FROM referral_links WHERE user_id = $1', [user_id]);
       if (existing.rows.length) return NextResponse.json(existing.rows[0]);
 
       const r = await query(
-        'INSERT INTO referral_links (user_id, code) VALUES ($1, $2) RETURNING *',
-        [user_id, code]
+        'INSERT INTO referral_links (user_id, code, user_email, user_name) VALUES ($1, $2, $3, $4) RETURNING *',
+        [user_id, code, user_email || null, user_name || null]
       );
       return NextResponse.json(r.rows[0]);
     }

@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { CDN_URL } from '@/lib/cdn';
@@ -21,8 +21,46 @@ export default function OnboardingWizard({ lang }: { lang: string }) {
   const router = useRouter();
   const [step, setStep] = useState<Step>('welcome');
   const [channel, setChannel] = useState('');
-  const [refLink, setRefLink] = useState('');
+  const [refCode, setRefCode] = useState('');
   const [pin, setPin] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  // Load or create referral code on mount
+  useEffect(() => {
+    if (!user) return;
+    const userId = user.id || user.email;
+    fetch(`/api/onboarding?user_id=${encodeURIComponent(userId)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.code) setRefCode(d.code); });
+  }, [user]);
+
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const refUrlDisplay = refCode ? `${origin}/${lang}/r/${refCode}` : '';
+
+  async function persistStep(extra: Record<string, unknown> = {}) {
+    if (!user) return;
+    setSaving(true); setError('');
+    try {
+      const userId = user.id || user.email;
+      const res = await fetch('/api/onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: userId, user_email: user.email, user_name: user.name,
+          channel: channel || undefined, zip: pin || undefined, ...extra,
+        }),
+      });
+      if (!res.ok) throw new Error('save_failed');
+      const d = await res.json();
+      if (d.code) setRefCode(d.code);
+    } catch {
+      setError(lang === 'es' ? 'No pudimos guardar. Intentá de nuevo.' : 'Could not save. Try again.');
+      throw new Error('save_failed');
+    } finally {
+      setSaving(false);
+    }
+  }
 
   if (isLoading) return <div style={{minHeight:'100vh',background:'#000',display:'flex',alignItems:'center',justifyContent:'center',color:'#848E9C'}}>Loading...</div>;
   if (!user) return <div style={{minHeight:'100vh',background:'#000',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:20}}><Ic d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" s={64} c="#F59E0B" /><h2 style={{color:'#EAECEF',fontSize:24,fontWeight:800,margin:0}}>Login Required</h2><button onClick={()=>router.push(`/${lang}/login`)} style={btnP}>Sign In</button></div>;
@@ -70,7 +108,7 @@ export default function OnboardingWizard({ lang }: { lang: string }) {
           <p style={{ color:'#A1A1AA',fontSize:14,margin:0 }}>Pick your main channel. You can connect more later.</p>
           <div style={{ display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,width:'100%',maxWidth:600,marginTop:8 }}>
             {channels.map(ch => (
-              <button key={ch.id} onClick={()=>{setChannel(ch.id);setStep('link')}} style={{
+              <button key={ch.id} disabled={saving} onClick={async ()=>{ setChannel(ch.id); try { await persistStep({ channel: ch.id }); setStep('link'); } catch {} }} style={{
                 display:'flex',flexDirection:'column',alignItems:'center',gap:10,padding:'20px 16px',
                 background:channel===ch.id?'#FBBF2418':'#FFFFFF06',borderRadius:16,
                 border:`1.5px solid ${channel===ch.id?'#F59E0B40':'#FFFFFF14'}`,
@@ -92,8 +130,8 @@ export default function OnboardingWizard({ lang }: { lang: string }) {
           <p style={{ color:'#A1A1AA',fontSize:14,margin:0 }}>This is your unique link. Share it everywhere.</p>
           <div style={{ display:'flex',alignItems:'center',gap:10,padding:'14px 20px',background:'#0A0A0A',borderRadius:14,border:'1px solid #F59E0B40',width:'100%' }}>
             <Ic d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71 M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" s={18} c="#F59E0B" />
-            <span style={{color:'#F59E0B',fontSize:14,fontWeight:600,flex:1}}>{refLink || `ancestro.ai/r/${(user.email||'user').split('@')[0].substring(0,8)}-${Math.floor(Math.random()*9000)+1000}`}</span>
-            <button onClick={()=>{navigator.clipboard.writeText(refLink||`ancestro.ai/r/example`)}} style={{...btnP,height:32,fontSize:12,padding:'0 14px'}}>Copy</button>
+            <span style={{color:'#F59E0B',fontSize:14,fontWeight:600,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{refUrlDisplay || '...'}</span>
+            <button disabled={!refUrlDisplay} onClick={()=>{ if(refUrlDisplay) navigator.clipboard.writeText(refUrlDisplay); }} style={{...btnP,height:32,fontSize:12,padding:'0 14px',opacity:refUrlDisplay?1:0.5}}>Copy</button>
           </div>
           <button onClick={()=>setStep('location')} style={btnP}>Continue</button>
           <button onClick={()=>setStep('channels')} style={btnS}>Back</button>
@@ -109,7 +147,8 @@ export default function OnboardingWizard({ lang }: { lang: string }) {
             width:'100%',maxWidth:400,padding:'16px 20px',background:'#FFFFFF06',border:'1.5px solid #FBBF2440',borderRadius:14,
             color:'#EAECEF',fontSize:16,fontFamily:'inherit',textAlign:'center',outline:'none',
           }} />
-          <button onClick={()=>setStep('done')} style={btnP}>Complete Setup</button>
+          {error && <span style={{color:'#EF4444',fontSize:13}}>{error}</span>}
+          <button disabled={saving} onClick={async ()=>{ try { await persistStep({ zip: pin }); setStep('done'); } catch {} }} style={{...btnP,opacity:saving?0.6:1}}>{saving ? 'Saving…' : 'Complete Setup'}</button>
           <button onClick={()=>setStep('link')} style={btnS}>Back</button>
         </div>
       )}

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { isAdminEmail } from '@/lib/admin';
 import { CDN_URL } from '@/lib/cdn';
 
 interface Commission {
@@ -36,7 +37,18 @@ export default function AdminCommissionsPage({ params: _params }: { params: Prom
   const [saving, setSaving] = useState<Record<string, boolean>>({});
   const [message, setMessage] = useState('');
 
-  useEffect(() => { fetch('/api/admin/commissions').then(r => r.json()).then(d => { setCommissions(d); const v: Record<string,string>={}; d.forEach((c:Commission)=>{v[c.role]=String(c.percentage)}); setValues(v); }); }, []);
+  const isAdmin = isAdminEmail(user?.email);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    fetch('/api/admin/commissions', { headers: { 'x-user-email': user!.email } })
+      .then(r => r.json())
+      .then(d => {
+        if (!Array.isArray(d)) return;
+        setCommissions(d);
+        const v: Record<string,string>={}; d.forEach((c:Commission)=>{v[c.role]=String(c.percentage)}); setValues(v);
+      });
+  }, [isAdmin, user?.email]);
 
   if (isLoading) return <div style={{ minHeight:'100vh',background:'#000',display:'flex',alignItems:'center',justifyContent:'center',color:'#848E9C' }}>Loading...</div>;
   if (!user) return (
@@ -45,13 +57,21 @@ export default function AdminCommissionsPage({ params: _params }: { params: Prom
       <button onClick={()=>router.push(`/${lang}/login`)} style={{...btnP}}>Sign In</button>
     </div>
   );
+  if (!isAdmin) return (
+    <div style={{ minHeight:'100vh',background:'#000',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:20 }}>
+      <Ic n="shield" s={64} c="#EF4444" />
+      <h2 style={{color:'#EAECEF',fontSize:24,fontWeight:800,margin:0}}>Forbidden</h2>
+      <p style={{color:'#848E9C',fontSize:14,margin:0}}>You don&apos;t have permission to view this page.</p>
+      <button onClick={()=>router.push(`/${lang}/dashboard`)} style={{...btnP}}>Back to Dashboard</button>
+    </div>
+  );
 
   async function save(role: string) {
     const pct = parseFloat(values[role]);
     if (isNaN(pct) || pct < 0 || pct > 100) { setMessage('Invalid percentage (0-100)'); return; }
     setSaving(s => ({ ...s, [role]: true }));
     try {
-      const r = await fetch('/api/admin/commissions', { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ role, percentage:pct, updated_by:user!.email }) });
+      const r = await fetch('/api/admin/commissions', { method:'PUT', headers:{'Content-Type':'application/json','x-user-email':user!.email}, body:JSON.stringify({ role, percentage:pct }) });
       const d = await r.json();
       setCommissions(prev => prev.map(c => c.role === role ? d : c));
       setMessage(`✓ ${roleLabels[role]?.label || role} updated to ${pct}%`);
