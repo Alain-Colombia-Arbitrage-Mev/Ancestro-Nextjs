@@ -651,33 +651,187 @@ function CustomerView({ lang, user }: { lang: string; user: { name: string; emai
     return () => { cancelled = true; };
   }, [user.email, user.id, user.name]);
 
+  const firstName = (user.name || user.email).split(/\s+|@/)[0];
+
   return (
     <>
-      <div>
-        <span style={{ color: '#EAECEF', fontSize: 28, fontWeight: 800, letterSpacing: -0.5 }}>{t(lang, 'dashboard.customer.title')}</span>
-        <span style={{ color: '#848E9C', fontSize: 13, marginLeft: 16 }}>{t(lang, 'dashboard.customer.subtitle')}</span>
-      </div>
-      <div style={{ display: 'flex', gap: 16 }}>
-        <Card style={{ flex: 1, background: 'linear-gradient(135deg, #A78BFA40, #6C5CE715)', border: '1.5px solid #A78BFA60', gap: 24 }}>
-          <div>
-            <span style={{ color: '#A78BFA', fontSize: 11, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase' }}>{t(lang, 'dashboard.customer.referralCode')}</span>
-            <h2 style={{ color: '#fff', fontSize: 28, fontWeight: 800, margin: '8px 0 0', letterSpacing: -0.5 }}>{t(lang, 'dashboard.customer.referTitle')}</h2>
-            <p style={{ color: '#C4C4D0', fontSize: 14, margin: '8px 0 0', lineHeight: 1.5 }}>{t(lang, 'dashboard.customer.referDesc')}</p>
+      {/* ═══ HEADER ═══ */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 24 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <span style={{ color: '#848E9C', fontSize: 13, fontWeight: 500 }}>{t(lang, 'dashboard.customer.welcome')} {firstName} ☀️</span>
+          <h1 style={{ color: '#F5F3FF', fontSize: 32, fontWeight: 800, letterSpacing: -0.5, margin: 0 }}>{t(lang, 'dashboard.customer.producing')}</h1>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 40, padding: '0 16px', background: '#02C07618', border: '1px solid #02C07640', borderRadius: 10 }}>
+            <span style={{ width: 8, height: 8, borderRadius: 4, background: '#02C076', boxShadow: '0 0 8px #02C076' }} />
+            <span style={{ color: '#02C076', fontSize: 11, fontWeight: 800, letterSpacing: 1 }}>{t(lang, 'dashboard.customer.live')}</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', background: '#0A0617', borderRadius: 12, border: '1px solid #A78BFA40' }}>
-            <span style={{ color: '#A78BFA', fontSize: 14, fontWeight: 600, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{refUrl || '...'}</span>
-            <span onClick={() => refUrl && navigator.clipboard.writeText(refUrl)} style={{ color: '#02C076', fontSize: 12, fontWeight: 700, cursor: refUrl ? 'pointer' : 'default', opacity: refUrl ? 1 : 0.5 }}>{t(lang, 'dashboard.customer.copy')}</span>
+          <div style={{ width: 44, height: 44, borderRadius: 22, background: '#0A0A0A', border: '1px solid #1A1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Ic n="bell" s={18} c="#A1A1AA" />
           </div>
-        </Card>
-        <Card style={{ width: 360, gap: 12 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#848E9C', fontSize: 13 }}>{t(lang, 'dashboard.customer.referrals')}</span><span style={{ color: '#02C076', fontSize: 13, fontWeight: 700 }}>{stats?.signups ?? 0}</span></div>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#848E9C', fontSize: 13 }}>{t(lang, 'dashboard.customer.earned')}</span><span style={{ color: '#A78BFA', fontSize: 13, fontWeight: 800 }}>{fmtMoney(stats?.commission_paid ?? 0)}</span></div>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#848E9C', fontSize: 13 }}>{t(lang, 'dashboard.customer.nextReward')}</span><span style={{ color: '#F59E0B', fontSize: 13, fontWeight: 700 }}>{fmtMoney(stats?.commission_pending ?? 0)} pending</span></div>
-        </Card>
+          <div style={{ width: 44, height: 44, borderRadius: 22, background: goldGrad, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0A0617', fontSize: 16, fontWeight: 800 }}>
+            {firstName[0]?.toUpperCase()}
+          </div>
+        </div>
       </div>
-      <div style={{ display: 'flex', gap: 16 }}>
-        <Card style={{ flex: 1 }}><span style={{ color: '#EAECEF', fontSize: 16, fontWeight: 800 }}>{t(lang, 'dashboard.customer.energyUsage')}</span><div style={{ display: 'flex', alignItems: 'flex-end', gap: 6 }}><span style={{ color: '#02C076', fontSize: 48, fontWeight: 800, letterSpacing: -1.5 }}>2.4</span><span style={{ color: '#848E9C', fontSize: 16, marginBottom: 6 }}>MWh this month</span></div><div style={{ height: 100, display: 'flex', alignItems: 'flex-end', gap: 8 }}>{[40,65,80,55,70,60,75].map((h,i)=><div key={i} style={{flex:1,height:`${h}%`,borderRadius:4,background:h>70?'#F59E0B':'#02C07640',minWidth:20}}/>)}</div><span style={{color:'#02C076',fontSize:13,fontWeight:700}}>↓ 12% vs last month</span></Card>
-        <Card style={{ width: 360 }}><span style={{ color: '#EAECEF', fontSize: 16, fontWeight: 800 }}>{t(lang, 'dashboard.customer.savings')}</span><div style={{ display: 'flex', alignItems: 'flex-end', gap: 6 }}><span style={{ color: '#F59E0B', fontSize: 48, fontWeight: 800, letterSpacing: -1.5 }}>$420</span><span style={{ color: '#848E9C', fontSize: 16, marginBottom: 6 }}>saved YTD</span></div><div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', background: '#10B98120', borderRadius: 8, border: '1px solid #10B98140' }}><Ic n="trending-up" s={14} c="#34D399" /><span style={{ color: '#34D399', fontSize: 12, fontWeight: 800 }}>40% reduction from grid</span></div></Card>
+
+      {/* ═══ PRODUCTION HERO ═══ */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 32, padding: 32, background: '#000', border: '1.5px solid #1A1A1A', borderRadius: 24, minHeight: 280 }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <span style={{ color: '#F59E0B', fontSize: 11, fontWeight: 800, letterSpacing: 1.5 }}>{t(lang, 'dashboard.customer.producingToday')}</span>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
+            <span style={{ color: '#FFD000', fontSize: 80, fontWeight: 800, letterSpacing: -2.5, lineHeight: 1 }}>34.2</span>
+            <span style={{ color: '#848E9C', fontSize: 24, fontWeight: 700, paddingBottom: 8 }}>kWh</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Ic n="trending-up" s={14} c="#02C076" />
+            <span style={{ color: '#02C076', fontSize: 13, fontWeight: 700 }}>{t(lang, 'dashboard.customer.savedToday')}</span>
+          </div>
+          <div style={{ display: 'flex', gap: 24, marginTop: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <span style={{ color: '#F5F3FF', fontSize: 18, fontWeight: 800 }}>23.6 kWh</span>
+              <span style={{ color: '#5E6673', fontSize: 11 }}>{t(lang, 'dashboard.customer.used')}</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <span style={{ color: '#02C076', fontSize: 18, fontWeight: 800 }}>7.6 kWh</span>
+              <span style={{ color: '#5E6673', fontSize: 11 }}>{t(lang, 'dashboard.customer.toGrid')}</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <span style={{ color: '#A78BFA', fontSize: 18, fontWeight: 800 }}>3.0 kWh</span>
+              <span style={{ color: '#5E6673', fontSize: 11 }}>{t(lang, 'dashboard.customer.toBattery')}</span>
+            </div>
+          </div>
+        </div>
+        {/* Sun illustration */}
+        <div style={{ position: 'relative', width: 280, height: 216, borderRadius: 20, background: '#000', border: '1.5px solid #1A1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div style={{ position: 'absolute', width: 200, height: 200, borderRadius: 100, border: '1.5px solid #FFFFFF1A' }} />
+          <div style={{ width: 120, height: 120, borderRadius: 60, background: '#F7FF00', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 80px rgba(247,255,0,0.35)' }}>
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ STATS GRID + QUICK ACTIONS ═══ */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 360px', gap: 16 }}>
+        {/* This month */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 20, background: glassBg, border: '1px solid #1A1A1A', borderRadius: 18 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ color: '#5E6673', fontSize: 10, fontWeight: 700, letterSpacing: 1.2 }}>{t(lang, 'dashboard.customer.thisMonth').toUpperCase()}</span>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: '#F59E0B18', border: '1px solid #F59E0B40', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Ic n="zap" s={14} c="#F59E0B" />
+            </div>
+          </div>
+          <span style={{ color: '#F5F3FF', fontSize: 26, fontWeight: 800, letterSpacing: -0.5 }}>892 kWh</span>
+          <span style={{ color: '#5E6673', fontSize: 11 }}>{t(lang, 'dashboard.customer.goal')} 1,000 kWh</span>
+        </div>
+        {/* Savings (highlighted green) */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 20, background: 'linear-gradient(135deg, #10B98140 0%, #10B98112 100%)', border: '1.5px solid #02C07680', borderRadius: 18 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ color: '#02C076', fontSize: 10, fontWeight: 700, letterSpacing: 1.2 }}>{t(lang, 'dashboard.customer.savingsMonth').toUpperCase()}</span>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: '#02C07618', border: '1px solid #10B981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Ic n="dollar-sign" s={14} c="#02C076" />
+            </div>
+          </div>
+          <span style={{ color: '#02C076', fontSize: 26, fontWeight: 800, letterSpacing: -0.5 }}>$184</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Ic n="trending-up" s={12} c="#02C076" />
+            <span style={{ color: '#02C076', fontSize: 11, fontWeight: 800 }}>+24% {t(lang, 'dashboard.customer.vsLast')}</span>
+          </div>
+        </div>
+        {/* Battery */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 20, background: glassBg, border: '1px solid #1A1A1A', borderRadius: 18 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ color: '#5E6673', fontSize: 10, fontWeight: 700, letterSpacing: 1.2 }}>{t(lang, 'dashboard.customer.battery').toUpperCase()}</span>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: '#10B98120', border: '1px solid #02C07640', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Ic n="zap" s={14} c="#02C076" />
+            </div>
+          </div>
+          <span style={{ color: '#F5F3FF', fontSize: 26, fontWeight: 800, letterSpacing: -0.5 }}>82%</span>
+          <span style={{ color: '#5E6673', fontSize: 11 }}>11.1 / 13.5 kWh</span>
+        </div>
+        {/* CO2 */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 20, background: glassBg, border: '1px solid #1A1A1A', borderRadius: 18 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ color: '#5E6673', fontSize: 10, fontWeight: 700, letterSpacing: 1.2 }}>{t(lang, 'dashboard.customer.co2').toUpperCase()}</span>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: '#A78BFA20', border: '1px solid #A78BFA40', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Ic n="shield-check" s={14} c="#A78BFA" />
+            </div>
+          </div>
+          <span style={{ color: '#F5F3FF', fontSize: 26, fontWeight: 800, letterSpacing: -0.5 }}>680 kg</span>
+          <span style={{ color: '#A78BFA', fontSize: 11, fontWeight: 600 }}>= 28 🌳 {t(lang, 'dashboard.customer.treesMonth')}</span>
+        </div>
+        {/* Quick actions */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 20, background: glassBg, border: '1px solid #1A1A1A', borderRadius: 18 }}>
+          <span style={{ color: '#5E6673', fontSize: 11, fontWeight: 700, letterSpacing: 1.5 }}>{t(lang, 'dashboard.customer.quickActions').toUpperCase()}</span>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {[
+              { i: 'clipboard-list' as const, lbl: t(lang, 'dashboard.customer.myBills'), c: '#F59E0B' },
+              { i: 'wrench' as const, lbl: t(lang, 'dashboard.customer.service'), c: '#02C076' },
+              { i: 'bell' as const, lbl: t(lang, 'dashboard.customer.support'), c: '#A78BFA' },
+            ].map(b => (
+              <button key={b.lbl} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, height: 80, background: '#0A0A0A', border: '1px solid #1A1A1A', borderRadius: 12, color: '#F5F3FF', fontFamily: 'inherit', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                <Ic n={b.i} s={20} c={b.c} />
+                {b.lbl}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ REFER + RIGHT COLUMN ═══ */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16 }}>
+        {/* Refer card */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24, padding: 32, background: 'linear-gradient(135deg, #A78BFA40 0%, #6C5CE715 100%)', border: '1.5px solid #A78BFA60', borderRadius: 20, minHeight: 240 }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ display: 'inline-flex', alignSelf: 'flex-start', alignItems: 'center', gap: 6, padding: '0 12px', height: 28, background: '#A78BFA15', border: '1px solid #A78BFA60', borderRadius: 14 }}>
+              <Ic n="gift" s={14} c="#A78BFA" />
+              <span style={{ color: '#A78BFA', fontSize: 11, fontWeight: 800, letterSpacing: 1.5 }}>{t(lang, 'dashboard.customer.referTag')}</span>
+            </div>
+            <h2 style={{ color: '#F5F3FF', fontSize: 32, fontWeight: 800, letterSpacing: -0.8, lineHeight: 1.1, margin: 0 }}>
+              {t(lang, 'dashboard.customer.referHero')}
+            </h2>
+            <p style={{ color: '#848E9C', fontSize: 13, lineHeight: 1.5, margin: 0 }}>{t(lang, 'dashboard.customer.referHeroSub')}</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
+              <button onClick={() => refUrl && navigator.clipboard.writeText(refUrl)} disabled={!refUrl} style={{ display: 'flex', alignItems: 'center', gap: 8, height: 48, padding: '0 22px', background: '#A78BFA', border: 'none', borderRadius: 12, color: '#fff', fontSize: 14, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', boxShadow: '0 6px 24px rgba(167,139,250,0.45)', opacity: refUrl ? 1 : 0.6 }}>
+                <Ic n="copy" s={14} /> {t(lang, 'dashboard.customer.shareNow')}
+              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ color: '#848E9C', fontSize: 12 }}><b style={{ color: '#F5F3FF' }}>{stats?.signups ?? 0}</b> {t(lang, 'dashboard.customer.referredCount')}</span>
+                <span style={{ color: '#848E9C', fontSize: 12 }}><b style={{ color: '#F5F3FF' }}>{fmtMoney(stats?.commission_paid ?? 0)}</b> {t(lang, 'dashboard.customer.earnedShort')}</span>
+              </div>
+            </div>
+          </div>
+          {/* Decorative gift illustration */}
+          <div style={{ width: 200, height: 200, borderRadius: 16, background: 'radial-gradient(circle at 30% 30%, #A78BFA60, transparent 70%), radial-gradient(circle at 70% 70%, #6C5CE740, transparent 60%)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid #A78BFA30' }}>
+            <Ic n="gift" s={96} c="#fff" />
+          </div>
+        </div>
+
+        {/* Right column: health + next bill */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', background: '#02C07618', border: '1px solid #02C07640', borderRadius: 18 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 18, background: '#10B98120', border: '1px solid #02C07680', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Ic n="shield-check" s={18} c="#02C076" />
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <span style={{ color: '#F5F3FF', fontSize: 14, fontWeight: 800 }}>{t(lang, 'dashboard.customer.systemHealthy')}</span>
+              <span style={{ color: '#02C076', fontSize: 11, fontWeight: 500 }}>{t(lang, 'dashboard.customer.allPanels')}</span>
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, padding: 20, background: glassBg, border: '1px solid #1A1A1A', borderRadius: 18, flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Ic n="calendar" s={14} c="#5E6673" />
+              <span style={{ color: '#5E6673', fontSize: 11, fontWeight: 700, letterSpacing: 1.2 }}>{t(lang, 'dashboard.customer.nextBill').toUpperCase()}</span>
+            </div>
+            <span style={{ color: '#F5F3FF', fontSize: 24, fontWeight: 800 }}>{t(lang, 'dashboard.customer.nextBillVal')}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Ic n="check" s={12} c="#02C076" />
+              <span style={{ color: '#5E6673', fontSize: 11, fontWeight: 500 }}>{t(lang, 'dashboard.customer.autoPay')}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );
@@ -688,54 +842,141 @@ function CustomerView({ lang, user }: { lang: string; user: { name: string; emai
 // ═══════════════════════════════════════════════════════
 function EpcDashboardView({ lang }: { lang: string }) {
   const jobs = [
-    { time: '10:30 AM', customer: 'Veronica H.', addr: '1240 Maple Ave', system: '9.6 kW Pro', payout: '$1,200', active: true },
-    { time: '2:00 PM', customer: 'Carlos M.', addr: '892 Pine St', system: '13.5 kW Max', payout: '$1,820', active: false },
-    { time: '4:30 PM', customer: 'Andrea P.', addr: '219 Cedar Ln', system: 'Battery only', payout: '$980', active: false },
+    { time: '10:30', period: 'AM', tag: 'NEXT', customer: 'Veronica Hernández', system: '9.6 kW Pro', addr: '1240 Maple Avenue · 4h', payout: '$1,200', active: true, isToday: true },
+    { time: '2:00', period: 'PM', tag: '', customer: 'Carlos Mendez', system: '13.5 kW Max + Battery', addr: '892 Pine Street · 6h', payout: '$1,820', active: false, isToday: true },
+    { time: 'Tue', period: 'JUL 8', tag: 'PRE', customer: 'Sofia Ruiz', system: 'Pre-install assessment', addr: '219 Cedar Lane · 1h', payout: '', active: false, isToday: false },
   ];
-  const materials = [{ name: '24x 400W Panels', done: true },{ name: '1x 7.6kW Inverter', done: true },{ name: 'Mounting rails + hardware', done: false }];
+  const materials = [
+    { name: t(lang, 'epc.dashboard.matPanels'), status: 'loaded' as const },
+    { name: t(lang, 'epc.dashboard.matInverter'), status: 'loaded' as const },
+    { name: t(lang, 'epc.dashboard.matMounting'), status: 'pickup' as const },
+  ];
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 80 }}>
+      {/* ═══ HEADER ═══ */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 24 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           <span style={{ color: '#848E9C', fontSize: 13, fontWeight: 500 }}>{t(lang, 'epc.dashboard.greeting')}</span>
-          <span style={{ color: '#EAECEF', fontSize: 32, fontWeight: 800, letterSpacing: -0.5 }}>{t(lang, 'epc.dashboard.jobsToday')}</span>
+          <h1 style={{ color: '#F5F3FF', fontSize: 32, fontWeight: 800, letterSpacing: -0.5, margin: 0 }}>{t(lang, 'epc.dashboard.jobsToday')}</h1>
           <span style={{ color: '#5E6673', fontSize: 13 }}>{t(lang, 'epc.dashboard.nextInstall')}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button style={btnG}><Ic n="check-in" s={16} c="#fff" />{t(lang, 'epc.dashboard.checkIn')}</button>
-          <div style={{ width: 44, height: 44, borderRadius: 22, background: '#0A0A0A', border: '1px solid #1A1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Ic n="bell" s={20} c="#848E9C" /></div>
-          <div style={{ width: 44, height: 44, borderRadius: 22, background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0A0617', fontSize: 16, fontWeight: 800 }}>MR</div>
+          <button style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 18px', height: 40, background: '#02C076', borderRadius: 10, border: 'none', cursor: 'pointer', color: '#fff', fontSize: 13, fontWeight: 700, fontFamily: 'inherit', boxShadow: '0 6px 20px rgba(2,192,118,0.25)' }}>
+            <Ic n="check" s={14} c="#fff" /> {t(lang, 'epc.dashboard.checkIn')}
+          </button>
+          <div style={{ width: 44, height: 44, borderRadius: 22, background: '#0A0A0A', border: '1px solid #1A1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Ic n="bell" s={18} c="#A1A1AA" />
+          </div>
+          <div style={{ width: 44, height: 44, borderRadius: 22, background: goldGrad, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0A0617', fontSize: 14, fontWeight: 800 }}>MR</div>
         </div>
       </div>
+
+      {/* ═══ STATS ROW ═══ */}
       <div style={{ display: 'flex', gap: 16 }}>
-        <StatCard icon="check" label={t(lang, 'epc.dashboard.activeJobs')} value="4" sub={t(lang, 'epc.dashboard.activeSub')} />
-        <StatCard icon="clipboard-list" label={t(lang, 'epc.dashboard.completed')} value="23" sub={t(lang, 'epc.dashboard.completedSub')} sc="#02C076" />
+        <StatCard icon="hardhat" label={t(lang, 'epc.dashboard.activeJobs')} value="4" sub={t(lang, 'epc.dashboard.activeSub')} />
+        <StatCard icon="check" label={t(lang, 'epc.dashboard.completed')} value="23" sub={t(lang, 'epc.dashboard.completedSub')} delta={8} sc="#02C076" />
         <StatCard icon="star" label={t(lang, 'epc.dashboard.rating')} value="4.98" sub={t(lang, 'epc.dashboard.ratingSub')} />
-        <StatCard icon="dollar-sign" label={t(lang, 'epc.dashboard.earnings')} value="$18,420" sub={t(lang, 'epc.dashboard.earningsSub')} sc="#02C076" />
+        <StatCard icon="dollar-sign" label={t(lang, 'epc.dashboard.earnings')} value="$18,420" sub={t(lang, 'epc.dashboard.earningsSub')} delta={22} tone="gold" />
       </div>
-      <div style={{ display: 'flex', gap: 16, flex: 1 }}>
-        <Card style={{ flex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', height: 64, alignItems: 'center' }}><span style={{ color: '#EAECEF', fontSize: 16, fontWeight: 800 }}>{t(lang, 'epc.dashboard.todayJobs')}</span><span style={{ color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t(lang, 'epc.dashboard.viewAll')} 4 →</span></div>
+
+      {/* ═══ 2-COL MAIN ═══ */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16, alignItems: 'stretch' }}>
+        {/* Today's installs list */}
+        <div style={{ display: 'flex', flexDirection: 'column', background: '#0E0E10', border: '1px solid #1A1A1A', borderRadius: 18, overflow: 'hidden' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 64, padding: '0 24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Ic n="hardhat" s={18} c="#F59E0B" />
+              <span style={{ color: '#5E6673', fontSize: 11, fontWeight: 700, letterSpacing: 1.5 }}>{t(lang, 'epc.dashboard.todayJobs').toUpperCase()}</span>
+            </div>
+            <span style={{ color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t(lang, 'epc.dashboard.viewAll')} 4 →</span>
+          </div>
           <div style={{ height: 1, background: '#1A1A1A' }} />
           {jobs.map((j, i) => (
-            <div key={i}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '20px 0', background: j.active ? '#FBBF2410' : 'transparent', margin: '0 24px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, width: 60 }}><span style={{ color: '#EAECEF', fontSize: 18, fontWeight: 800 }}>{j.time.split(' ')[0]}</span><span style={{ color: '#848E9C', fontSize: 11 }}>AM</span></div>
-                <div style={{ width: 1, height: 60, background: j.active ? '#F59E0B18' : '#1A1A1A' }} />
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}><span style={{ color: '#EAECEF', fontSize: 15, fontWeight: 700 }}>{j.customer}</span><div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}><span style={{ color: '#848E9C', fontSize: 12 }}>{j.system}</span><span style={{ color: '#5E6673', fontSize: 12 }}>📍 {j.addr}</span><span style={{ color: '#F59E0B', fontSize: 12, fontWeight: 700 }}>{j.payout}</span></div></div>
-                <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 16px', height: 38, borderRadius: 9, border: j.active ? 'none' : '1px solid #1A1A1A', background: j.active ? '#F59E0B' : '#0A0A0A', color: j.active ? '#0A0617' : '#848E9C', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>{j.active ? t(lang, 'epc.dashboard.checkInBtn') : t(lang, 'epc.dashboard.startBtn')}</button>
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '20px 24px', background: j.active ? '#FBBF2410' : 'transparent', borderBottom: i < jobs.length - 1 ? '1px solid #0A0A0A' : 'none' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, width: 60 }}>
+                <span style={{ color: j.active ? '#F59E0B' : j.isToday ? '#F5F3FF' : '#A78BFA', fontSize: j.isToday ? 18 : 14, fontWeight: 800 }}>{j.time}</span>
+                <span style={{ color: j.active ? '#F59E0B' : '#5E6673', fontSize: j.isToday ? 11 : 10, fontWeight: 700 }}>{j.period}</span>
               </div>
-              {i < jobs.length - 1 && <div style={{ height: 1, background: '#0A0A0A', margin: '0 24px' }} />}
+              <div style={{ width: 1, height: 60, background: j.active ? '#F59E0B40' : '#1A1A1A' }} />
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {j.tag && (
+                  <span style={{
+                    display: 'inline-flex', alignSelf: 'flex-start', padding: '0 8px', height: 20, alignItems: 'center', borderRadius: 5,
+                    background: j.tag === 'NEXT' ? '#F59E0B' : '#A78BFA20',
+                    border: j.tag === 'PRE' ? '1px solid #A78BFA40' : 'none',
+                    color: j.tag === 'NEXT' ? '#0A0617' : '#A78BFA',
+                    fontSize: 10, fontWeight: 800, letterSpacing: 1,
+                  }}>{j.tag}</span>
+                )}
+                <span style={{ color: '#F5F3FF', fontSize: 14, fontWeight: 800 }}>{j.customer} · <span style={{ fontWeight: 600 }}>{j.system}</span></span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Ic n="map" s={12} c="#5E6673" />
+                  <span style={{ color: '#848E9C', fontSize: 12 }}>{j.addr}</span>
+                  {j.payout && (<><span style={{ color: '#5E6673' }}>·</span><span style={{ color: '#F59E0B', fontSize: 12, fontWeight: 700 }}>{j.payout}</span></>)}
+                </div>
+              </div>
+              <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 16px', height: 38, borderRadius: 9, border: j.active ? 'none' : '1px solid #1A1A1A', background: j.active ? '#F59E0B' : '#0A0A0A', color: j.active ? '#0A0617' : '#F5F3FF', fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
+                {j.active ? <><Ic n="arrow-right" s={12} /> {t(lang, 'epc.dashboard.navigate')}</> : t(lang, 'epc.dashboard.details')}
+              </button>
             </div>
           ))}
-        </Card>
-        <div style={{ width: 360, display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ height: 280, borderRadius: 18, background: '#000', border: '1px solid #1A1A1A', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, color: '#5E6673', fontSize: 14, position: 'relative' }}><Ic n="map" s={48} c="#F59E0B40" /><span>{t(lang, 'epc.dashboard.routeMap')}</span><div style={{ position: 'absolute', top: 16, left: 16, display: 'flex', alignItems: 'center', gap: 6, padding: '0 10px', height: 26, borderRadius: 6, background: '#0A0617AA', border: '1px solid #262626' }}><span style={{ color: '#fff', fontSize: 11, fontWeight: 600 }}>📍 {t(lang, 'epc.dashboard.activeRoute')}</span></div></div>
-          <Card style={{ flex: 1, gap: 14 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#EAECEF', fontSize: 15, fontWeight: 700 }}>{t(lang, 'epc.dashboard.materials')}</span><span style={{ color: '#848E9C', fontSize: 13 }}>2/3</span></div>
-            {materials.map((m, i) => (<div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}><div style={{ width: 20, height: 20, borderRadius: 10, background: m.done ? '#02C07620' : '#1A1A1A', border: `1.5px solid ${m.done ? '#02C076' : '#333'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{m.done && <Ic n="check" s={12} c="#02C076" />}</div><span style={{ color: m.done ? '#EAECEF' : '#5E6673', fontSize: 13, fontWeight: 500 }}>{m.name}</span></div>))}
-          </Card>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', background: '#02C07618', borderRadius: 14, border: '1px solid #02C07640' }}><Ic n="shield-check" s={24} c="#02C076" /><div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}><span style={{ color: '#02C076', fontSize: 14, fontWeight: 700 }}>{t(lang, 'epc.dashboard.safety')}</span><span style={{ color: '#848E9C', fontSize: 11 }}>{t(lang, 'epc.dashboard.safetySub')}</span></div></div>
+        </div>
+
+        {/* Right column: map + materials + safety */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* Mini map */}
+          <div style={{ position: 'relative', height: 280, borderRadius: 18, background: 'radial-gradient(circle at 30% 40%, #1a1f2e 0%, #000 70%)', border: '1px solid #1A1A1A', overflow: 'hidden' }}>
+            {/* Fake map grid */}
+            <svg viewBox="0 0 360 280" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+              <defs>
+                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#FFFFFF06" strokeWidth="1" />
+                </pattern>
+              </defs>
+              <rect width="360" height="280" fill="url(#grid)" />
+              <path d="M 40 220 Q 140 180 200 140 T 320 60" stroke="#F59E0B" strokeWidth="3" fill="none" strokeLinecap="round" strokeDasharray="4 6" opacity="0.7" />
+              <circle cx="40" cy="220" r="6" fill="#02C076" stroke="#000" strokeWidth="2" />
+              <circle cx="200" cy="140" r="9" fill="#F59E0B" stroke="#fff" strokeWidth="2" />
+              <circle cx="320" cy="60" r="6" fill="#A78BFA" stroke="#000" strokeWidth="2" />
+            </svg>
+            <div style={{ position: 'absolute', top: 16, left: 16, display: 'flex', alignItems: 'center', gap: 6, padding: '0 10px', height: 26, borderRadius: 6, background: '#0A0617DD', border: '1px solid #262626' }}>
+              <Ic n="map" s={11} c="#F59E0B" />
+              <span style={{ color: '#F5F3FF', fontSize: 11, fontWeight: 700 }}>{t(lang, 'epc.dashboard.todayRoute')} · 18.4 mi</span>
+            </div>
+          </div>
+
+          {/* Materials checklist */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, padding: 24, background: '#0E0E10', border: '1px solid #1A1A1A', borderRadius: 18 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Ic n="clipboard-list" s={14} c="#A78BFA" />
+                <span style={{ color: '#F5F3FF', fontSize: 14, fontWeight: 800 }}>{t(lang, 'epc.dashboard.materials')}</span>
+              </div>
+              <span style={{ color: '#A78BFA', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t(lang, 'epc.dashboard.order')} →</span>
+            </div>
+            {materials.map((m, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 20, height: 20, borderRadius: 10, background: m.status === 'loaded' ? '#02C07620' : '#F59E0B20', border: `1.5px solid ${m.status === 'loaded' ? '#02C076' : '#F59E0B'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {m.status === 'loaded' && <Ic n="check" s={12} c="#02C076" />}
+                  </div>
+                  <span style={{ color: '#F5F3FF', fontSize: 12, fontWeight: 500 }}>{m.name}</span>
+                </div>
+                <span style={{ color: m.status === 'loaded' ? '#02C076' : '#F59E0B', fontSize: 11, fontWeight: 700 }}>
+                  {m.status === 'loaded' ? t(lang, 'epc.dashboard.loaded') : t(lang, 'epc.dashboard.pickup')}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Safety */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', background: '#02C07618', border: '1px solid #02C07640', borderRadius: 18 }}>
+            <Ic n="shield-check" s={24} c="#02C076" />
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <span style={{ color: '#F5F3FF', fontSize: 13, fontWeight: 800 }}>{t(lang, 'epc.dashboard.safety')}</span>
+              <span style={{ color: '#02C076', fontSize: 11, fontWeight: 500 }}>{t(lang, 'epc.dashboard.safetySub')}</span>
+            </div>
+          </div>
         </div>
       </div>
     </>
