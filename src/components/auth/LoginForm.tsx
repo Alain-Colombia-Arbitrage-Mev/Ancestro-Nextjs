@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { getAuthErrorMessage, cognitoConfirmNewPassword, getCognitoToken, getCognitoUser } from '@/lib/auth';
+import { getAmplifyStatus } from '@/lib/amplify';
 import { t } from '@/i18n/translations';
 import { CDN_URL } from '@/lib/cdn';
 
@@ -24,7 +25,15 @@ export default function LoginForm({ lang }: LoginFormProps) {
   const [needsNewPassword, setNeedsNewPassword] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPwd, setConfirmNewPwd] = useState('');
+  const [cfgWarn, setCfgWarn] = useState<string | null>(null);
   const emailRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const s = getAmplifyStatus();
+    if (!s.hasUserPoolId || !s.hasClientId) {
+      setCfgWarn('Cognito no está configurado: faltan NEXT_PUBLIC_COGNITO_USER_POOL_ID / NEXT_PUBLIC_COGNITO_CLIENT_ID. Setealas en .env.local (dev) o en Amplify (prod) y recargá.');
+    }
+  }, []);
 
   useEffect(() => {
     emailRef.current?.focus();
@@ -60,8 +69,13 @@ export default function LoginForm({ lang }: LoginFormProps) {
       }
       if (result.success) {
         router.push(`/${lang}/dashboard`);
+        return;
       }
+      // Reached only if signIn returned isSignedIn=false with no recognized next step (e.g. MFA)
+      console.warn('[LoginForm] login() returned', result);
+      setError('No pudimos iniciar sesión. Revisá email/contraseña o mirá la consola para detalles.');
     } catch (err: any) {
+      console.error('[LoginForm] login error', err);
       if (err?.name === 'UserNotConfirmedException' || err?.message?.includes('not confirmed')) {
         router.push(`/${lang}/verify?email=${encodeURIComponent(email)}`);
         return;
@@ -181,6 +195,16 @@ export default function LoginForm({ lang }: LoginFormProps) {
           <h1 className="lf-title">{t(lang, 'auth.login.title')}</h1>
           <p className="lf-subtitle">{t(lang, 'auth.login.subtitle')}</p>
         </div>
+
+        {cfgWarn && (
+          <div className="lf-error" role="alert" style={{ background: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.35)', color: '#fbbf24' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v4M12 16h.01" />
+            </svg>
+            <span>{cfgWarn}</span>
+          </div>
+        )}
 
         {error && (
           <div className="lf-error" role="alert">

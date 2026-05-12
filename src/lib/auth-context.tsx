@@ -140,7 +140,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       configureAmplify();
-      const signInResult = await cognitoSignIn(email, password);
+      let signInResult;
+      try {
+        signInResult = await cognitoSignIn(email, password);
+      } catch (e: unknown) {
+        const name = (e as { name?: string })?.name;
+        // Amplify v6 refuses signIn if a stale Cognito session exists. Sign out and retry once.
+        if (name === 'UserAlreadyAuthenticatedException') {
+          console.warn('[Auth] Clearing stale Cognito session and retrying signIn');
+          try { await cognitoSignOut(); } catch {}
+          clearAuthStorage();
+          signInResult = await cognitoSignIn(email, password);
+        } else {
+          throw e;
+        }
+      }
 
       if (signInResult.nextStep?.signInStep === 'CONFIRM_SIGN_UP') {
         return { success: false, needsVerification: true };
@@ -173,6 +187,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: true };
       }
 
+      console.warn('[Auth] signIn did not complete', signInResult);
       return { success: false };
     } catch (error) {
       throw error;
