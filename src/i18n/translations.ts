@@ -382,6 +382,14 @@ export const translations = {
     'dashboard.customer.energyUsage': 'Consumo de energía',
     'dashboard.customer.savings': 'Ahorros',
 
+    // Leaderboard
+    'leaderboard.meta.title': 'Leaderboard · Ancestro',
+    'leaderboard.meta.desc': 'Ranking de los mejores afiliados de Ancestro.',
+
+    // Onboarding
+    'onboarding.meta.title': 'Onboarding · Ancestro',
+    'onboarding.meta.desc': 'Completa tu registro como afiliado de Ancestro.',
+
     // Presale Page
     'presale.meta.title': 'Presale ANC Token',
     'presale.meta.description': 'Participa en el presale del token ANC de Ancestro. Precio exclusivo de $0.88, vesting justo y staking con hasta 33% APY.',
@@ -1521,6 +1529,14 @@ export const translations = {
     'dashboard.customer.nextReward': 'Next reward',
     'dashboard.customer.energyUsage': 'Energy usage',
     'dashboard.customer.savings': 'Savings',
+
+    // Leaderboard
+    'leaderboard.meta.title': 'Leaderboard · Ancestro',
+    'leaderboard.meta.desc': 'Top Ancestro affiliate rankings.',
+
+    // Onboarding
+    'onboarding.meta.title': 'Onboarding · Ancestro',
+    'onboarding.meta.desc': 'Complete your Ancestro affiliate setup.',
 
     // Presale Page
     'presale.meta.title': 'ANC Token Presale',

@@ -6,6 +6,7 @@ import InfoSection from '@/components/InfoSection';
 import LATAMSection from '@/components/LATAMSection';
 import ShopSection from '@/components/ShopSection';
 import Footer from '@/components/Footer';
+import ReferralTracker from '@/components/ReferralTracker';
 import { t } from '@/i18n/translations';
 import { CDN_URL } from '@/lib/cdn';
 
@@ -83,6 +84,8 @@ export default async function HomePage({ params }: PageProps) {
     <>
       <div className="page-wrapper">
         <Navbar lang={lang} />
+        <ReferralTracker />
+        <ReferralTracker />
         <main id="main-content" role="main">
           <div className="hero-section">
             <HeroBanner slides={heroSlides} />
