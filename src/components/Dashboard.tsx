@@ -987,21 +987,111 @@ function EpcDashboardView({ lang }: { lang: string }) {
 // EPC EARNINGS VIEW
 // ═══════════════════════════════════════════════════════
 function EpcEarningsView({ lang }: { lang: string }) {
-  const txs = [{ icon: 'dollar-sign' as const, bg: '#FBBF2420', name: 'Veronica H. · 9.6 kW Pro', date: 'Jul 8', amount: '+$1,200', color: '#02C076' },{ icon: 'hardhat' as const, bg: '#10B98120', name: 'Carlos M. · 13.5 kW Max', date: 'Jul 5', amount: '+$600', color: '#02C076' },{ icon: 'wrench' as const, bg: '#A78BFA20', name: 'Payout to bank', date: 'Jun 30', amount: '−$15,200', color: '#848E9C' }];
+  const txs = [
+    { icon: 'dollar-sign' as const, bg: '#FBBF2420', iconColor: '#F59E0B', name: 'Veronica Hernández · 9.6 kW Pro', date: 'Jul 8', amount: '+$1,200', color: '#02C076' },
+    { icon: 'hardhat' as const, bg: '#10B98120', iconColor: '#02C076', name: 'Carlos Mendez · 13.5 kW Max + Battery', date: 'Jul 5', amount: '+$600', color: '#02C076' },
+    { icon: 'wrench' as const, bg: '#A78BFA20', iconColor: '#A78BFA', name: 'Payout to bank •••• 4242', date: 'Jun 30', amount: '−$15,200', color: '#848E9C' },
+  ];
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+  const breakdown = [
+    { l: t(lang, 'epc.earnings.solarInstall'), v: '$14,400', d: '#F59E0B' },
+    { l: t(lang, 'epc.earnings.batteryInstall'), v: '$2,400', d: '#02C076' },
+    { l: t(lang, 'epc.earnings.bonuses'), v: '$1,050', d: '#A78BFA' },
+    { l: t(lang, 'epc.earnings.tips'), v: '+$570', d: '#02C076' },
+  ];
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}><span style={{ color: '#848E9C', fontSize: 13 }}>{t(lang, 'epc.earnings.subtitle')}</span><span style={{ color: '#EAECEF', fontSize: 32, fontWeight: 800, letterSpacing: -0.5 }}>{t(lang, 'epc.earnings.title')}</span></div><button style={btnG}>{t(lang, 'epc.earnings.requestPayout')}</button></div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 32, padding: 32, background: '#12100B', borderRadius: 24, border: '1px solid #2A2218' }}><div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}><span style={{ color: '#F59E0B', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase' }}>{t(lang, 'epc.earnings.yearEarned')}</span><span style={{ color: '#EAECEF', fontSize: 54, fontWeight: 800, letterSpacing: -1.8 }}>$132,840</span><span style={{ color: '#848E9C', fontSize: 13 }}>{t(lang, 'epc.earnings.fromInstalls')}</span></div><div style={{ width: 1, height: 96, background: '#1A1A1A' }} /><div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}><span style={{ color: '#5E6673', fontSize: 10, fontWeight: 700, letterSpacing: 1.2, textTransform: 'uppercase' }}>{t(lang, 'epc.earnings.pending')}</span><span style={{ color: '#F59E0B', fontSize: 24, fontWeight: 800 }}>$4,820</span><span style={{ color: '#5E6673', fontSize: 11 }}>{t(lang, 'epc.earnings.pendingSub')}</span></div><div style={{ width: 1, height: 96, background: '#1A1A1A' }} /><div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}><span style={{ color: '#02C076', fontSize: 10, fontWeight: 700, letterSpacing: 1.2, textTransform: 'uppercase' }}>{t(lang, 'epc.earnings.paidOut')}</span><span style={{ color: '#02C076', fontSize: 24, fontWeight: 800 }}>$128,020</span><span style={{ color: '#5E6673', fontSize: 11 }}>{t(lang, 'epc.earnings.paidOutSub')}</span></div></div>
-      <div style={{ display: 'flex', gap: 16 }}>
-        <Card style={{ flex: 1 }}><div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#EAECEF', fontSize: 16, fontWeight: 800 }}>{t(lang, 'epc.earnings.monthlyEarnings')}</span><div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px', height: 32, borderRadius: 8, background: '#0A0A0A', border: '1px solid #1A1A1A' }}><span style={{ color: '#848E9C', fontSize: 12 }}>2025</span><Ic n="chevron-down" s={12} c="#5E6673" /></div></div><div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: 180, gap: 12 }}>{monthImages.map((h,i)=>(<div key={i} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:6,flex:1}}><div style={{width:'100%',maxWidth:48,height:`${h}%`,borderRadius:'8px 8px 0 0',background:`linear-gradient(180deg,${h>85?'#F59E0B':'#F59E0B80'} 0%,#F59E0B20 100%)`,minHeight:4}}/><span style={{color:'#5E6673',fontSize:10,fontWeight:600}}>{months[i]}</span></div>))}</div></Card>
-        <Card style={{ width: 360 }}><span style={{ color: '#5E6673', fontSize: 11, fontWeight: 700, letterSpacing: 1.5 }}>{t(lang, 'epc.earnings.paymentBreakdown')}</span><span style={{ color: '#EAECEF', fontSize: 18, fontWeight: 800 }}>{t(lang, 'epc.earnings.thisMonth')} · $18,420</span>{[{l:t(lang,'epc.earnings.solarInstall'),v:'$14,400',d:'#F59E0B'},{l:t(lang,'epc.earnings.batteryInstall'),v:'$2,400',d:'#02C076'},{l:t(lang,'epc.earnings.bonuses'),v:'$1,050',d:'#A78BFA'},{l:t(lang,'epc.earnings.tips'),v:'+$570',d:'#02C076'}].map((b,i)=>(<div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><div style={{display:'flex',alignItems:'center',gap:8}}><div style={{width:8,height:8,borderRadius:4,background:b.d}}/><span style={{color:'#848E9C',fontSize:13}}>{b.l}</span></div><span style={{color:b.d,fontSize:13,fontWeight:800}}>{b.v}</span></div>))}</Card>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <span style={{ color: '#848E9C', fontSize: 13 }}>{t(lang, 'epc.earnings.subtitle')}</span>
+          <h1 style={{ color: '#F5F3FF', fontSize: 32, fontWeight: 800, letterSpacing: -0.5, margin: 0 }}>{t(lang, 'epc.earnings.title')}</h1>
+        </div>
+        <button style={{ ...btnG, height: 40 }}>{t(lang, 'epc.earnings.requestPayout')}</button>
       </div>
-      <Card>
-        <div style={{ display: 'flex', justifyContent: 'space-between', height: 48, alignItems: 'center' }}><span style={{ color: '#5E6673', fontSize: 11, fontWeight: 700, letterSpacing: 1.5 }}>{t(lang, 'epc.earnings.recentTransactions')}</span><span style={{ color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t(lang, 'epc.earnings.viewAllTx')} 156 →</span></div>
+
+      {/* Hero strip */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 32, padding: 32, background: '#12100B', border: '1px solid #2A2218', borderRadius: 24 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
+          <span style={{ color: '#F59E0B', fontSize: 11, fontWeight: 800, letterSpacing: 1.5 }}>{t(lang, 'epc.earnings.yearEarned')}</span>
+          <span style={{ color: '#F5F3FF', fontSize: 54, fontWeight: 800, letterSpacing: -1.8, lineHeight: 1 }}>$132,840</span>
+          <span style={{ color: '#848E9C', fontSize: 13 }}>{t(lang, 'epc.earnings.fromInstalls')}</span>
+        </div>
+        <div style={{ width: 1, height: 96, background: '#1A1A1A' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <span style={{ color: '#5E6673', fontSize: 10, fontWeight: 700, letterSpacing: 1.2 }}>{t(lang, 'epc.earnings.pending').toUpperCase()}</span>
+          <span style={{ color: '#F59E0B', fontSize: 24, fontWeight: 800 }}>$4,820</span>
+          <span style={{ color: '#5E6673', fontSize: 11 }}>{t(lang, 'epc.earnings.pendingSub')}</span>
+        </div>
+        <div style={{ width: 1, height: 96, background: '#1A1A1A' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <span style={{ color: '#02C076', fontSize: 10, fontWeight: 700, letterSpacing: 1.2 }}>{t(lang, 'epc.earnings.paidOut').toUpperCase()}</span>
+          <span style={{ color: '#02C076', fontSize: 24, fontWeight: 800 }}>$128,020</span>
+          <span style={{ color: '#5E6673', fontSize: 11 }}>{t(lang, 'epc.earnings.paidOutSub')}</span>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16 }}>
+        {/* Monthly bars */}
+        <Card>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <span style={{ color: '#5E6673', fontSize: 11, fontWeight: 700, letterSpacing: 1.5 }}>{t(lang, 'epc.earnings.monthlyEarnings').toUpperCase()}</span>
+              <span style={{ color: '#F5F3FF', fontSize: 18, fontWeight: 800 }}>2025 · YTD</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px', height: 32, background: '#0A0A0A', border: '1px solid #1A1A1A', borderRadius: 8 }}>
+              <span style={{ color: '#F5F3FF', fontSize: 12, fontWeight: 600 }}>2025</span>
+              <Ic n="chevron-down" s={12} c="#A1A1AA" />
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: 180, gap: 12 }}>
+            {monthImages.map((h, i) => (
+              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flex: 1 }}>
+                <div style={{ width: '100%', maxWidth: 48, height: `${h}%`, borderRadius: '8px 8px 0 0', background: `linear-gradient(180deg, ${h > 85 ? '#F59E0B' : '#F59E0B80'} 0%, #F59E0B20 100%)`, minHeight: 4 }} />
+                <span style={{ color: '#5E6673', fontSize: 10, fontWeight: 600 }}>{months[i]}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* Payment breakdown */}
+        <Card>
+          <span style={{ color: '#5E6673', fontSize: 11, fontWeight: 700, letterSpacing: 1.5 }}>{t(lang, 'epc.earnings.paymentBreakdown').toUpperCase()}</span>
+          <span style={{ color: '#F5F3FF', fontSize: 18, fontWeight: 800 }}>{t(lang, 'epc.earnings.thisMonth')} · $18,420</span>
+          {breakdown.map((b, i) => (
+            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ width: 8, height: 8, borderRadius: 4, background: b.d }} />
+                <span style={{ color: '#848E9C', fontSize: 13 }}>{b.l}</span>
+              </div>
+              <span style={{ color: b.d, fontSize: 13, fontWeight: 800 }}>{b.v}</span>
+            </div>
+          ))}
+        </Card>
+      </div>
+
+      {/* Recent transactions */}
+      <div style={{ display: 'flex', flexDirection: 'column', background: '#0E0E10', border: '1px solid #1A1A1A', borderRadius: 18, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 48, padding: '0 24px' }}>
+          <span style={{ color: '#5E6673', fontSize: 11, fontWeight: 700, letterSpacing: 1.5 }}>{t(lang, 'epc.earnings.recentTransactions').toUpperCase()}</span>
+          <span style={{ color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t(lang, 'epc.earnings.viewAllTx')} 156 →</span>
+        </div>
         <div style={{ height: 1, background: '#1A1A1A' }} />
-        {txs.map((tx,i)=>(<div key={i}><div style={{display:'flex',alignItems:'center',gap:14,height:56}}><div style={{width:32,height:32,borderRadius:8,background:tx.bg,display:'flex',alignItems:'center',justifyContent:'center'}}><Ic n={tx.icon} s={14} c={tx.name.includes('bank')?'#848E9C':'#F59E0B'}/></div><div style={{flex:1}}><span style={{color:'#EAECEF',fontSize:13,fontWeight:600}}>{tx.name}</span><span style={{color:'#5E6673',fontSize:11,marginLeft:8}}>{tx.date}</span></div><span style={{color:tx.color,fontSize:14,fontWeight:800,textAlign:'right',width:120}}>{tx.amount}</span></div>{i<txs.length-1&&<div style={{height:1,background:'#0A0A0A'}}/>}</div>))}
-      </Card>
+        {txs.map((tx, i) => (
+          <div key={i}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, height: 56, padding: '0 24px' }}>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: tx.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Ic n={tx.icon} s={14} c={tx.iconColor} />
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <span style={{ color: '#F5F3FF', fontSize: 13, fontWeight: 600 }}>{tx.name}</span>
+                <span style={{ color: '#5E6673', fontSize: 11 }}>{tx.date}</span>
+              </div>
+              <span style={{ color: tx.color, fontSize: 14, fontWeight: 800, textAlign: 'right', width: 120 }}>{tx.amount}</span>
+            </div>
+            {i < txs.length - 1 && <div style={{ height: 1, background: '#0A0A0A' }} />}
+          </div>
+        ))}
+      </div>
     </>
   );
 }
