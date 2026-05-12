@@ -1,6 +1,8 @@
 'use client';
-import { useState, memo } from 'react';
+import { useState, memo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { t } from '@/i18n/translations';
+import { useAuth } from '@/lib/auth-context';
 
 type Role = 'affiliate' | 'epc' | 'customer';
 
@@ -43,6 +45,8 @@ const Icons = {
 
 // ─── Dashboard Component ────────────────────────────────
 export default function Dashboard({ lang }: { lang: string }) {
+  const { user, isLoading, logout } = useAuth();
+  const router = useRouter();
   const [role, setRole] = useState<Role>('affiliate');
 
   const roles: { id: Role; label: string; icon: keyof typeof Icons }[] = [
@@ -50,6 +54,37 @@ export default function Dashboard({ lang }: { lang: string }) {
     { id: 'epc', label: t(lang, 'dashboard.roles.epc'), icon: 'hardhat' },
     { id: 'customer', label: t(lang, 'dashboard.roles.customer'), icon: 'home' },
   ];
+
+  // Auto-detect role from user data
+  useEffect(() => {
+    if (user?.role) {
+      const mapped = user.role === 'installer' ? 'epc' : user.role === 'investor' ? 'affiliate' : 'customer';
+      setRole(mapped as Role);
+    }
+  }, [user?.role]);
+
+  if (isLoading) {
+    return <div style={{ minHeight: '100vh', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#848E9C', fontSize: 16 }}>{t(lang, 'auth.loading')}</div>;
+  }
+
+  if (!user) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20 }}>
+        <svg width={64} height={64} viewBox="0 0 24 24" fill="none" style={{ color: '#F59E0B' }}>
+          <path d={Icons.shield} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        <h2 style={{ color: '#EAECEF', fontSize: 24, fontWeight: 800, margin: 0 }}>{t(lang, 'auth.required')}</h2>
+        <p style={{ color: '#848E9C', fontSize: 14, margin: 0 }}>{t(lang, 'auth.requiredDesc')}</p>
+        <button onClick={() => router.push(`/${lang}/login`)} style={btnPrimary}>
+          {t(lang, 'auth.login')}
+        </button>
+      </div>
+    );
+  }
+
+  // Auto-map user role to default tab
+  const userRole: Role = user.role === 'installer' ? 'epc' : user.role === 'investor' ? 'affiliate' : 'customer';
+  const activeRole = role || userRole;
 
   return (
     <div style={{ minHeight: '100vh', background: '#000', paddingTop: 80 }}>
@@ -62,9 +97,9 @@ export default function Dashboard({ lang }: { lang: string }) {
         {roles.map(r => (
           <button key={r.id} onClick={() => setRole(r.id)} style={{
             display: 'flex', alignItems: 'center', gap: 8, padding: '8px 20px', borderRadius: 10,
-            border: role === r.id ? '1px solid #F59E0B40' : '1px solid transparent',
-            background: role === r.id ? '#F59E0B18' : 'transparent',
-            color: role === r.id ? '#F59E0B' : '#848E9C', fontSize: 13, fontWeight: role === r.id ? 700 : 500,
+            border: activeRole === r.id ? '1px solid #F59E0B40' : '1px solid transparent',
+            background: activeRole === r.id ? '#F59E0B18' : 'transparent',
+            color: activeRole === r.id ? '#F59E0B' : '#848E9C', fontSize: 13, fontWeight: activeRole === r.id ? 700 : 500,
             cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s ease',
           }}>
             <svg width={18} height={18} viewBox="0 0 24 24" fill="none">
@@ -73,11 +108,45 @@ export default function Dashboard({ lang }: { lang: string }) {
             {r.label}
           </button>
         ))}
+        {/* User info */}
+        <div style={{ position: 'absolute', right: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
+            <span style={{ color: '#EAECEF', fontSize: 13, fontWeight: 600 }}>{user.name}</span>
+            <span style={{ color: '#848E9C', fontSize: 11 }}>{user.email}</span>
+          </div>
+          <div style={{ width: 36, height: 36, borderRadius: 18, background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0A0617', fontSize: 14, fontWeight: 800 }}>
+            {(user.name || 'U')[0].toUpperCase()}
+          </div>
+          <button onClick={logout} style={{
+            padding: '6px 12px', borderRadius: 8, border: '1px solid #1A1A1A',
+            background: 'transparent', color: '#848E9C', fontSize: 11, fontWeight: 600,
+            cursor: 'pointer', fontFamily: 'inherit',
+          }}>
+            {t(lang, 'auth.logout')}
+          </button>
+        </div>
+        {/* User info */}
+        <div style={{ position: 'absolute', right: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
+            <span style={{ color: '#EAECEF', fontSize: 13, fontWeight: 600 }}>{user.name}</span>
+            <span style={{ color: '#848E9C', fontSize: 11 }}>{user.email}</span>
+          </div>
+          <div style={{ width: 36, height: 36, borderRadius: 18, background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0A0617', fontSize: 14, fontWeight: 800 }}>
+            {(user.name || 'U')[0].toUpperCase()}
+          </div>
+          <button onClick={logout} style={{
+            padding: '6px 12px', borderRadius: 8, border: '1px solid #1A1A1A',
+            background: 'transparent', color: '#848E9C', fontSize: 11, fontWeight: 600,
+            cursor: 'pointer', fontFamily: 'inherit',
+          }}>
+            {t(lang, 'auth.logout')}
+          </button>
+        </div>
       </div>
 
-      {role === 'affiliate' && <AffiliateView lang={lang} />}
-      {role === 'epc' && <EpcView lang={lang} />}
-      {role === 'customer' && <CustomerView lang={lang} />}
+      {activeRole === 'affiliate' && <AffiliateView lang={lang} user={user} />}
+      {activeRole === 'epc' && <EpcView lang={lang} />}
+      {activeRole === 'customer' && <CustomerView lang={lang} />}
     </div>
   );
 }
@@ -113,7 +182,7 @@ const StatCard = memo(function StatCard({ icon, label, value, sub, subColor }: {
 });
 
 // ─── Affiliate View ─────────────────────────────────────
-function AffiliateView({ lang }: { lang: string }) {
+function AffiliateView({ lang, user }: { lang: string; user: { name: string; email: string } }) {
   const referrals = [
     { name: 'Sara Chen', date: 'Jul 8', status: 'Active' as const, revenue: '$1,240', tier: 'Platinum' },
     { name: 'Marcus Webb', date: 'Jul 5', status: 'Pending' as const, revenue: '$0', tier: 'Gold' },
