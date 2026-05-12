@@ -82,7 +82,10 @@ export async function cognitoSignUp(
   const nameParts = name.trim().split(/\s+/);
   const givenName = nameParts[0] || name;
   const familyName = nameParts.slice(1).join(' ') || ' ';
-  const username = `user_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  // Use email as username so signIn(email, password) works without depending on a
+  // Cognito email-alias config. Note: requires the user pool to accept email as the
+  // sign-in attribute (or to have a UsernameAttributes setting that allows it).
+  const username = email.trim().toLowerCase();
 
   // Cognito requires E.164 format: +15550000000
   const e164Phone = phone.replace(/[^0-9+]/g, '');
