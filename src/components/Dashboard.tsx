@@ -3,6 +3,7 @@ import { useState, memo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { t } from '@/i18n/translations';
 import { useAuth } from '@/lib/auth-context';
+import { CDN_URL } from '@/lib/cdn';
 
 type Role = 'affiliate' | 'epc' | 'customer';
 
@@ -273,14 +274,9 @@ function EpcView({ lang }: { lang: string }) {
         background: '#0A0A0A', borderRight: '1px solid #1A1A1A',
         display: 'flex', flexDirection: 'column', padding: '32px 16px', gap: 0,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32, paddingLeft: 16 }}>
-          <svg width={32} height={32} viewBox="0 0 24 24" fill="none" style={{ color: '#F59E0B' }}>
-            <path d={Icons.footprint} stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ color: '#fff', fontSize: 18, fontWeight: 800, letterSpacing: 1.5 }}>ANCESTRO</span>
-            <span style={{ color: '#848E9C', fontSize: 11, fontWeight: 600 }}>{t(lang, 'epc.sidebar.epc')}</span>
-          </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 32, paddingLeft: 16 }}>
+          <img src={`${CDN_URL}/logo.svg`} alt="Ancestro" style={{ height: 40, width: 'auto', objectFit: 'contain' }} />
+          <span style={{ color: '#848E9C', fontSize: 11, fontWeight: 600, marginLeft: 4 }}>{t(lang, 'epc.sidebar.epc')}</span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
           {navItems.map(item => (
