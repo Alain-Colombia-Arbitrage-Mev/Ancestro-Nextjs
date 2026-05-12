@@ -3,7 +3,7 @@ import { Amplify } from 'aws-amplify';
 const userPoolId = process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID || '';
 const userPoolClientId = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || '';
 const cognitoDomain = process.env.NEXT_PUBLIC_COGNITO_DOMAIN || '';
-const region = process.env.NEXT_PUBLIC_COGNITO_REGION || 'us-east-2';
+const region = process.env.NEXT_PUBLIC_COGNITO_REGION || 'us-east-1';
 
 let configured = false;
 
