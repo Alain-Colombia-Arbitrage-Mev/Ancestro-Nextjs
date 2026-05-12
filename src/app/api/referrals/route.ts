@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { recordReferralConversion } from '@/lib/referral-attribution';
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get('code');
@@ -37,20 +38,16 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === 'convert') {
-      const { referred_email, amount } = await req.json();
-      const r = await query('SELECT * FROM referral_links WHERE code = $1', [code]);
-      if (!r.rows.length) return NextResponse.json({ error: 'Invalid code' }, { status: 404 });
+      const { referred_email, amount, role } = body;
+      if (!referred_email) return NextResponse.json({ error: 'Missing referred_email' }, { status: 400 });
 
-      const cs = await query('SELECT * FROM commission_settings WHERE role = $1', ['affiliate']);
-      const pct = cs.rows[0]?.percentage || 15;
-
-      await query('UPDATE referral_links SET signups = signups + 1 WHERE code = $1', [code]);
-      await query(
-        'INSERT INTO referral_commissions (referrer_code, referred_email, amount, commission_percent) VALUES ($1,$2,$3,$4)',
-        [code, referred_email, amount ? parseFloat(amount) : 0, pct]
-      );
-
-      return NextResponse.json({ success: true, action: 'convert', commission_pct: pct });
+      const result = await recordReferralConversion(req, {
+        email: referred_email,
+        amount: typeof amount === 'number' ? amount : amount ? parseFloat(amount) : undefined,
+        role: role || 'affiliate',
+        code, // explicit code wins over cookie
+      });
+      return NextResponse.json({ success: result.credited, action: 'convert', ...result });
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });

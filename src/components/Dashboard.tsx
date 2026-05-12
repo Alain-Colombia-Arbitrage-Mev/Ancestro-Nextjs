@@ -3,6 +3,7 @@ import { useState, memo, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { t } from '@/i18n/translations';
 import { useAuth } from '@/lib/auth-context';
+import { isAdminEmail } from '@/lib/admin';
 import { CDN_URL } from '@/lib/cdn';
 
 type Role = 'affiliate' | 'epc' | 'customer';
@@ -108,12 +109,17 @@ export default function Dashboard({ lang }: { lang: string }) {
   }
 
   const userRole: Role = user.role === 'installer' ? 'epc' : user.role === 'investor' ? 'affiliate' : 'customer';
+  const isAdmin = isAdminEmail(user.email);
+  // Lock viewable roles to the user's assigned one; admins can preview all roles.
+  const allowedRoles: Role[] = isAdmin ? ['affiliate', 'epc', 'customer'] : [userRole];
+  const activeRole: Role = allowedRoles.includes(role) ? role : userRole;
 
-  const sidebarItems: { role: Role; icon: keyof typeof Icons; label: string }[] = [
+  const allSidebarItems: { role: Role; icon: keyof typeof Icons; label: string }[] = [
     { role: 'affiliate', icon: 'link', label: t(lang, 'dashboard.roles.affiliate') },
     { role: 'epc', icon: 'hardhat', label: t(lang, 'dashboard.roles.epc') },
     { role: 'customer', icon: 'home', label: t(lang, 'dashboard.roles.customer') },
   ];
+  const sidebarItems = allSidebarItems.filter(item => allowedRoles.includes(item.role));
 
   const epcNavItems: { id: EpcTab; icon: keyof typeof Icons; label: string }[] = [
     { id: 'dashboard', icon: 'home', label: t(lang, 'epc.nav.dashboard') },
@@ -137,9 +143,11 @@ export default function Dashboard({ lang }: { lang: string }) {
 
         {/* Role selector */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 20 }}>
-          <span style={{ color: '#5E6673', fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', padding: '0 16px', marginBottom: 6 }}>{t(lang, 'dashboard.sidebar.role')}</span>
+          <span style={{ color: '#5E6673', fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', padding: '0 16px', marginBottom: 6 }}>
+            {t(lang, 'dashboard.sidebar.role')}{isAdmin && <span style={{ color: '#F59E0B', marginLeft: 6 }}>· ADMIN</span>}
+          </span>
           {sidebarItems.map(item => (
-            <NavItem key={item.role} icon={item.icon} label={item.label} active={role === item.role} onClick={() => setRole(item.role)} />
+            <NavItem key={item.role} icon={item.icon} label={item.label} active={activeRole === item.role} onClick={() => setRole(item.role)} />
           ))}
         </div>
 
@@ -148,13 +156,13 @@ export default function Dashboard({ lang }: { lang: string }) {
         {/* Navigation */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
           <span style={{ color: '#5E6673', fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', padding: '0 16px', marginBottom: 6 }}>{t(lang, 'dashboard.sidebar.nav')}</span>
-          {role === 'epc' && epcNavItems.map(item => (
+          {activeRole === 'epc' && epcNavItems.map(item => (
             <NavItem key={item.id} icon={item.icon} label={item.label} active={epcTab === item.id} onClick={() => setEpcTab(item.id)} />
           ))}
-          {role === 'affiliate' && (
+          {activeRole === 'affiliate' && (
             <NavItem icon="link" label={t(lang, 'dashboard.affiliate.referrals')} active onClick={() => {}} />
           )}
-          {role === 'customer' && (
+          {activeRole === 'customer' && (
             <NavItem icon="home" label={t(lang, 'dashboard.customer.title')} active onClick={() => {}} />
           )}
         </div>
@@ -181,7 +189,7 @@ export default function Dashboard({ lang }: { lang: string }) {
         </div>
 
         {/* EPC badge */}
-        {role === 'epc' && (
+        {activeRole === 'epc' && (
           <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6, padding: 14, background: '#0A0A0A', borderRadius: 12, border: '1px solid #1A1A1A' }}>
             <Ic n="shield" s={18} c="#02C076" />
             <span style={{ color: '#02C076', fontSize: 12, fontWeight: 700 }}>{t(lang, 'epc.sidebar.certified')}</span>
@@ -192,15 +200,15 @@ export default function Dashboard({ lang }: { lang: string }) {
 
       {/* ═══ MAIN CONTENT ═══ */}
       <div style={{ flex: 1, marginLeft: 240, padding: '32px 40px', display: 'flex', flexDirection: 'column', gap: 24 }}>
-        {role === 'affiliate' && <AffiliateView lang={lang} user={user} />}
-        {role === 'epc' && (
+        {activeRole === 'affiliate' && <AffiliateView lang={lang} user={user} />}
+        {activeRole === 'epc' && (
           <>
             {epcTab === 'dashboard' && <EpcDashboardView lang={lang} />}
             {epcTab === 'earnings' && <EpcEarningsView lang={lang} />}
             {epcTab === 'schedule' && <EpcScheduleView lang={lang} />}
           </>
         )}
-        {role === 'customer' && <CustomerView lang={lang} user={user} />}
+        {activeRole === 'customer' && <CustomerView lang={lang} user={user} />}
       </div>
     </div>
   );

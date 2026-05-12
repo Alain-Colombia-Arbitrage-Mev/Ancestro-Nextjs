@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAirtableRecord } from '@/lib/airtable';
 import { query } from '@/lib/db';
+import { recordReferralConversion } from '@/lib/referral-attribution';
 
 const TABLE_ID = process.env.AIRTABLE_WAITLIST_FORM || '';
 
@@ -37,7 +38,11 @@ export async function POST(req: NextRequest) {
       'Date Submitted': new Date().toISOString().split('T')[0],
     });
 
-    return NextResponse.json({ success: true });
+    const attribution = await recordReferralConversion(req, { email, role: 'customer' });
+
+    const res = NextResponse.json({ success: true, attributed: attribution.credited });
+    if (attribution.credited) res.cookies.set('ancestro_ref', '', { maxAge: 0, path: '/' });
+    return res;
   } catch (err) {
     console.error('[Waitlist API]', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

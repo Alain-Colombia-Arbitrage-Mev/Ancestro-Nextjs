@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAirtableRecord } from '@/lib/airtable';
 import { query } from '@/lib/db';
+import { recordReferralConversion } from '@/lib/referral-attribution';
 
 const WAITLIST_TABLE = process.env.AIRTABLE_WAITLIST_FORM || '';
 const INVEST_TABLE = process.env.AIRTABLE_INVEST_FORM || '';
@@ -202,13 +203,22 @@ export async function POST(req: NextRequest) {
       console.warn('[Join API] Partial success', { profile, email, db: dbOk, airtable: airtableOk, errors });
     }
 
-    return NextResponse.json({
+    const role: 'affiliate' | 'customer' | 'epc' =
+      profile === 'investor' ? 'affiliate'
+      : profile === 'installer' ? 'epc'
+      : 'customer';
+    const attribution = await recordReferralConversion(req, { email, role });
+
+    const res = NextResponse.json({
       success: true,
       profile,
       db: dbOk,
       airtable: airtableOk,
+      attributed: attribution.credited,
       ...((errors.db || errors.airtable) && { errors }),
     });
+    if (attribution.credited) res.cookies.set('ancestro_ref', '', { maxAge: 0, path: '/' });
+    return res;
   } catch (err) {
     console.error('[Join API] Uncaught', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
