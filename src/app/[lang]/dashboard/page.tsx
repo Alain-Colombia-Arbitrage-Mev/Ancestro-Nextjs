@@ -1,16 +1,15 @@
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import DashboardPanel from '@/components/auth/DashboardPanel';
+import type { Metadata } from 'next';
+import Dashboard from '@/components/Dashboard';
+import { t } from '@/i18n/translations';
 
-interface PageProps { params: Promise<{ lang: string }> }
+interface Props { params: Promise<{ lang: string }> }
 
-export default async function DashboardPage({ params }: PageProps) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params;
-  return (
-    <div className="page-wrapper">
-      <Navbar lang={lang} />
-      <DashboardPanel lang={lang} />
-      <Footer lang={lang} />
-    </div>
-  );
+  return { title: t(lang, 'dashboard.meta.title'), description: t(lang, 'dashboard.meta.desc') };
+}
+
+export default async function DashboardPage({ params }: Props) {
+  const { lang } = await params;
+  return <Dashboard lang={lang} />;
 }
