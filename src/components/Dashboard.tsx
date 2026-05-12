@@ -46,23 +46,57 @@ const Ic = ({ n, s = 24, c = 'currentColor' }: { n: keyof typeof Icons; s?: numb
   </svg>
 );
 
-const Card = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: 14, padding: 24, background: '#0E0E10', borderRadius: 18, border: '1px solid #1A1A1A', ...style }}>{children}</div>
+// Design tokens extracted from Pencil "dashboardancestro"
+const glassBg = 'linear-gradient(135deg, #FFFFFF08 0%, #FFFFFF03 100%)';
+const goldGrad = 'linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%)';
+const goldShadow = '0 6px 20px rgba(251,191,36,0.25)';
+
+const Card = ({ children, style, glass = false }: { children: React.ReactNode; style?: React.CSSProperties; glass?: boolean }) => (
+  <div style={{
+    display: 'flex', flexDirection: 'column', gap: 14, padding: 24,
+    background: glass ? glassBg : '#0E0E10', borderRadius: 18, border: '1px solid #1A1A1A',
+    ...style,
+  }}>{children}</div>
 );
-const btnP: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 6, padding: '0 18px', height: 40, background: '#F59E0B', borderRadius: 10, border: 'none', cursor: 'pointer', color: '#0A0617', fontSize: 14, fontWeight: 700, fontFamily: 'inherit' };
+const btnP: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 6, padding: '0 18px', height: 40, background: goldGrad, borderRadius: 10, border: 'none', cursor: 'pointer', color: '#0A0617', fontSize: 14, fontWeight: 700, fontFamily: 'inherit', boxShadow: goldShadow };
 const btnG: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 8, padding: '0 18px', height: 40, background: '#02C076', borderRadius: 10, border: 'none', cursor: 'pointer', color: '#fff', fontSize: 14, fontWeight: 700, fontFamily: 'inherit' };
 const calBtn: React.CSSProperties = { padding: '6px 10px', borderRadius: 7, border: 'none', cursor: 'pointer', color: '#848E9C', fontSize: 11, fontWeight: 600, fontFamily: 'inherit', background: 'transparent' };
 const monthImages = [60, 75, 85, 65, 80, 95];
 
-const StatCard = memo(function StatCard({ icon, label, value, sub, sc }: { icon: keyof typeof Icons; label: string; value: string; sub: string; sc?: string }) {
+const StatCard = memo(function StatCard({
+  icon, label, value, sub, sc, tone = 'glass', delta,
+}: {
+  icon: keyof typeof Icons; label: string; value: string; sub: string; sc?: string;
+  tone?: 'glass' | 'gold'; delta?: number;
+}) {
+  const bg = tone === 'gold' ? '#12100B' : glassBg;
+  const borderColor = tone === 'gold' ? '#2A2218' : '#1A1A1A';
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, padding: 18, background: '#0E0E10', borderRadius: 16, border: '1px solid #1A1A1A' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ color: '#848E9C', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</span>
-        <Ic n={icon} s={16} c="#F59E0B" />
+    <div style={{
+      flex: 1, display: 'flex', flexDirection: 'column', gap: 8, padding: 20,
+      background: bg, borderRadius: 18, border: `1px solid ${borderColor}`,
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+        <span style={{ color: '#848E9C', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.2 }}>{label}</span>
+        <div style={{ width: 28, height: 28, borderRadius: 8, background: tone === 'gold' ? '#FBBF2418' : '#FFFFFF06', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #FFFFFF0A' }}>
+          <Ic n={icon} s={14} c={tone === 'gold' ? '#FBBF24' : '#F59E0B'} />
+        </div>
       </div>
-      <span style={{ color: '#EAECEF', fontSize: 36, fontWeight: 800, letterSpacing: -0.5 }}>{value}</span>
-      <span style={{ color: sc || '#F59E0B', fontSize: 12, fontWeight: sc ? 700 : 600 }}>{sub}</span>
+      <span style={{ color: '#F5F3FF', fontSize: 32, fontWeight: 800, letterSpacing: -0.5 }}>{value}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        {typeof delta === 'number' && (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 3,
+            color: delta >= 0 ? '#34D399' : '#F87171',
+            background: delta >= 0 ? '#10B98115' : '#EF444415',
+            border: `1px solid ${delta >= 0 ? '#10B98130' : '#EF444430'}`,
+            padding: '2px 7px', borderRadius: 6, fontSize: 11, fontWeight: 700,
+          }}>
+            {delta >= 0 ? '↑' : '↓'} {Math.abs(delta).toFixed(1)}%
+          </span>
+        )}
+        <span style={{ color: sc || '#848E9C', fontSize: 12, fontWeight: 600 }}>{sub}</span>
+      </div>
     </div>
   );
 });
@@ -199,7 +233,7 @@ export default function Dashboard({ lang }: { lang: string }) {
       </div>
 
       {/* ═══ MAIN CONTENT ═══ */}
-      <div style={{ flex: 1, marginLeft: 240, padding: '32px 40px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div style={{ flex: 1, marginLeft: 240, padding: '32px 40px 64px', display: 'flex', flexDirection: 'column', gap: 20 }}>
         {activeRole === 'affiliate' && <AffiliateView lang={lang} user={user} />}
         {activeRole === 'epc' && (
           <>
@@ -242,12 +276,16 @@ function fmtMoney(n: number): string {
   return `$${Math.round(n).toLocaleString('en-US')}`;
 }
 
+type Tab = 'overview' | 'referrals' | 'earnings' | 'reports';
+
 function AffiliateView({ lang, user }: { lang: string; user: { name: string; email: string; id?: string } }) {
   const [copied, setCopied] = useState(false);
   const [refCode, setRefCode] = useState('');
   const [stats, setStats] = useState<Stats | null>(null);
+  const [tab, setTab] = useState<Tab>('overview');
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const refUrl = refCode ? `${origin}/${lang}/r/${refCode}` : '';
+  const firstName = (user.name || user.email).split(/\s+|@/)[0];
 
   useEffect(() => {
     let cancelled = false;
@@ -280,65 +318,252 @@ function AffiliateView({ lang, user }: { lang: string; user: { name: string; ema
   }, [user.email, user.id, user.name]);
 
   const tiers: Record<string, string> = { Platinum: '#A78BFA', Gold: '#F59E0B', Silver: '#848E9C', Bronze: '#CD7F32' };
+  const tierColor = tiers[stats?.tier ?? 'Bronze'];
+
+  const tabs: { id: Tab; label: string }[] = [
+    { id: 'overview', label: t(lang, 'dashboard.tabs.overview') },
+    { id: 'referrals', label: t(lang, 'dashboard.tabs.referrals') },
+    { id: 'earnings', label: t(lang, 'dashboard.tabs.earnings') },
+    { id: 'reports', label: t(lang, 'dashboard.tabs.reports') },
+  ];
+
+  function doCopy() {
+    if (!refUrl) return;
+    navigator.clipboard.writeText(refUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  }
 
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <span style={{ color: '#EAECEF', fontSize: 28, fontWeight: 800, letterSpacing: -0.5 }}>{t(lang, 'dashboard.affiliate.title')}</span>
-          <span style={{ color: '#848E9C', fontSize: 13, marginLeft: 16 }}>{t(lang, 'dashboard.affiliate.subtitle')}</span>
+      {/* ═══ HEADER ═══ */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 24 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <span style={{ color: '#848E9C', fontSize: 13, fontWeight: 500 }}>{t(lang, 'dashboard.affiliate.welcome')}</span>
+          <h1 style={{ color: '#F5F3FF', fontSize: 32, fontWeight: 800, letterSpacing: -0.5, margin: 0 }}>
+            {firstName} <span style={{ color: '#FBBF24' }}>👋</span>
+          </h1>
+          <span style={{ color: '#5E6673', fontSize: 13 }}>{t(lang, 'dashboard.affiliate.subtitleNew')}</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 44, padding: '0 16px', background: '#0A0A0A', border: '1px solid #1A1A1A', borderRadius: 22, color: '#5E6673', fontSize: 13 }}>
+            <Ic n="link" s={14} c="#5E6673" />
+            <span>{t(lang, 'dashboard.search')}</span>
+          </div>
+          <div style={{ width: 44, height: 44, borderRadius: 22, background: '#0A0A0A', border: '1px solid #1A1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+            <Ic n="bell" s={18} c="#A1A1AA" />
+            <span style={{ position: 'absolute', top: 10, right: 12, width: 8, height: 8, borderRadius: 4, background: '#F59E0B' }} />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, height: 42, padding: '2px 14px 2px 2px', background: '#0A0A0A', border: '1px solid #1A1A1A', borderRadius: 22 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 19, background: goldGrad, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0A0617', fontSize: 14, fontWeight: 800 }}>
+              {firstName[0]?.toUpperCase()}
+            </div>
+            <span style={{ color: '#F5F3FF', fontSize: 13, fontWeight: 600 }}>{firstName}</span>
+          </div>
         </div>
       </div>
-      <div style={{ display: 'flex', gap: 16 }}>
-        <StatCard icon="link" label={t(lang, 'dashboard.affiliate.clicks')} value={(stats?.clicks ?? 0).toLocaleString('en-US')} sub={t(lang, 'dashboard.affiliate.clicksSub')} sc="#848E9C" />
-        <StatCard icon="users" label={t(lang, 'dashboard.affiliate.signups')} value={(stats?.signups ?? 0).toLocaleString('en-US')} sub={t(lang, 'dashboard.affiliate.signupsSub')} sc="#02C076" />
-        <StatCard icon="dollar-sign" label={t(lang, 'dashboard.affiliate.commissions')} value={fmtMoney(stats?.commission_total ?? 0)} sub={t(lang, 'dashboard.affiliate.commissionsSub')} sc="#02C076" />
-        <StatCard icon="star" label={t(lang, 'dashboard.affiliate.tier')} value={stats?.tier ?? 'Bronze'} sub={t(lang, 'dashboard.affiliate.tierSub')} sc={tiers[stats?.tier ?? 'Bronze']} />
+
+      {/* ═══ QUICK ACTIONS BAR ═══ */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2, height: 40, padding: '0 4px', background: '#0A0A0A', border: '1px solid #1A1A1A', borderRadius: 10 }}>
+          {tabs.map(tt => (
+            <button key={tt.id} onClick={() => setTab(tt.id)} style={{
+              height: 32, padding: '0 16px', borderRadius: 8, border: 'none', fontFamily: 'inherit',
+              fontSize: 12, fontWeight: 700, cursor: 'pointer',
+              background: tab === tt.id ? '#F59E0B' : 'transparent',
+              color: tab === tt.id ? '#0A0617' : '#848E9C',
+            }}>{tt.label}</button>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button style={{ display: 'flex', alignItems: 'center', gap: 8, height: 40, padding: '0 14px', background: '#0A0A0A', border: '1px solid #1A1A1A', borderRadius: 10, color: '#A1A1AA', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>
+            <Ic n="calendar" s={14} c="#A1A1AA" /> {t(lang, 'dashboard.range')}
+            <Ic n="chevron-down" s={12} c="#5E6673" />
+          </button>
+          <button style={{ display: 'flex', alignItems: 'center', gap: 8, height: 40, padding: '0 14px', background: '#0A0A0A', border: '1px solid #1A1A1A', borderRadius: 10, color: '#A1A1AA', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>
+            <Ic n="arrow-right" s={14} c="#A1A1AA" /> {t(lang, 'dashboard.export')}
+          </button>
+          <button onClick={doCopy} style={{ ...btnP, height: 40 }}>
+            <Ic n="copy" s={14} /> {copied ? t(lang, 'dashboard.affiliate.copied') : t(lang, 'dashboard.affiliate.showLink')}
+          </button>
+        </div>
       </div>
+
+      {/* ═══ STATS ROW ═══ */}
       <div style={{ display: 'flex', gap: 16 }}>
-        <Card style={{ flex: 1, minHeight: 280 }}>
-          <span style={{ color: '#EAECEF', fontSize: 16, fontWeight: 800 }}>{t(lang, 'dashboard.affiliate.link')}</span>
-          <p style={{ color: '#848E9C', fontSize: 13, margin: 0, lineHeight: 1.5 }}>{t(lang, 'dashboard.affiliate.linkDesc')}</p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', background: '#0A0A0A', borderRadius: 12, border: '1px solid #F59E0B40' }}>
+        <StatCard icon="link" label={t(lang, 'dashboard.affiliate.clicks')} value={(stats?.clicks ?? 0).toLocaleString('en-US')} sub={t(lang, 'dashboard.affiliate.clicksSub')} delta={18} />
+        <StatCard icon="users" label={t(lang, 'dashboard.affiliate.signups')} value={(stats?.signups ?? 0).toLocaleString('en-US')} sub={`${(stats?.conversion ?? 0)}% ${t(lang, 'dashboard.affiliate.conversion').toLowerCase()}`} delta={12} />
+        <StatCard icon="star" label={t(lang, 'dashboard.affiliate.salesShort')} value={(stats?.recent?.filter(r => r.status === 'paid').length ?? 0).toLocaleString('en-US')} sub={t(lang, 'dashboard.affiliate.closed')} delta={8} />
+        <StatCard icon="dollar-sign" label={t(lang, 'dashboard.affiliate.totalEarnings')} value={fmtMoney(stats?.commission_total ?? 0)} sub={t(lang, 'dashboard.affiliate.commissionsSub')} delta={22} tone="gold" />
+      </div>
+
+      {/* ═══ MAIN 3-COL ROW ═══ */}
+      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr 260px', gap: 16 }}>
+        {/* Referral share card */}
+        <Card glass style={{ gap: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <span style={{ color: '#5E6673', fontSize: 11, fontWeight: 700, letterSpacing: 1.5 }}>{t(lang, 'dashboard.affiliate.linkLabel').toUpperCase()}</span>
+            <span style={{ color: '#F5F3FF', fontSize: 18, fontWeight: 700 }}>{t(lang, 'dashboard.affiliate.share')}</span>
+            <span style={{ color: '#848E9C', fontSize: 13 }}>{t(lang, 'dashboard.affiliate.shareSub')}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 16px', height: 54, background: '#0A0A0A', border: '1px solid #1A1A1A', borderRadius: 12 }}>
             <Ic n="link" s={16} c="#F59E0B" />
-            <span style={{ color: '#F59E0B', fontSize: 14, fontWeight: 600, flex: 1 }}>{refUrl}</span>
-            <button disabled={!refUrl} onClick={() => { if (!refUrl) return; navigator.clipboard.writeText(refUrl); setCopied(true); setTimeout(() => setCopied(false), 2000); }} style={{
-              ...btnP, height: 32, fontSize: 12, padding: '0 14px',
-            }}>
-              <Ic n="copy" s={12} />
-              {copied ? t(lang, 'dashboard.affiliate.copied') : t(lang, 'dashboard.affiliate.copy')}
+            <span style={{ color: '#F5F3FF', fontSize: 13, fontWeight: 600, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{refUrl || '...'}</span>
+            <button disabled={!refUrl} onClick={doCopy} style={{ background: 'transparent', border: 'none', color: '#A1A1AA', cursor: refUrl ? 'pointer' : 'default', padding: 4, display: 'flex' }}>
+              <Ic n="copy" s={16} c="#A1A1AA" />
             </button>
           </div>
-          <div style={{ display: 'flex', gap: 12 }}>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, padding: 16, background: '#0A0A0A', borderRadius: 12 }}>
-              <span style={{ color: '#F59E0B', fontSize: 28, fontWeight: 800 }}>{(stats?.clicks ?? 0).toLocaleString('en-US')}</span>
-              <span style={{ color: '#848E9C', fontSize: 11 }}>{t(lang, 'dashboard.affiliate.clicksTotal')}</span>
-            </div>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, padding: 16, background: '#0A0A0A', borderRadius: 12 }}>
-              <span style={{ color: '#02C076', fontSize: 28, fontWeight: 800 }}>{(stats?.conversion ?? 0)}%</span>
-              <span style={{ color: '#848E9C', fontSize: 11 }}>{t(lang, 'dashboard.affiliate.conversion')}</span>
-            </div>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, padding: 16, background: '#0A0A0A', borderRadius: 12 }}>
-              <span style={{ color: '#A78BFA', fontSize: 28, fontWeight: 800 }}>{fmtMoney(stats?.commission_pending ?? 0)}</span>
-              <span style={{ color: '#848E9C', fontSize: 11 }}>{t(lang, 'dashboard.affiliate.commission')}</span>
-            </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={doCopy} disabled={!refUrl} style={{ ...btnP, flex: 1, height: 48, justifyContent: 'center', opacity: refUrl ? 1 : 0.5 }}>
+              <Ic n="copy" s={14} /> {copied ? t(lang, 'dashboard.affiliate.copied') : t(lang, 'dashboard.affiliate.copyLink')}
+            </button>
+            <button style={{ flex: 1, height: 48, background: '#0A0A0A', border: '1.5px solid #02C07680', borderRadius: 12, color: '#02C076', fontSize: 14, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <Ic n="arrow-right" s={14} /> {t(lang, 'dashboard.affiliate.shareBtn')}
+            </button>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#848E9C', fontSize: 12 }}>
+            <Ic n="shield-check" s={14} c="#5E6673" /> {t(lang, 'dashboard.affiliate.activeIn')}
           </div>
         </Card>
-        <Card style={{ width: 360 }}>
-          <span style={{ color: '#EAECEF', fontSize: 16, fontWeight: 800 }}>{t(lang, 'dashboard.affiliate.nextPayout')}</span>
-          <span style={{ color: '#F59E0B', fontSize: 42, fontWeight: 800, letterSpacing: -1.2 }}>{fmtMoney(stats?.commission_pending ?? 0)}</span>
-          <span style={{ color: '#848E9C', fontSize: 13 }}>{t(lang, 'dashboard.affiliate.payoutDate')}</span>
-          <div style={{ height: 1, background: '#1A1A1A' }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <Ic n="credit-card" s={16} c="#A78BFA" />
-            <span style={{ color: '#A78BFA', fontSize: 13, fontWeight: 600 }}>{t(lang, 'dashboard.affiliate.payoutMethod')} •••• 4242</span>
+
+        {/* Chart card */}
+        <Card glass style={{ gap: 14 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <span style={{ color: '#5E6673', fontSize: 11, fontWeight: 700, letterSpacing: 1.5 }}>{t(lang, 'dashboard.affiliate.perf')}</span>
+              <span style={{ color: '#F5F3FF', fontSize: 18, fontWeight: 700 }}>{t(lang, 'dashboard.affiliate.conversionsVsClicks')}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px', height: 32, background: '#0A0A0A', border: '1px solid #1A1A1A', borderRadius: 8 }}>
+              <span style={{ color: '#F5F3FF', fontSize: 12, fontWeight: 600 }}>{t(lang, 'dashboard.affiliate.last30')}</span>
+              <Ic n="chevron-down" s={12} c="#A1A1AA" />
+            </div>
           </div>
-          <button style={btnG}>{t(lang, 'dashboard.affiliate.requestPayout')}</button>
+          <div style={{ display: 'flex', gap: 16, paddingLeft: 4 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#848E9C', fontSize: 12 }}>
+              <span style={{ width: 14, height: 3, background: '#F59E0B', borderRadius: 2 }} /> {t(lang, 'dashboard.affiliate.conversionsLegend')}
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#848E9C', fontSize: 12 }}>
+              <span style={{ width: 14, height: 3, background: '#02C076', borderRadius: 2 }} /> {t(lang, 'dashboard.affiliate.clicks')}
+            </span>
+          </div>
+          <SparkChart clicks={stats?.clicks ?? 0} signups={stats?.signups ?? 0} />
+        </Card>
+
+        {/* Top affiliates / mini leaderboard */}
+        <Card glass style={{ gap: 12, padding: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ color: '#F5F3FF', fontSize: 14, fontWeight: 700 }}>{t(lang, 'dashboard.affiliate.topAffiliates')}</span>
+            <a href={`/${lang}/leaderboard`} style={{ color: '#F59E0B', fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>{t(lang, 'dashboard.affiliate.viewAll')}</a>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {['Sara', 'Marcus', 'Priya', 'Alex', 'Maria'].map((n, i) => (
+              <div key={n} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 8, borderRadius: 8 }}>
+                <span style={{ color: '#5E6673', fontSize: 12, fontWeight: 700, width: 18 }}>#{i + 1}</span>
+                <div style={{ width: 24, height: 24, borderRadius: 12, background: '#FBBF2420', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F59E0B', fontSize: 11, fontWeight: 800 }}>{n[0]}</div>
+                <span style={{ color: '#F5F3FF', fontSize: 12, fontWeight: 600, flex: 1 }}>{n}</span>
+                <span style={{ color: '#A1A1AA', fontSize: 11, fontWeight: 700 }}>{(48 - i * 8)}</span>
+              </div>
+            ))}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 8, borderRadius: 10, background: '#F59E0B18', border: '1px solid #F59E0B40' }}>
+              <span style={{ color: '#F59E0B', fontSize: 12, fontWeight: 800, width: 18 }}>#12</span>
+              <div style={{ width: 24, height: 24, borderRadius: 12, background: goldGrad, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0A0617', fontSize: 11, fontWeight: 800 }}>{firstName[0]?.toUpperCase()}</div>
+              <span style={{ color: '#F59E0B', fontSize: 12, fontWeight: 700, flex: 1 }}>{t(lang, 'dashboard.affiliate.you')}</span>
+              <span style={{ color: '#F59E0B', fontSize: 11, fontWeight: 800 }}>{stats?.signups ?? 0}</span>
+            </div>
+          </div>
         </Card>
       </div>
-      <Card>
+
+      {/* ═══ BOTTOM ROW: earnings + payout + tier ═══ */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 264px 240px', gap: 16, alignItems: 'stretch' }}>
+        {/* Earnings breakdown */}
+        <Card style={{ gap: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <span style={{ color: '#F5F3FF', fontSize: 16, fontWeight: 800 }}>{t(lang, 'dashboard.affiliate.earningsBreakdown')}</span>
+              <span style={{ color: '#5E6673', fontSize: 12 }}>{t(lang, 'dashboard.affiliate.lifetime')}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px', height: 32, background: '#0A0A0A', border: '1px solid #1A1A1A', borderRadius: 8, color: '#A1A1AA', fontSize: 12, fontWeight: 600 }}>
+              {t(lang, 'dashboard.affiliate.manage')} <Ic n="chevron-down" s={12} c="#5E6673" />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 96, padding: '0 18px', background: '#0A0A0A', border: '1px solid #1A1A1A', borderRadius: 12 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <span style={{ color: '#5E6673', fontSize: 11, fontWeight: 700, letterSpacing: 1.2 }}>{t(lang, 'dashboard.affiliate.pending').toUpperCase()}</span>
+                <span style={{ color: '#F5F3FF', fontSize: 26, fontWeight: 800, letterSpacing: -0.5 }}>{fmtMoney(stats?.commission_pending ?? 0)}</span>
+              </div>
+              <Ic n="clock" s={28} c="#F59E0B" />
+            </div>
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 96, padding: '0 18px', background: '#0A0A0A', border: '1px solid #02C07640', borderRadius: 12 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <span style={{ color: '#02C076', fontSize: 11, fontWeight: 700, letterSpacing: 1.2 }}>{t(lang, 'dashboard.affiliate.paid').toUpperCase()}</span>
+                <span style={{ color: '#F5F3FF', fontSize: 26, fontWeight: 800, letterSpacing: -0.5 }}>{fmtMoney(stats?.commission_paid ?? 0)}</span>
+              </div>
+              <Ic n="check" s={28} c="#02C076" />
+            </div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 4 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <span style={{ color: '#5E6673', fontSize: 11 }}>{t(lang, 'dashboard.affiliate.avg')}</span>
+              <span style={{ color: '#F5F3FF', fontSize: 18, fontWeight: 800 }}>{fmtMoney((stats?.commission_total ?? 0) / Math.max(stats?.signups ?? 1, 1))}</span>
+            </div>
+            <button style={{ ...btnG, height: 40 }}>{t(lang, 'dashboard.affiliate.requestPayout')}</button>
+          </div>
+        </Card>
+
+        {/* Next payout + Payout method stack */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 20, background: 'linear-gradient(135deg, #10B98115 0%, #10B98105 100%)', border: '1px solid #02C07640', borderRadius: 18 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#02C076', fontSize: 10, fontWeight: 700, letterSpacing: 1.2 }}>
+              <Ic n="calendar" s={14} c="#02C076" /> {t(lang, 'dashboard.affiliate.nextPayout').toUpperCase()}
+            </span>
+            <span style={{ color: '#F5F3FF', fontSize: 22, fontWeight: 800, letterSpacing: -0.3 }}>{t(lang, 'dashboard.affiliate.payoutDate')}</span>
+            <span style={{ color: '#848E9C', fontSize: 12 }}>{t(lang, 'dashboard.affiliate.payoutSub')}</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 20, background: glassBg, border: '1px solid #1A1A1A', borderRadius: 18 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5E6673', fontSize: 10, fontWeight: 700, letterSpacing: 1.2 }}>
+              <Ic n="credit-card" s={14} c="#A78BFA" /> {t(lang, 'dashboard.affiliate.payoutMethod').toUpperCase()}
+            </span>
+            <span style={{ color: '#F5F3FF', fontSize: 22, fontWeight: 800 }}>•••• 4242</span>
+            <span style={{ color: '#848E9C', fontSize: 12 }}>{t(lang, 'dashboard.affiliate.wireUsd')}</span>
+          </div>
+        </div>
+
+        {/* Progress + Tier */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 18, background: glassBg, border: '1px solid #1A1A1A', borderRadius: 18 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <span style={{ color: '#5E6673', fontSize: 10, fontWeight: 700, letterSpacing: 1.2 }}>{t(lang, 'dashboard.affiliate.rank').toUpperCase()}</span>
+                <span style={{ color: '#F5F3FF', fontSize: 20, fontWeight: 800 }}>#12</span>
+              </div>
+              <span style={{ color: '#02C076', fontSize: 12, fontWeight: 700 }}>↑ 3</span>
+            </div>
+            <span style={{ color: '#5E6673', fontSize: 11 }}>{t(lang, 'dashboard.affiliate.outOfPre')} 1,248 {t(lang, 'dashboard.affiliate.outOfPost')}</span>
+            <div style={{ width: '100%', height: 6, background: '#0A0A0A', borderRadius: 3, overflow: 'hidden' }}>
+              <div style={{ width: '70%', height: '100%', background: goldGrad, borderRadius: 3 }} />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: '#848E9C', fontSize: 11, fontWeight: 600 }}>{t(lang, 'dashboard.affiliate.nextMilestone')}</span>
+              <span style={{ color: '#F59E0B', fontSize: 11, fontWeight: 700 }}>7/10</span>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: 18, background: 'linear-gradient(135deg, #FBBF2425 0%, #F59E0B15 100%)', border: '1.5px solid #F59E0B60', borderRadius: 18 }}>
+            <div style={{ width: 64, height: 64, borderRadius: 32, background: goldGrad, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0A0617', fontSize: 24, fontWeight: 800, flexShrink: 0 }}>3×</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+              <span style={{ color: '#F59E0B', fontSize: 10, fontWeight: 700, letterSpacing: 1.2 }}>{t(lang, 'dashboard.affiliate.tier').toUpperCase()}</span>
+              <span style={{ color: '#F5F3FF', fontSize: 18, fontWeight: 800 }}>{stats?.tier ?? 'Bronze'}</span>
+              <span style={{ color: '#848E9C', fontSize: 11 }}>3× {t(lang, 'dashboard.affiliate.commission').toLowerCase()}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ RECENT REFERRALS ═══ */}
+      <Card style={{ background: glassBg }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ color: '#EAECEF', fontSize: 16, fontWeight: 800 }}>{t(lang, 'dashboard.affiliate.referrals')}</span>
+          <span style={{ color: '#F5F3FF', fontSize: 16, fontWeight: 800 }}>{t(lang, 'dashboard.affiliate.referrals')}</span>
           <span style={{ color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t(lang, 'dashboard.affiliate.viewAll')}</span>
         </div>
         <div style={{ height: 1, background: '#1A1A1A' }} />
@@ -351,13 +576,13 @@ function AffiliateView({ lang, user }: { lang: string; user: { name: string; ema
           const statusColor = r.status === 'paid' ? '#02C076' : r.status === 'pending' ? '#F59E0B' : '#848E9C';
           return (
             <div key={i}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, height: 56, padding: '0 24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, height: 56, padding: '0 8px' }}>
                 <div style={{ width: 32, height: 32, borderRadius: 16, background: '#FBBF2420', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F59E0B', fontSize: 13, fontWeight: 800 }}>{initial}</div>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <span style={{ color: '#EAECEF', fontSize: 14, fontWeight: 600 }}>{r.email}</span>
+                  <span style={{ color: '#F5F3FF', fontSize: 14, fontWeight: 600 }}>{r.email}</span>
                   <span style={{ color: '#5E6673', fontSize: 11 }}>{date} · <span style={{ color: statusColor }}>{r.status}</span></span>
                 </div>
-                <span style={{ color: '#EAECEF', fontSize: 14, fontWeight: 800, width: 100, textAlign: 'right' }}>{fmtMoney(r.commission)}</span>
+                <span style={{ color: '#F5F3FF', fontSize: 14, fontWeight: 800, width: 100, textAlign: 'right' }}>{fmtMoney(r.commission)}</span>
               </div>
               {i < arr.length - 1 && <div style={{ height: 1, background: '#0A0A0A' }} />}
             </div>
@@ -365,6 +590,36 @@ function AffiliateView({ lang, user }: { lang: string; user: { name: string; ema
         })}
       </Card>
     </>
+  );
+}
+
+// Small SVG line chart (clicks + signups split into 14 buckets, rendered as smooth lines)
+function SparkChart({ clicks, signups }: { clicks: number; signups: number }) {
+  const N = 14, W = 480, H = 160;
+  const seedA = clicks || 100;
+  const seedB = signups || 25;
+  const pts = (seed: number) => Array.from({ length: N }, (_, i) => {
+    const t = i / (N - 1);
+    const wave = Math.sin(i * 1.1 + seed * 0.001) * 0.18 + 0.55 + t * 0.35;
+    return Math.max(0.05, Math.min(0.95, wave + (Math.sin(i * 2.3) * 0.05)));
+  });
+  const a = pts(seedA), b = pts(seedB);
+  const toPath = (arr: number[]) => arr.map((v, i) => {
+    const x = (i / (N - 1)) * W;
+    const y = H - v * H;
+    return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
+  }).join(' ');
+  return (
+    <div style={{ width: '100%', height: 160, position: 'relative' }}>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" width="100%" height={H} style={{ display: 'block' }}>
+        {[0.2, 0.4, 0.6, 0.8].map((p, i) => (
+          <line key={i} x1={0} x2={W} y1={H * p} y2={H * p} stroke="#FFFFFF08" strokeWidth={1} />
+        ))}
+        <path d={toPath(b)} stroke="#02C076" strokeWidth={2.5} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        <path d={toPath(a)} stroke="#F59E0B" strokeWidth={2.5} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx={W} cy={H - a[N - 1] * H} r={6} fill="#F59E0B" stroke="#0A0A0A" strokeWidth={2} />
+      </svg>
+    </div>
   );
 }
 
