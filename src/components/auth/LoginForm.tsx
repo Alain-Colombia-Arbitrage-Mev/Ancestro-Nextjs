@@ -75,12 +75,15 @@ export default function LoginForm({ lang }: LoginFormProps) {
       console.warn('[LoginForm] login() returned', result);
       setError('No pudimos iniciar sesión. Revisá email/contraseña o mirá la consola para detalles.');
     } catch (err: any) {
-      console.error('[LoginForm] login error', err);
+      const errName = err?.name || err?.code || 'UnknownError';
+      const errMsg = err?.message || String(err);
+      console.error('[LoginForm] login error', { name: errName, message: errMsg, raw: err });
       if (err?.name === 'UserNotConfirmedException' || err?.message?.includes('not confirmed')) {
         router.push(`/${lang}/verify?email=${encodeURIComponent(email)}`);
         return;
       }
-      setError(getAuthErrorMessage(err, lang));
+      // Show technical name in small print so we can diagnose pool config issues
+      setError(`${getAuthErrorMessage(err, lang)} (${errName})`);
     } finally {
       setIsLoading(false);
     }
