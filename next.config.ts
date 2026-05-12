@@ -53,7 +53,7 @@ const nextConfig: NextConfig = {
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https://assets.ancestro.ai https://*.ancestro.ai",
               "media-src 'self' https://assets.ancestro.ai",
-              "connect-src 'self' https://chat.ancestro.ai https://assets.ancestro.ai https://*.ancestro.ai",
+              "connect-src 'self' https://chat.ancestro.ai https://assets.ancestro.ai https://*.ancestro.ai https://*.amazonaws.com https://*.amazoncognito.com",
               "frame-src 'self' https://chat.ancestro.ai",
               "frame-ancestors 'none'",
               "base-uri 'self'",
