@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { cognitoSignUp, getAuthErrorMessage } from '@/lib/auth';
-import { configureAmplify } from '@/lib/amplify';
 import { t } from '@/i18n/translations';
 import { CDN_URL } from '@/lib/cdn';
 
@@ -63,7 +62,6 @@ export default function RegisterForm({ lang }: RegisterFormProps) {
 
     setIsLoading(true);
     try {
-      configureAmplify();
       const fullPhone = phone.trim();
       await cognitoSignUp(email, password, name, fullPhone);
       router.push(`/${lang}/verify?email=${encodeURIComponent(email)}`);

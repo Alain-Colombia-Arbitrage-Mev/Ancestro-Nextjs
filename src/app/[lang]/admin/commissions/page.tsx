@@ -41,13 +41,17 @@ export default function AdminCommissionsPage({ params: _params }: { params: Prom
 
   useEffect(() => {
     if (!isAdmin) return;
-    fetch('/api/admin/commissions', { headers: { 'x-user-email': user!.email } })
-      .then(r => r.json())
-      .then(d => {
-        if (!Array.isArray(d)) return;
-        setCommissions(d);
-        const v: Record<string,string>={}; d.forEach((c:Commission)=>{v[c.role]=String(c.percentage)}); setValues(v);
-      });
+    import('@/lib/api-client').then(({ api }) =>
+      api<Commission[]>('/api/admin/commissions')
+        .then(d => {
+          if (!Array.isArray(d)) return;
+          setCommissions(d);
+          const v: Record<string, string> = {};
+          d.forEach((c: Commission) => { v[c.role] = String(c.percentage); });
+          setValues(v);
+        })
+        .catch(() => {})
+    );
   }, [isAdmin, user?.email]);
 
   if (isLoading) return <div style={{ minHeight:'100vh',background:'#000',display:'flex',alignItems:'center',justifyContent:'center',color:'#848E9C' }}>Loading...</div>;
@@ -71,8 +75,11 @@ export default function AdminCommissionsPage({ params: _params }: { params: Prom
     if (isNaN(pct) || pct < 0 || pct > 100) { setMessage('Invalid percentage (0-100)'); return; }
     setSaving(s => ({ ...s, [role]: true }));
     try {
-      const r = await fetch('/api/admin/commissions', { method:'PUT', headers:{'Content-Type':'application/json','x-user-email':user!.email}, body:JSON.stringify({ role, percentage:pct }) });
-      const d = await r.json();
+      const { api } = await import('@/lib/api-client');
+      const d = await api<Commission>('/api/admin/commissions', {
+        method: 'PUT',
+        body: { role, percentage: pct },
+      });
       setCommissions(prev => prev.map(c => c.role === role ? d : c));
       setMessage(`✓ ${roleLabels[role]?.label || role} updated to ${pct}%`);
       setTimeout(() => setMessage(''), 3000);

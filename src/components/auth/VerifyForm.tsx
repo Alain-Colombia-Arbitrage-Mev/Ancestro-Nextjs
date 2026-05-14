@@ -3,7 +3,6 @@ import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { cognitoConfirmSignUp, cognitoResendCode, getAuthErrorMessage } from '@/lib/auth';
-import { configureAmplify } from '@/lib/amplify';
 import { t } from '@/i18n/translations';
 import { CDN_URL } from '@/lib/cdn';
 
@@ -28,7 +27,6 @@ function VerifyFormInner({ lang }: VerifyFormProps) {
       router.push(`/${lang}/register`);
       return;
     }
-    configureAmplify();
     inputRefs.current[0]?.focus();
   }, [email, lang, router]);
 

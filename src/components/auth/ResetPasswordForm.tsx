@@ -3,7 +3,6 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { cognitoConfirmResetPassword, getAuthErrorMessage } from '@/lib/auth';
-import { configureAmplify } from '@/lib/amplify';
 import { t } from '@/i18n/translations';
 import { CDN_URL } from '@/lib/cdn';
 
@@ -30,7 +29,6 @@ function ResetPasswordFormInner({ lang }: ResetPasswordFormProps) {
       router.push(`/${lang}/forgot-password`);
       return;
     }
-    configureAmplify();
     codeRef.current?.focus();
   }, [email, lang, router]);
 

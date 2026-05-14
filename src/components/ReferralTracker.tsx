@@ -1,6 +1,7 @@
 'use client';
 import { useEffect } from 'react';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 const COOKIE_NAME = 'ancestro_ref';
 const COOKIE_DAYS = 90;
 
@@ -27,10 +28,11 @@ export default function ReferralTracker() {
     if (sessionStorage.getItem(key)) return;
     sessionStorage.setItem(key, '1');
 
-    fetch('/api/referrals', {
+    if (!API_URL) return;
+    fetch(`${API_URL}/api/referrals/click`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code: ref, action: 'click' }),
+      body: JSON.stringify({ code: ref }),
     }).catch(() => {});
   }, []);
 

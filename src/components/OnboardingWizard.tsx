@@ -116,10 +116,13 @@ export default function OnboardingWizard({ lang }: { lang: string }) {
 
   useEffect(() => {
     if (!user) return;
-    const userId = user.id || user.email;
-    fetch(`/api/onboarding?user_id=${encodeURIComponent(userId)}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.code) setRefCode(d.code); });
+    let cancelled = false;
+    import('@/lib/api-client').then(({ api }) =>
+      api<{ code?: string }>('/api/referrals/onboarding').then(d => {
+        if (!cancelled && d?.code) setRefCode(d.code);
+      }).catch(() => {})
+    );
+    return () => { cancelled = true; };
   }, [user]);
 
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
@@ -130,15 +133,11 @@ export default function OnboardingWizard({ lang }: { lang: string }) {
     if (!user) return;
     setSaving(true); setError('');
     try {
-      const res = await fetch('/api/onboarding', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: user.id || user.email, user_email: user.email, user_name: user.name,
-          channel: channel || undefined, zip: pin || undefined, ...extra,
-        }),
+      const { api } = await import('@/lib/api-client');
+      const d = await api<{ code?: string }>('/api/referrals/onboarding', {
+        method: 'POST',
+        body: { channel: channel || undefined, zip: pin || undefined, ...extra },
       });
-      if (!res.ok) throw new Error('save_failed');
-      const d = await res.json();
       if (d.code) setRefCode(d.code);
     } catch {
       setError(lang === 'es' ? 'No pudimos guardar. Intentá de nuevo.' : 'Could not save. Try again.');

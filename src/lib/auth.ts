@@ -1,37 +1,80 @@
-import {
-  signUp,
-  signIn,
-  signOut,
-  confirmSignUp,
-  confirmSignIn,
-  resetPassword,
-  confirmResetPassword,
-  fetchAuthSession,
-  signInWithRedirect,
-  getCurrentUser,
-  fetchUserAttributes,
-  updatePassword,
-  updateUserAttributes,
-  resendSignUpCode,
-} from 'aws-amplify/auth';
+/**
+ * Auth client — talks to the Express backend (ancestro-api) /api/auth/*.
+ * No direct Cognito SDK in the browser. Tokens (idToken, accessToken, refreshToken)
+ * are stored in localStorage and attached to requests by lib/api-client.ts.
+ */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
-// ===== ERROR MAPPING =====
+// ===== TOKEN STORAGE =====
+const KEY_ID    = 'ancestro:idToken';
+const KEY_ACC   = 'ancestro:accessToken';
+const KEY_REF   = 'ancestro:refreshToken';
+const KEY_USER  = 'ancestro:user';
+
+export function getCognitoToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(KEY_ID);
+}
+export function getAccessToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(KEY_ACC);
+}
+export function getRefreshTokenStored(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(KEY_REF);
+}
+export function setTokens(t: { idToken?: string | null; accessToken?: string | null; refreshToken?: string | null }) {
+  if (typeof window === 'undefined') return;
+  if (t.idToken) localStorage.setItem(KEY_ID, t.idToken);
+  if (t.accessToken) localStorage.setItem(KEY_ACC, t.accessToken);
+  if (t.refreshToken) localStorage.setItem(KEY_REF, t.refreshToken);
+}
+export function clearTokens() {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(KEY_ID);
+  localStorage.removeItem(KEY_ACC);
+  localStorage.removeItem(KEY_REF);
+  localStorage.removeItem(KEY_USER);
+}
+
+// ===== LOW-LEVEL HTTP =====
+interface AuthError { name?: string; message?: string }
+
+async function post<T>(path: string, body?: unknown, extraHeaders?: Record<string, string>): Promise<T> {
+  if (!API_URL) throw new Error('NEXT_PUBLIC_API_URL is not configured');
+  const res = await fetch(`${API_URL}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(extraHeaders || {}) },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+  const text = await res.text();
+  const data = text ? safe(text) : null;
+  if (!res.ok) {
+    const err: AuthError = (data as AuthError) || {};
+    const e = new Error(err.message || res.statusText) as Error & AuthError;
+    e.name = err.name || e.name;
+    throw e;
+  }
+  return data as T;
+}
+
+function safe(t: string): unknown { try { return JSON.parse(t); } catch { return t; } }
+
+// ===== ERROR MAPPING (UI-friendly Spanish/English) =====
 const ERROR_MESSAGES: Record<string, Record<string, string>> = {
   es: {
     UserNotConfirmedException: 'Tu cuenta no ha sido verificada. Revisa tu correo.',
-    NotAuthorizedException: 'Correo o contrasena incorrectos.',
+    NotAuthorizedException: 'Correo o contraseña incorrectos.',
     UsernameExistsException: 'Ya existe una cuenta con este correo.',
     UserNotFoundException: 'No existe una cuenta con este correo.',
-    CodeMismatchException: 'El codigo ingresado no es valido.',
-    ExpiredCodeException: 'El codigo ha expirado. Solicita uno nuevo.',
-    InvalidPasswordException: 'La contrasena debe tener al menos 8 caracteres, una mayuscula, una minuscula y un numero.',
-    LimitExceededException: 'Demasiados intentos. Intenta de nuevo mas tarde.',
+    CodeMismatchException: 'El código ingresado no es válido.',
+    ExpiredCodeException: 'El código ha expirado. Solicita uno nuevo.',
+    InvalidPasswordException: 'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.',
+    LimitExceededException: 'Demasiados intentos. Intenta de nuevo más tarde.',
     TooManyRequestsException: 'Demasiadas solicitudes. Espera un momento.',
-    InvalidParameterException: 'Los datos ingresados no son validos.',
-    UserAlreadyAuthenticatedException: 'Ya tienes una sesion activa.',
-    default: 'Ocurrio un error. Intenta de nuevo.',
+    InvalidParameterException: 'Los datos ingresados no son válidos.',
+    default: 'Ocurrió un error. Intenta de nuevo.',
   },
   en: {
     UserNotConfirmedException: 'Your account has not been verified. Check your email.',
@@ -44,260 +87,175 @@ const ERROR_MESSAGES: Record<string, Record<string, string>> = {
     LimitExceededException: 'Too many attempts. Try again later.',
     TooManyRequestsException: 'Too many requests. Please wait.',
     InvalidParameterException: 'The data entered is not valid.',
-    UserAlreadyAuthenticatedException: 'You already have an active session.',
     default: 'An error occurred. Please try again.',
   },
 };
 
-export function getAuthErrorMessage(error: any, lang: string = 'es'): string {
+export function getAuthErrorMessage(error: unknown, lang: string = 'es'): string {
   const messages = ERROR_MESSAGES[lang] || ERROR_MESSAGES['en'];
-  const errorName = error?.name || error?.code || '';
-
-  // Handle Amplify v6 error format
-  if (errorName && messages[errorName]) {
-    return messages[errorName];
-  }
-
-  // Try to match by message content
-  const msg = error?.message || '';
+  const e = error as AuthError;
+  const name = e?.name || '';
+  if (name && messages[name]) return messages[name];
+  const msg = e?.message || '';
   if (msg.includes('not confirmed')) return messages['UserNotConfirmedException'];
   if (msg.includes('Incorrect username or password')) return messages['NotAuthorizedException'];
   if (msg.includes('User already exists')) return messages['UsernameExistsException'];
   if (msg.includes('User does not exist')) return messages['UserNotFoundException'];
-  if (msg.includes('Invalid verification code')) return messages['CodeMismatchException'];
-  if (msg.includes('expired')) return messages['ExpiredCodeException'];
-  if (msg.includes('Password did not conform')) return messages['InvalidPasswordException'];
-  if (msg.includes('Attempt limit exceeded')) return messages['LimitExceededException'];
-
   return messages['default'];
 }
 
-// ===== SIGN UP =====
-export async function cognitoSignUp(
-  email: string,
-  password: string,
-  name: string,
-  phone: string
-) {
-  const nameParts = name.trim().split(/\s+/);
-  const givenName = nameParts[0] || name;
-  const familyName = nameParts.slice(1).join(' ') || ' ';
-  // Use email as username so signIn(email, password) works without depending on a
-  // Cognito email-alias config. Note: requires the user pool to accept email as the
-  // sign-in attribute (or to have a UsernameAttributes setting that allows it).
-  const username = email.trim().toLowerCase();
+// ===== RESPONSE TYPES =====
+export interface AuthTokens {
+  idToken: string;
+  accessToken: string;
+  refreshToken: string | null;
+  expiresIn: number;
+  tokenType: string;
+}
+export interface AuthUser {
+  id: string;
+  cognito_id?: string;
+  email: string;
+  full_name?: string;
+  phone?: string | null;
+  role?: string;
+  created_at?: string;
+}
+export interface LoginSuccess {
+  signedIn: true;
+  tokens: AuthTokens;
+  user: AuthUser;
+  internalToken: string;
+}
+export interface LoginChallenge {
+  signedIn: false;
+  challenge: 'NEW_PASSWORD_REQUIRED' | string;
+  session: string;
+}
+type LoginResponse = LoginSuccess | LoginChallenge;
 
-  // Cognito requires E.164 format: +15550000000
-  const e164Phone = phone.replace(/[^0-9+]/g, '');
-
-  const result = await signUp({
-    username,
-    password,
-    options: {
-      userAttributes: {
-        email,
-        name,
-        given_name: givenName,
-        family_name: familyName,
-        middle_name: ' ',
-        nickname: givenName.toLowerCase(),
-        preferred_username: email.split('@')[0],
-        profile: ' ',
-        picture: ' ',
-        address: ' ',
-        birthdate: '1990-01-01',
-        gender: ' ',
-        locale: 'es',
-        phone_number: e164Phone,
-        updated_at: String(Math.floor(Date.now() / 1000)),
-      },
-    },
-  });
-  return result;
+// ===== FLOW =====
+export async function cognitoSignUp(email: string, password: string, name: string, phone: string) {
+  return post<{ userSub: string; userConfirmed: boolean; codeDeliveryDetails: unknown }>(
+    '/api/auth/signup',
+    { email, password, name, phone }
+  );
 }
 
-// ===== CONFIRM SIGN UP =====
 export async function cognitoConfirmSignUp(email: string, code: string) {
-  const result = await confirmSignUp({
-    username: email,
-    confirmationCode: code,
-  });
-  return result;
+  return post<{ ok: true }>('/api/auth/confirm-signup', { email, code });
 }
 
-// ===== SIGN IN =====
-export async function cognitoSignIn(email: string, password: string) {
-  const result = await signIn({
-    username: email,
-    password,
-  });
-  return result;
-}
-
-// ===== GOOGLE SIGN IN =====
-export async function cognitoSignInWithGoogle() {
-  await signInWithRedirect({ provider: 'Google' });
-}
-
-// ===== SIGN OUT =====
-export async function cognitoSignOut() {
-  await signOut({ global: true });
-}
-
-// ===== FORGOT PASSWORD =====
-export async function cognitoForgotPassword(email: string) {
-  const result = await resetPassword({ username: email });
-  return result;
-}
-
-// ===== CONFIRM RESET PASSWORD =====
-export async function cognitoConfirmResetPassword(
-  email: string,
-  code: string,
-  newPassword: string
-) {
-  await confirmResetPassword({
-    username: email,
-    confirmationCode: code,
-    newPassword,
-  });
-}
-
-// ===== GET COGNITO TOKEN =====
-export async function getCognitoToken(): Promise<string | null> {
-  try {
-    const session = await fetchAuthSession();
-    return session.tokens?.idToken?.toString() ?? null;
-  } catch {
-    return null;
-  }
-}
-
-// ===== RESEND SIGN UP CODE =====
 export async function cognitoResendCode(email: string) {
-  await resendSignUpCode({ username: email });
+  return post<{ codeDeliveryDetails: unknown }>('/api/auth/resend-code', { email });
 }
 
-// ===== GET CURRENT COGNITO USER =====
-export async function getCognitoUser() {
-  try {
-    const user = await getCurrentUser();
-    const attributes = await fetchUserAttributes();
-    return {
-      userId: user.userId,
-      email: attributes.email || '',
-      name: attributes.name || '',
-      phone: attributes.phone_number || '',
-      emailVerified: attributes.email_verified === 'true',
-    };
-  } catch {
-    return null;
-  }
+export async function cognitoSignIn(email: string, password: string): Promise<LoginResponse> {
+  const r = await post<LoginResponse>('/api/auth/login', { email, password });
+  if (r.signedIn) setTokens(r.tokens);
+  return r;
 }
 
-// ===== UPDATE PASSWORD =====
-export async function cognitoChangePassword(oldPassword: string, newPassword: string) {
-  await updatePassword({ oldPassword, newPassword });
+export async function cognitoConfirmNewPassword(
+  newPassword: string,
+  email: string,
+  session: string,
+  attributes?: Record<string, string>
+): Promise<LoginResponse> {
+  const r = await post<LoginResponse>('/api/auth/respond-new-password', { email, session, newPassword, attributes });
+  if (r.signedIn) setTokens(r.tokens);
+  return r;
 }
 
-// ===== CONFIRM NEW PASSWORD (admin-created users) =====
-export async function cognitoConfirmNewPassword(newPassword: string, email?: string) {
-  const result = await confirmSignIn({
-    challengeResponse: newPassword,
-    options: {
-      userAttributes: {
-        address: ' ',
-        gender: ' ',
-        profile: ' ',
-        family_name: email?.split('@')[0] || ' ',
-        given_name: email?.split('@')[0] || ' ',
-        phone_number: '+10000000000',
-        preferred_username: email?.split('@')[0] || 'user',
-        locale: 'es',
-        picture: ' ',
-        nickname: email?.split('@')[0] || ' ',
-        name: email?.split('@')[0] || 'User',
-        middle_name: ' ',
-      },
-    },
+export async function cognitoForgotPassword(email: string) {
+  return post<{ codeDeliveryDetails: unknown }>('/api/auth/forgot-password', { email });
+}
+
+export async function cognitoConfirmResetPassword(email: string, code: string, newPassword: string) {
+  return post<{ ok: true }>('/api/auth/confirm-forgot-password', { email, code, newPassword });
+}
+
+export async function cognitoUpdateProfile(attrs: { name?: string; phone_number?: string }) {
+  const accessToken = getAccessToken();
+  if (!accessToken) throw new Error('Not authenticated');
+  if (!API_URL) throw new Error('NEXT_PUBLIC_API_URL is not configured');
+  const res = await fetch(`${API_URL}/api/auth/profile`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'x-access-token': accessToken },
+    body: JSON.stringify(attrs),
   });
-  return result;
-}
-
-// ===== UPDATE USER ATTRIBUTES =====
-export async function cognitoUpdateProfile(attributes: { name?: string; phone_number?: string }) {
-  const userAttributes: Record<string, string> = {};
-  if (attributes.name) userAttributes.name = attributes.name;
-  if (attributes.phone_number) userAttributes.phone_number = attributes.phone_number;
-  await updateUserAttributes({ userAttributes });
-}
-
-// ===== SYNC WITH BACKEND (NestJS) =====
-export async function syncWithBackend(cognitoToken: string): Promise<{ user: any; token: string } | null> {
-  if (!API_URL) {
-    return null;
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    const e = new Error(data.message || 'Profile update failed') as Error & { name: string };
+    e.name = data.name || 'Error';
+    throw e;
   }
-  try {
-    const response = await fetch(`${API_URL}/api/users/sync`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${cognitoToken}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Backend sync failed: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch {
-    return null;
-  }
+  return res.json();
 }
 
-// ===== CHECK & RESTORE SESSION =====
-export async function checkAndRestoreSession(): Promise<boolean> {
-  try {
-    const session = await fetchAuthSession();
-    if (!session.tokens?.idToken) return false;
-
-    const cognitoUser = await getCognitoUser();
-    if (!cognitoUser) return false;
-
-    return true;
-  } catch {
-    return false;
-  }
+export async function cognitoChangePassword(oldPassword: string, newPassword: string) {
+  const accessToken = getAccessToken();
+  if (!accessToken) throw new Error('Not authenticated');
+  return post<{ ok: true }>('/api/auth/change-password', { oldPassword, newPassword }, { 'x-access-token': accessToken });
 }
 
-// ===== HANDLE OAUTH CALLBACK =====
-export async function handleOAuthCallback(): Promise<{ user: any; token: string | null } | null> {
+export async function cognitoSignOut() {
+  const accessToken = getAccessToken();
   try {
-    const cognitoUser = await getCognitoUser();
-    if (!cognitoUser) return null;
+    await post<{ ok: true }>('/api/auth/logout', {}, accessToken ? { 'x-access-token': accessToken } : undefined);
+  } catch { /* always succeed locally */ }
+  clearTokens();
+}
 
-    const idToken = await getCognitoToken();
-
-    if (idToken) {
-      const backendResult = await syncWithBackend(idToken);
-      if (backendResult) {
-        return backendResult;
-      }
-    }
-
+export async function getCognitoUser(): Promise<{ userId: string; email: string; name: string; phone: string; emailVerified: boolean } | null> {
+  const idToken = getCognitoToken();
+  if (!idToken) return null;
+  try {
+    const r = await fetch(`${API_URL}/api/auth/me`, { headers: { Authorization: `Bearer ${idToken}` } });
+    if (!r.ok) return null;
+    const { user } = await r.json();
     return {
-      user: {
-        id: cognitoUser.userId,
-        email: cognitoUser.email,
-        name: cognitoUser.name || cognitoUser.email.split('@')[0],
-        phone: cognitoUser.phone,
-        isVerified: cognitoUser.emailVerified,
-        createdAt: new Date().toISOString(),
-      },
-      token: idToken,
+      userId: user.cognito_id || user.id,
+      email: user.email,
+      name: user.full_name || user.email.split('@')[0],
+      phone: user.phone || '',
+      emailVerified: true,
     };
-  } catch {
-    return null;
-  }
+  } catch { return null; }
+}
+
+export async function syncWithBackend(): Promise<{ user: AuthUser; token: string } | null> {
+  const idToken = getCognitoToken();
+  if (!idToken || !API_URL) return null;
+  try {
+    const r = await fetch(`${API_URL}/api/users/sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+    });
+    if (!r.ok) return null;
+    return await r.json();
+  } catch { return null; }
+}
+
+// ===== GOOGLE OAUTH (via Cognito Hosted UI) =====
+export async function cognitoSignInWithGoogle(redirectUri?: string) {
+  if (!API_URL) throw new Error('NEXT_PUBLIC_API_URL is not configured');
+  const ru = redirectUri || (typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : '');
+  const r = await fetch(`${API_URL}/api/auth/oauth/google?redirect_uri=${encodeURIComponent(ru)}`);
+  if (!r.ok) throw new Error('Could not start Google sign-in');
+  const { url } = await r.json();
+  if (typeof window !== 'undefined') window.location.href = url;
+}
+
+export async function handleOAuthCallback(code: string, redirectUri: string): Promise<LoginSuccess | null> {
+  const r = await post<LoginSuccess>('/api/auth/oauth/google/callback', { code, redirect_uri: redirectUri });
+  if (r.signedIn) setTokens(r.tokens);
+  return r;
+}
+
+export async function checkAndRestoreSession(): Promise<boolean> {
+  const idToken = getCognitoToken();
+  if (!idToken) return false;
+  const user = await getCognitoUser();
+  return !!user;
 }

@@ -54,10 +54,20 @@ nul
 images/
 screenshots/
 exports-l3/
+exports-rds/
+image-import*.jpg
+image-import*.jpeg
+image-import*.png
+image-import*.gif
+image-import*.webp
+*.fig
 *.mp4
 *.png
 !public/**/*.png
 !src/**/*.png
+
+# IDE / agent metadata
+.claude/
 
 # typescript
 *.tsbuildinfo

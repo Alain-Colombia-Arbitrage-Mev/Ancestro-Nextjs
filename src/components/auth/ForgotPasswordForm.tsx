@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { cognitoForgotPassword, getAuthErrorMessage } from '@/lib/auth';
-import { configureAmplify } from '@/lib/amplify';
 import { t } from '@/i18n/translations';
 import { CDN_URL } from '@/lib/cdn';
 
@@ -21,7 +20,6 @@ export default function ForgotPasswordForm({ lang }: ForgotPasswordFormProps) {
 
   useEffect(() => {
     emailRef.current?.focus();
-    configureAmplify();
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {

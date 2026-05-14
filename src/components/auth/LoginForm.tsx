@@ -3,8 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { getAuthErrorMessage, cognitoConfirmNewPassword, getCognitoToken, getCognitoUser } from '@/lib/auth';
-import { getAmplifyStatus } from '@/lib/amplify';
+import { getAuthErrorMessage, cognitoConfirmNewPassword } from '@/lib/auth';
 import { t } from '@/i18n/translations';
 import { CDN_URL } from '@/lib/cdn';
 
@@ -23,17 +22,13 @@ export default function LoginForm({ lang }: LoginFormProps) {
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({ email: false, password: false });
   const [needsNewPassword, setNeedsNewPassword] = useState(false);
+  const [newPasswordSession, setNewPasswordSession] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPwd, setConfirmNewPwd] = useState('');
-  const [cfgWarn, setCfgWarn] = useState<string | null>(null);
+  const [cfgWarn] = useState<string | null>(
+    process.env.NEXT_PUBLIC_API_URL ? null : 'NEXT_PUBLIC_API_URL no está configurado en .env.local'
+  );
   const emailRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const s = getAmplifyStatus();
-    if (!s.hasUserPoolId || !s.hasClientId) {
-      setCfgWarn('Cognito no está configurado: faltan NEXT_PUBLIC_COGNITO_USER_POOL_ID / NEXT_PUBLIC_COGNITO_CLIENT_ID. Setealas en .env.local (dev) o en Amplify (prod) y recargá.');
-    }
-  }, []);
 
   useEffect(() => {
     emailRef.current?.focus();
@@ -65,6 +60,7 @@ export default function LoginForm({ lang }: LoginFormProps) {
       }
       if (result.needsNewPassword) {
         setNeedsNewPassword(true);
+        setNewPasswordSession(result.newPasswordSession || null);
         return;
       }
       if (result.success) {
@@ -113,18 +109,22 @@ export default function LoginForm({ lang }: LoginFormProps) {
     }
     setIsLoading(true);
     try {
-      await cognitoConfirmNewPassword(newPassword, email);
-      const cognitoToken = await getCognitoToken();
-      const cognitoUser = await getCognitoUser();
+      if (!newPasswordSession) throw new Error('Missing session');
+      const r = await cognitoConfirmNewPassword(newPassword, email, newPasswordSession);
+      if (!r.signedIn) {
+        setError('Could not complete new password challenge');
+        return;
+      }
       setUser({
-        id: cognitoUser?.userId || 'cognito',
-        email,
-        name: cognitoUser?.name || email.split('@')[0],
-        phone: cognitoUser?.phone,
+        id: r.user.id,
+        email: r.user.email,
+        name: r.user.full_name || email.split('@')[0],
+        phone: r.user.phone || undefined,
+        role: r.user.role,
         isVerified: true,
-        createdAt: new Date().toISOString(),
+        createdAt: r.user.created_at || new Date().toISOString(),
       });
-      setToken(cognitoToken || 'cognito-session');
+      setToken(r.internalToken);
       router.push(`/${lang}/dashboard`);
     } catch (err: any) {
       setError(getAuthErrorMessage(err, lang));

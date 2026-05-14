@@ -1,13 +1,15 @@
 'use client';
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import { configureAmplify } from './amplify';
 import {
   cognitoSignIn,
   cognitoSignOut,
   cognitoSignInWithGoogle,
   getCognitoToken,
-  getCognitoUser,
+  getAccessToken,
+  setTokens as persistTokens,
+  clearTokens,
   syncWithBackend,
+  type AuthUser,
 } from './auth';
 
 export interface User {
@@ -23,11 +25,18 @@ export interface User {
   createdAt: string;
 }
 
+interface LoginResult {
+  success: boolean;
+  needsVerification?: boolean;
+  needsNewPassword?: boolean;
+  newPasswordSession?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; needsVerification?: boolean; needsNewPassword?: boolean }>;
+  login: (email: string, password: string) => Promise<LoginResult>;
   logout: () => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   setUser: (user: User) => void;
@@ -37,33 +46,28 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const STORE_USER = 'ancestro:user';
+const STORE_INTERNAL = 'ancestro:token';
+
 function getStoredUser(): User | null {
   if (typeof window === 'undefined') return null;
   try {
-    const stored = localStorage.getItem('ancestro:user');
-    return stored ? JSON.parse(stored) : null;
-  } catch {
-    return null;
-  }
+    const raw = localStorage.getItem(STORE_USER);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
 }
 
-function getStoredToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('ancestro:token');
-}
-
-function clearAuthStorage() {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem('ancestro:user');
-  localStorage.removeItem('ancestro:token');
-  const keysToRemove: string[] = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key && (key.startsWith('CognitoIdentityServiceProvider') || key.startsWith('amplify'))) {
-      keysToRemove.push(key);
-    }
-  }
-  keysToRemove.forEach((key) => localStorage.removeItem(key));
+function toContextUser(au: AuthUser): User {
+  return {
+    id: au.id,
+    cognitoId: au.cognito_id,
+    email: au.email,
+    name: au.full_name || au.email.split('@')[0],
+    phone: au.phone || undefined,
+    role: au.role,
+    isVerified: true,
+    createdAt: au.created_at || new Date().toISOString(),
+  };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -73,123 +77,86 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const setUser = useCallback((u: User) => {
     setUserState(u);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('ancestro:user', JSON.stringify(u));
-    }
+    if (typeof window !== 'undefined') localStorage.setItem(STORE_USER, JSON.stringify(u));
   }, []);
 
   const setToken = useCallback((t: string) => {
     setTokenState(t);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('ancestro:token', t);
-    }
+    if (typeof window !== 'undefined') localStorage.setItem(STORE_INTERNAL, t);
   }, []);
 
   const clearAuth = useCallback(() => {
     setUserState(null);
     setTokenState(null);
-    clearAuthStorage();
+    if (typeof window !== 'undefined') localStorage.removeItem(STORE_INTERNAL);
+    clearTokens();
   }, []);
 
   const checkSession = useCallback(async (): Promise<boolean> => {
     try {
-      configureAmplify();
-      const cognitoToken = await getCognitoToken();
-      if (!cognitoToken) {
+      const idToken = getCognitoToken();
+      if (!idToken) {
         clearAuth();
         return false;
       }
-
-      const backendResult = await syncWithBackend(cognitoToken);
-      if (backendResult) {
-        setUser(backendResult.user);
-        setToken(backendResult.token);
-      } else {
-        const cognitoUser = await getCognitoUser();
-        if (cognitoUser && !user) {
-          setUser({
-            id: cognitoUser.userId,
-            email: cognitoUser.email,
-            name: cognitoUser.name || cognitoUser.email.split('@')[0],
-            phone: cognitoUser.phone,
-            isVerified: cognitoUser.emailVerified,
-            createdAt: new Date().toISOString(),
-          });
-          setToken(cognitoToken);
-        }
+      const sync = await syncWithBackend();
+      if (sync?.user) {
+        setUser(toContextUser(sync.user));
+        setToken(sync.token);
+        return true;
       }
-
-      return true;
+      clearAuth();
+      return false;
     } catch {
       clearAuth();
       return false;
     }
-  }, [clearAuth, setUser, setToken, user]);
+  }, [clearAuth, setUser, setToken]);
 
   useEffect(() => {
     const storedUser = getStoredUser();
-    const storedToken = getStoredToken();
-    if (storedUser) setUserState(storedUser);
-    if (storedToken) setTokenState(storedToken);
+    const storedInternal = typeof window !== 'undefined' ? localStorage.getItem(STORE_INTERNAL) : null;
+    const idToken = getCognitoToken();
 
-    configureAmplify();
-    setIsLoading(false);
+    // If there's stored user info but no usable idToken, the session is dead — clear it.
+    if (storedUser && !idToken) {
+      clearAuth();
+      setIsLoading(false);
+      return;
+    }
+
+    if (storedUser) setUserState(storedUser);
+    if (storedInternal) setTokenState(storedInternal);
+
+    // Validate against backend in the background; if it fails, the api-client will refresh or clear.
+    if (idToken) {
+      checkSession().finally(() => setIsLoading(false));
+    } else {
+      setIsLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const login = useCallback(async (email: string, password: string): Promise<{ success: boolean; needsVerification?: boolean; needsNewPassword?: boolean }> => {
+  const login = useCallback(async (email: string, password: string): Promise<LoginResult> => {
     setIsLoading(true);
     try {
-      configureAmplify();
-      let signInResult;
-      try {
-        signInResult = await cognitoSignIn(email, password);
-      } catch (e: unknown) {
-        const name = (e as { name?: string })?.name;
-        // Amplify v6 refuses signIn if a stale Cognito session exists. Sign out and retry once.
-        if (name === 'UserAlreadyAuthenticatedException') {
-          console.warn('[Auth] Clearing stale Cognito session and retrying signIn');
-          try { await cognitoSignOut(); } catch {}
-          clearAuthStorage();
-          signInResult = await cognitoSignIn(email, password);
-        } else {
-          throw e;
+      const result = await cognitoSignIn(email, password);
+
+      if (result.signedIn === false) {
+        if (result.challenge === 'NEW_PASSWORD_REQUIRED') {
+          return { success: false, needsNewPassword: true, newPasswordSession: result.session };
         }
+        return { success: false };
       }
 
-      if (signInResult.nextStep?.signInStep === 'CONFIRM_SIGN_UP') {
+      setUser(toContextUser(result.user));
+      setToken(result.internalToken);
+      return { success: true };
+    } catch (error: unknown) {
+      const name = (error as { name?: string })?.name || '';
+      if (name === 'UserNotConfirmedException') {
         return { success: false, needsVerification: true };
       }
-
-      if (signInResult.nextStep?.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
-        return { success: false, needsNewPassword: true };
-      }
-
-      if (signInResult.isSignedIn) {
-        const cognitoToken = await getCognitoToken();
-        if (cognitoToken) {
-          const backendResult = await syncWithBackend(cognitoToken);
-          if (backendResult) {
-            setUser(backendResult.user);
-            setToken(backendResult.token);
-            return { success: true };
-          }
-        }
-        const cognitoUser = await getCognitoUser();
-        setUser({
-          id: cognitoUser?.userId || 'cognito',
-          email,
-          name: cognitoUser?.name || email.split('@')[0],
-          phone: cognitoUser?.phone,
-          isVerified: true,
-          createdAt: new Date().toISOString(),
-        });
-        setToken(cognitoToken || 'cognito-session');
-        return { success: true };
-      }
-
-      console.warn('[Auth] signIn did not complete', signInResult);
-      return { success: false };
-    } catch (error) {
       throw error;
     } finally {
       setIsLoading(false);
@@ -197,34 +164,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [setUser, setToken]);
 
   const logout = useCallback(async () => {
-    try {
-      configureAmplify();
-      await cognitoSignOut();
-    } catch {
-      // Silent fail
-    } finally {
-      clearAuth();
-    }
+    try { await cognitoSignOut(); } catch { /* ignore */ }
+    finally { clearAuth(); }
   }, [clearAuth]);
 
   const loginWithGoogleFn = useCallback(async () => {
-    configureAmplify();
     await cognitoSignInWithGoogle();
   }, []);
 
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        token,
-        isLoading,
-        login,
-        logout,
-        loginWithGoogle: loginWithGoogleFn,
-        setUser,
-        setToken,
-        checkSession,
-      }}
+      value={{ user, token, isLoading, login, logout, loginWithGoogle: loginWithGoogleFn, setUser, setToken, checkSession }}
     >
       {children}
     </AuthContext.Provider>

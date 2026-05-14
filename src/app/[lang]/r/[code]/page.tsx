@@ -1,15 +1,23 @@
 import { redirect } from 'next/navigation';
-import { query } from '@/lib/db';
 
 interface Props { params: Promise<{ lang: string; code: string }> }
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || '';
 
 export default async function ReferralRedirect({ params }: Props) {
   const { lang, code } = await params;
 
-  try {
-    await query('UPDATE referral_links SET clicks = clicks + 1 WHERE code = $1', [code]);
-  } catch {
-    // Silent — redirect even if tracking fails
+  if (API_URL) {
+    try {
+      await fetch(`${API_URL}/api/referrals/click`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+        cache: 'no-store',
+      });
+    } catch {
+      // Silent — redirect even if tracking fails
+    }
   }
 
   redirect(`/${lang}?ref=${code}&via=r`);

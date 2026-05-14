@@ -44,11 +44,14 @@ export default function LeaderboardPage({ lang }: { lang: string }) {
 
   useEffect(() => {
     if (!user) return;
-    const userId = user.id || user.email;
-    fetch(`/api/leaderboard?limit=20&user_id=${encodeURIComponent(userId)}`)
-      .then(r => r.ok ? r.json() : { rows: [] })
-      .then(d => setRows(Array.isArray(d.rows) ? d.rows : []))
-      .finally(() => setLoading(false));
+    let cancelled = false;
+    import('@/lib/api-client').then(({ api }) =>
+      api<{ rows?: Row[] }>('/api/referrals/leaderboard?limit=20')
+        .then(d => { if (!cancelled) setRows(Array.isArray(d.rows) ? d.rows : []); })
+        .catch(() => { if (!cancelled) setRows([]); })
+        .finally(() => { if (!cancelled) setLoading(false); })
+    );
+    return () => { cancelled = true; };
   }, [user]);
 
   if (isLoading) return <div style={{ minHeight: '100vh', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#848E9C' }}>Loading...</div>;
