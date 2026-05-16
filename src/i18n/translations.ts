@@ -76,6 +76,15 @@ export const translations = {
     'shop.order': 'Ordenar',
     'shop.learn': 'Más Info',
 
+    // Featured In
+    'featured.eyebrow': 'Confiado por la Prensa y los Clientes',
+    'featured.title': 'En las Noticias. Calificado por Personas Reales.',
+    'featured.press.tag': 'Prensa',
+    'featured.press.headline': 'Ancestro.ai Expande la Infraestructura de Energía Limpia en América Latina',
+    'featured.press.cta': 'Leer el artículo en USA News →',
+    'featured.trustpilot.label': 'Calificación verificada en Trustpilot',
+    'featured.google.label': 'Reseñas en Google',
+
     // Contact Page
     'contact.title': 'Contáctanos',
     'contact.subtitle': 'Selecciona el motivo de tu consulta y te responderemos a la brevedad.',
@@ -2036,6 +2045,15 @@ export const translations = {
     'shop.vehicles.desc': 'Electric vehicles for clean and efficient transportation.',
     'shop.order': 'Order Now',
     'shop.learn': 'Learn More',
+
+    // Featured In
+    'featured.eyebrow': 'Trusted by Press and Customers',
+    'featured.title': 'In the News. Rated by Real People.',
+    'featured.press.tag': 'Press',
+    'featured.press.headline': 'Ancestro.ai Expands Clean Energy Infrastructure Across Latin America',
+    'featured.press.cta': 'Read the story on USA News →',
+    'featured.trustpilot.label': 'Verified rating on Trustpilot',
+    'featured.google.label': 'Reviews on Google',
 
     // Contact Page
     'contact.title': 'Contact Us',
@@ -3998,6 +4016,15 @@ export const translations = {
     'shop.order': 'Pedir Agora',
     'shop.learn': 'Saiba Mais',
 
+    // Featured In
+    'featured.eyebrow': 'Confiado pela Imprensa e Clientes',
+    'featured.title': 'Nas Notícias. Avaliado por Pessoas Reais.',
+    'featured.press.tag': 'Imprensa',
+    'featured.press.headline': 'Ancestro.ai Expande a Infraestrutura de Energia Limpa na América Latina',
+    'featured.press.cta': 'Leia a matéria na USA News →',
+    'featured.trustpilot.label': 'Avaliação verificada no Trustpilot',
+    'featured.google.label': 'Avaliações no Google',
+
     // Contact Page
     'contact.title': 'Entre em Contato',
     'contact.subtitle': 'Selecione o motivo da sua consulta e responderemos em breve.',
@@ -4834,6 +4861,15 @@ export const translations = {
     'shop.order': '立即订购',
     'shop.learn': '了解更多',
 
+    // Featured In
+    'featured.eyebrow': '受到媒体和客户信赖',
+    'featured.title': '媒体报道。真实用户评价。',
+    'featured.press.tag': '媒体',
+    'featured.press.headline': 'Ancestro.ai 在拉丁美洲扩展清洁能源基础设施',
+    'featured.press.cta': '在 USA News 阅读全文 →',
+    'featured.trustpilot.label': 'Trustpilot 认证评分',
+    'featured.google.label': 'Google 评价',
+
     // Contact Page
     'contact.title': '联系我们',
     'contact.subtitle': '选择您的咨询原因，我们会尽快回复。',
@@ -5669,6 +5705,15 @@ export const translations = {
     'shop.vehicles.desc': 'مركبات كهربائية لنقل نظيف وفعال.',
     'shop.order': 'اطلب الآن',
     'shop.learn': 'اعرف المزيد',
+
+    // Featured In
+    'featured.eyebrow': 'موثوق من الصحافة والعملاء',
+    'featured.title': 'في الأخبار. مُقيَّم من أشخاص حقيقيين.',
+    'featured.press.tag': 'الصحافة',
+    'featured.press.headline': 'Ancestro.ai توسّع بنية الطاقة النظيفة في أمريكا اللاتينية',
+    'featured.press.cta': 'اقرأ المقال على USA News ←',
+    'featured.trustpilot.label': 'تقييم موثّق على Trustpilot',
+    'featured.google.label': 'مراجعات على Google',
 
     // Contact Page
     'contact.title': 'اتصل بنا',

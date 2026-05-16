@@ -4,6 +4,7 @@ import HeroBanner from '@/components/HeroBanner';
 import AskBox from '@/components/AskBox';
 import InfoSection from '@/components/InfoSection';
 import LATAMSection from '@/components/LATAMSection';
+import FeaturedIn from '@/components/FeaturedIn';
 import ShopSection from '@/components/ShopSection';
 import Footer from '@/components/Footer';
 import ReferralTracker from '@/components/ReferralTracker';
@@ -127,6 +128,10 @@ export default async function HomePage({ params }: PageProps) {
                 </div>
               </div>
             </div>
+          </section>
+
+          <section className="featured-wrapper">
+            <FeaturedIn lang={lang} />
           </section>
 
           <section className="latam-wrapper">
