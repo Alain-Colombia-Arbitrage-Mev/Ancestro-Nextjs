@@ -56,7 +56,10 @@ export const translations = {
     // Promo Section
     'promo.title': 'Obtén Tres Meses Gratis',
     'promo.subtitle': 'Pedidos antes del 31 de marzo, 2026.',
-    'promo.vehicle': 'Chevrolet Spark',
+    'promo.eyebrow': 'Movilidad Eléctrica',
+    'promo.vehicle': 'Tu Próximo EV',
+    'promo.vehicleDesc': 'Te ayudamos a comprar tu vehículo eléctrico con financiación flexible, instalación de cargador en casa y soporte completo en toda LATAM.',
+    'promo.cta': 'Quiero un EV',
     
     // LATAM Section
     'latam.title': 'Únete a la Red de Suscripción Solar + Batería',
@@ -2026,7 +2029,10 @@ export const translations = {
     // Promo Section
     'promo.title': 'Get Three Months Free',
     'promo.subtitle': 'Orders before March 31st, 2026.',
-    'promo.vehicle': 'Chevrolet Spark',
+    'promo.eyebrow': 'Electric Mobility',
+    'promo.vehicle': 'Your Next EV',
+    'promo.vehicleDesc': 'We help you buy your electric vehicle with flexible financing, home charger installation and full support across LATAM.',
+    'promo.cta': 'I Want an EV',
     
     // LATAM Section
     'latam.title': 'Join LATAM\'s Fastest Growing',
@@ -3996,7 +4002,10 @@ export const translations = {
     // Promo Section
     'promo.title': 'Ganhe Três Meses Grátis',
     'promo.subtitle': 'Pedidos antes de 31 de março de 2026.',
-    'promo.vehicle': 'Chevrolet Spark',
+    'promo.eyebrow': 'Mobilidade Elétrica',
+    'promo.vehicle': 'Seu Próximo EV',
+    'promo.vehicleDesc': 'Ajudamos você a comprar seu veículo elétrico com financiamento flexível, instalação de carregador em casa e suporte completo em toda a LATAM.',
+    'promo.cta': 'Quero um EV',
     
     // LATAM Section
     'latam.title': 'Junte-se à Rede de Assinatura Solar + Bateria',
@@ -4841,7 +4850,10 @@ export const translations = {
     // Promo Section
     'promo.title': '免费获得三个月',
     'promo.subtitle': '2026年3月31日前下单。',
-    'promo.vehicle': 'Chevrolet Spark',
+    'promo.eyebrow': '电动出行',
+    'promo.vehicle': '你的下一辆电动车',
+    'promo.vehicleDesc': '我们帮你购买电动车:灵活分期、家用充电桩安装,以及覆盖全拉美的完整支持。',
+    'promo.cta': '我要电动车',
     
     // LATAM Section
     'latam.title': '加入拉丁美洲增长最快的',
@@ -5686,7 +5698,10 @@ export const translations = {
     // Promo Section
     'promo.title': 'احصل على ثلاثة أشهر مجاناً',
     'promo.subtitle': 'الطلبات قبل 31 مارس 2026.',
-    'promo.vehicle': 'Chevrolet Spark',
+    'promo.eyebrow': 'تنقل كهربائي',
+    'promo.vehicle': 'سيارتك الكهربائية القادمة',
+    'promo.vehicleDesc': 'نساعدك على شراء سيارتك الكهربائية مع تمويل مرن وتركيب شاحن منزلي ودعم كامل في كل دول أمريكا اللاتينية.',
+    'promo.cta': 'أريد سيارة كهربائية',
     
     // LATAM Section
     'latam.title': 'انضم إلى أسرع شبكة اشتراك للطاقة الشمسية',

@@ -22,7 +22,7 @@ export default async function HomePage({ params }: PageProps) {
     infoSection1: `${cdn}/images/info-section-1.webp?v=3`,
     infoSection2: `${cdn}/images/info-section-2.webp?v=3`,
     charger: `${cdn}/images/charger-bg.webp`,
-    vehicle: `${cdn}/images/vehicle.webp`,
+    vehicle: `${cdn}/images/ev-automobile.webp`,
     latamMap: `${cdn}/MAPA.svg`,
     footerBg: `${cdn}/images/footer-bg.webp`,
     backgroundSection: `${cdn}/images/nature-bg.webp`,
@@ -120,11 +120,16 @@ export default async function HomePage({ params }: PageProps) {
               <div className="content-column">
                 <InfoSection title={t(lang, 'promo.title')} subtitle={t(lang, 'promo.subtitle')} ctaVariant="primary" ctaText={t(lang, 'shop.order')} imageUrl={images.infoSection2} ctaHref={`/${lang}/join`} />
                 <div className="vehicle-card">
-                  <h3 className="vehicle-title">{t(lang, 'promo.vehicle')}</h3>
-                  <div className="vehicle-image">
-                    <Image src={images.vehicle} alt={t(lang, 'promo.vehicle')} width={600} height={400} sizes="(max-width: 1100px) 100vw, 50vw" style={{ width: '100%', height: 'auto' }} />
+                  <div className="vehicle-card-bg">
+                    <Image src={images.vehicle} alt={t(lang, 'promo.vehicle')} fill sizes="(max-width: 1100px) 100vw, 50vw" quality={85} style={{ objectFit: 'cover' }} />
+                    <div className="vehicle-overlay"></div>
                   </div>
-                  <a href={`/${lang}/coming-soon`} className="cta-btn primary vehicle-order-btn">{t(lang, 'shop.order')}</a>
+                  <div className="vehicle-card-content">
+                    <h3 className="vehicle-title">{t(lang, 'promo.vehicle')}</h3>
+                    <div className="vehicle-actions">
+                      <a href={`/${lang}/join?profile=customer`} className="cta-btn primary">{t(lang, 'promo.cta')}</a>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -162,11 +167,13 @@ export default async function HomePage({ params }: PageProps) {
         .charger-title{font-size:clamp(24px,2.5vw,34px);font-weight:600;text-transform:capitalize;color:var(--color-white)}
         .charger-subtitle{font-size:clamp(16px,1.5vw,20px);font-weight:400;color:var(--color-gray)}
         .charger-actions{display:flex;gap:15px;flex-wrap:wrap;margin-top:10px}
-        .vehicle-card{background-color:var(--color-dark-gray);border-radius:10px;padding:40px;display:flex;flex-direction:column}
-        .vehicle-title{font-size:clamp(24px,2.5vw,34px);font-weight:600;text-transform:capitalize;color:var(--color-white);margin:0}
-        .vehicle-image{flex:1;display:flex;align-items:center;justify-content:center;margin-top:20px}
-        .vehicle-image img{max-width:100%;height:auto;object-fit:contain}
-        .vehicle-order-btn{margin-top:24px;align-self:flex-start}
+        .vehicle-card{position:relative;border-radius:10px;overflow:hidden;height:500px;display:flex;flex-direction:column;justify-content:flex-end;padding:40px;border:1px solid var(--color-white-10)}
+        .vehicle-card-bg{position:absolute;inset:0;pointer-events:none}
+        .vehicle-card-bg img{object-fit:cover}
+        .vehicle-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.25) 0%,rgba(0,0,0,0.8) 100%)}
+        .vehicle-card-content{position:relative;z-index:1;display:flex;flex-direction:column;gap:15px}
+        .vehicle-title{font-size:clamp(24px,2.5vw,34px);font-weight:600;color:var(--color-white);margin:0;line-height:1.1}
+        .vehicle-actions{display:flex;gap:15px;flex-wrap:wrap;margin-top:10px}
         .cta-btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 20px;border-radius:15px;font-size:14px;font-weight:600;text-decoration:none;transition:all var(--transition-fast);border:1px solid var(--color-white-10)}
         .cta-btn.primary{background-color:var(--color-primary);color:var(--color-black)}
         .cta-btn.primary:hover{background-color:#e9a235;transform:translateY(-2px)}
@@ -175,8 +182,8 @@ export default async function HomePage({ params }: PageProps) {
         .latam-wrapper{padding:100px var(--spacing-2xl)}
         .shop-wrapper{padding:100px var(--spacing-2xl)}
         @media(max-width:1100px){.content-grid{grid-template-columns:1fr;max-width:700px}.nature-bg{height:50%}}
-        @media(max-width:768px){.hero-section{height:100svh;max-height:none}.main-content-section{padding:40px 0 0}.content-grid{padding:0 var(--spacing-md)}.charger-card{height:400px;padding:30px}.vehicle-card{padding:30px}.latam-wrapper{padding:50px var(--spacing-md)}.shop-wrapper{padding:50px var(--spacing-md)}}
-        @media(max-width:480px){.main-content-section{padding:24px 0 0}.content-grid{padding:0 12px;gap:16px}.charger-card{height:320px;padding:20px}.charger-title{font-size:22px}.charger-subtitle{font-size:14px}.charger-actions{flex-direction:column;gap:8px}.cta-btn{width:100%;text-align:center;padding:12px 16px;font-size:14px}.vehicle-card{padding:20px}.vehicle-title{font-size:22px}.latam-wrapper{padding:32px 12px}.shop-wrapper{padding:32px 12px}}
+        @media(max-width:768px){.hero-section{height:100svh;max-height:none}.main-content-section{padding:40px 0 0}.content-grid{padding:0 var(--spacing-md)}.charger-card{height:400px;padding:30px}.vehicle-card{height:400px;padding:30px}.latam-wrapper{padding:50px var(--spacing-md)}.shop-wrapper{padding:50px var(--spacing-md)}}
+        @media(max-width:480px){.main-content-section{padding:24px 0 0}.content-grid{padding:0 12px;gap:16px}.charger-card{height:320px;padding:20px}.charger-title{font-size:22px}.charger-subtitle{font-size:14px}.charger-actions{flex-direction:column;gap:8px}.cta-btn{width:100%;text-align:center;padding:12px 16px;font-size:14px}.vehicle-card{height:320px;padding:20px}.vehicle-title{font-size:22px}.vehicle-actions{flex-direction:column;gap:8px}.latam-wrapper{padding:32px 12px}.shop-wrapper{padding:32px 12px}}
       `}</style>
     </>
   );
