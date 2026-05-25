@@ -48,7 +48,7 @@ export default async function HomePage({ params }: PageProps) {
     { country: "Chile", imageUrl: `${cdn}/images/flags/chile.png` },
     { country: "Argentina", imageUrl: `${cdn}/images/flags/argentina.png` },
     { country: "Bolivia", imageUrl: `${cdn}/images/flags/bolivia.png` },
-    { country: "Belize", imageUrl: `${cdn}/images/flags/belize.png` },
+    { country: "United States", imageUrl: `${cdn}/images/flags/united-states.webp` },
     { country: "Ecuador", imageUrl: `${cdn}/images/flags/ecuador.png` },
     { country: "Paraguay", imageUrl: `${cdn}/images/flags/paraguay.png` },
   ];

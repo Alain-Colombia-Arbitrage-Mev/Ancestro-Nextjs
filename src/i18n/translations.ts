@@ -63,9 +63,9 @@ export const translations = {
     
     // LATAM Section
     'latam.title': 'Únete a la Red de Suscripción Solar + Batería',
-    'latam.title2': 'de Mayor Crecimiento en LATAM',
-    'latam.subtitle': '$0 inicial. Ahorro desde el día uno. Estabilidad a largo plazo. Disponible en 18 países.',
-    'latam.countries': 'Colombia, Panamá, República Dominicana, México, Perú, Guatemala, El Salvador, Uruguay, Costa Rica, Brasil, Nicaragua, Honduras, Chile, Argentina, Bolivia, Belice, Ecuador, Paraguay',
+    'latam.title2': 'Global',
+    'latam.subtitle': '$0 inicial. Ahorro desde el día uno. Estabilidad a largo plazo.',
+    'latam.countries': 'Colombia, Panamá, República Dominicana, México, Perú, Guatemala, El Salvador, Uruguay, Costa Rica, Brasil, Nicaragua, Honduras, Chile, Argentina, Bolivia, Estados Unidos, Ecuador, Paraguay',
     
     // Shop Section
     'shop.solar.title': 'Paneles Solares',
@@ -2042,10 +2042,10 @@ export const translations = {
     'promo.cta': 'I Want an EV',
     
     // LATAM Section
-    'latam.title': 'Join LATAM\'s Fastest Growing',
+    'latam.title': 'Join the Global',
     'latam.title2': 'Solar + Battery Subscription Network',
-    'latam.subtitle': '$0 upfront. Day-one savings. Long-term stability. Available now in 18 countries.',
-    'latam.countries': 'Colombia, Panama, Dominican Republic, Mexico, Peru, Guatemala, El Salvador, Uruguay, Costa Rica, Brazil, Nicaragua, Honduras, Chile, Argentina, Bolivia, Belize, Ecuador, Paraguay',
+    'latam.subtitle': '$0 upfront. Day-one savings. Long-term stability.',
+    'latam.countries': 'Colombia, Panama, Dominican Republic, Mexico, Peru, Guatemala, El Salvador, Uruguay, Costa Rica, Brazil, Nicaragua, Honduras, Chile, Argentina, Bolivia, United States, Ecuador, Paraguay',
     
     // Shop Section
     'shop.solar.title': 'Solar Panels',
@@ -4023,9 +4023,9 @@ export const translations = {
     
     // LATAM Section
     'latam.title': 'Junte-se à Rede de Assinatura Solar + Bateria',
-    'latam.title2': 'que Mais Cresce na América Latina',
-    'latam.subtitle': '$0 inicial. Economia desde o primeiro dia. Estabilidade a longo prazo. Disponível em 18 países.',
-    'latam.countries': 'Colômbia, Panamá, República Dominicana, México, Peru, Guatemala, El Salvador, Uruguai, Costa Rica, Brasil, Nicarágua, Honduras, Chile, Argentina, Bolívia, Belize, Equador, Paraguai',
+    'latam.title2': 'Global',
+    'latam.subtitle': '$0 inicial. Economia desde o primeiro dia. Estabilidade a longo prazo.',
+    'latam.countries': 'Colômbia, Panamá, República Dominicana, México, Peru, Guatemala, El Salvador, Uruguai, Costa Rica, Brasil, Nicarágua, Honduras, Chile, Argentina, Bolívia, Estados Unidos, Equador, Paraguai',
     
     // Shop Section
     'shop.solar.title': 'Painéis Solares',
@@ -4877,10 +4877,10 @@ export const translations = {
     'promo.cta': '我要电动车',
     
     // LATAM Section
-    'latam.title': '加入拉丁美洲增长最快的',
+    'latam.title': '加入全球',
     'latam.title2': '太阳能+电池订阅网络',
-    'latam.subtitle': '零首付。首日即省钱。长期稳定。现已覆盖18个国家。',
-    'latam.countries': '哥伦比亚、巴拿马、多米尼加共和国、墨西哥、秘鲁、危地马拉、萨尔瓦多、乌拉圭、哥斯达黎加、巴西、尼加拉瓜、洪都拉斯、智利、阿根廷、玻利维亚、伯利兹、厄瓜多尔、巴拉圭',
+    'latam.subtitle': '零首付。首日即省钱。长期稳定。',
+    'latam.countries': '哥伦比亚、巴拿马、多米尼加共和国、墨西哥、秘鲁、危地马拉、萨尔瓦多、乌拉圭、哥斯达黎加、巴西、尼加拉瓜、洪都拉斯、智利、阿根廷、玻利维亚、美国、厄瓜多尔、巴拉圭',
     
     // Shop Section
     'shop.solar.title': '太阳能板',
@@ -5732,10 +5732,10 @@ export const translations = {
     'promo.cta': 'أريد سيارة كهربائية',
     
     // LATAM Section
-    'latam.title': 'انضم إلى أسرع شبكة اشتراك للطاقة الشمسية',
-    'latam.title2': 'والبطاريات نمواً في أمريكا اللاتينية',
-    'latam.subtitle': 'صفر مقدم. توفير من اليوم الأول. استقرار طويل الأمد. متوفر الآن في 18 دولة.',
-    'latam.countries': 'كولومبيا، بنما، جمهورية الدومينيكان، المكسيك، بيرو، غواتيمالا، السلفادور، أوروغواي، كوستاريكا، البرازيل، نيكاراغوا، هندوراس، تشيلي، الأرجنتين، بوليفيا، بليز، الإكوادور، باراغواي',
+    'latam.title': 'انضم إلى شبكة اشتراك الطاقة الشمسية',
+    'latam.title2': 'والبطاريات العالمية',
+    'latam.subtitle': 'صفر مقدم. توفير من اليوم الأول. استقرار طويل الأمد.',
+    'latam.countries': 'كولومبيا، بنما، جمهورية الدومينيكان، المكسيك، بيرو، غواتيمالا، السلفادور، أوروغواي، كوستاريكا، البرازيل، نيكاراغوا، هندوراس، تشيلي، الأرجنتين، بوليفيا، الولايات المتحدة، الإكوادور، باراغواي',
     
     // Shop Section
     'shop.solar.title': 'ألواح شمسية',
