@@ -20,7 +20,10 @@ export async function createAirtableRecord(tableId: string, fields: Record<strin
       Authorization: `Bearer ${AIRTABLE_TOKEN}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ records: [{ fields }] } as { records: AirtableRecord[] }),
+    // typecast lets Airtable auto-create missing singleSelect options
+    // (e.g. Profile Type "customer"); without it the API returns 422
+    // INVALID_MULTIPLE_CHOICE_OPTIONS.
+    body: JSON.stringify({ records: [{ fields }], typecast: true } as { records: AirtableRecord[]; typecast: boolean }),
   });
 
   if (!res.ok) {
