@@ -477,8 +477,8 @@ export default function Navbar({ lang }: NavbarProps) {
         .nav-dropdown-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;background:none;border:none;border-radius:8px;color:var(--color-white);font-family:var(--font-family);font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;transition:background 0.15s ease}
         .nav-dropdown-item:hover{background:rgba(255,255,255,0.08)}
         .nav-dropdown-logout{color:#ef4444}
-        .nav-login-btn{display:flex;align-items:center;gap:8px;padding:9px 18px;background:var(--color-primary);border:1px solid var(--color-primary);border-radius:12px;color:#0a0a0a;font-family:var(--font-family);font-size:14px;font-weight:700;text-decoration:none;white-space:nowrap;transition:all 0.2s ease}
-        .nav-login-btn:hover{background:#f8b03b;border-color:#f8b03b;transform:translateY(-1px);box-shadow:0 6px 20px rgba(248,176,59,0.35)}
+        .nav-login-btn{display:flex;align-items:center;gap:8px;padding:9px 18px;background:var(--color-primary);border:1px solid var(--color-primary);border-radius:12px;color:#0a0a0a;font-family:var(--font-family);font-size:14px;font-weight:700;text-decoration:none;white-space:nowrap;transition:background 0.15s ease,border-color 0.15s ease}
+        .nav-login-btn:hover{background:#e89f2c;border-color:#e89f2c}
         .nav-login-btn svg{flex-shrink:0}
 
         /* Mega Menu */
@@ -580,8 +580,8 @@ export default function Navbar({ lang }: NavbarProps) {
           .mobile-socials a:hover{background:rgba(248,176,59,0.15);border-color:rgba(248,176,59,0.4);color:var(--color-primary);transform:translateY(-3px)}
           .mobile-logout-btn{width:100%;margin-top:12px;padding:16px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:14px;color:#ef4444;font-family:var(--font-family);font-size:16px;font-weight:600;cursor:pointer;transition:all 0.2s ease}
           .mobile-logout-btn:hover{background:rgba(239,68,68,0.2)}
-          .mobile-login-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:18px;background:var(--color-primary);border:1px solid var(--color-primary);border-radius:16px;color:#0a0a0a;font-family:var(--font-family);font-size:17px;font-weight:700;text-decoration:none;transition:all 0.2s ease}
-          .mobile-login-btn:active{transform:scale(0.98)}
+          .mobile-login-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:18px;background:var(--color-primary);border:1px solid var(--color-primary);border-radius:16px;color:#0a0a0a;font-family:var(--font-family);font-size:17px;font-weight:700;text-decoration:none;transition:background 0.15s ease}
+          .mobile-login-btn:active{background:#e89f2c}
           .lang-dropdown{position:fixed;top:70px;right:16px;left:auto;bottom:auto;min-width:200px;max-width:calc(100vw - 32px);max-height:70vh;overflow-y:auto;transform:translateY(-10px);z-index:10000}
           .lang-switcher.open .lang-dropdown{transform:translateY(0)}
           .lang-code{display:none}
