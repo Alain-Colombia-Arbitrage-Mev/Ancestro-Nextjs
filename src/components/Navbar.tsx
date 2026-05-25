@@ -267,7 +267,12 @@ export default function Navbar({ lang }: NavbarProps) {
                   </button>
                 </div>
               </div>
-            ) : null}
+            ) : (
+              <a href="https://panel.ancestro.ai/login" className="nav-login-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                {t(lang, 'auth.login')}
+              </a>
+            )}
           </div>
 
           {/* Mobile */}
@@ -406,7 +411,14 @@ export default function Navbar({ lang }: NavbarProps) {
                 </Link>
                 <button className="mobile-logout-btn" onClick={handleLogout}>{t(lang, 'auth.logout')}</button>
               </div>
-            ) : null}
+            ) : (
+              <div className="mobile-cta" style={{display:'block'}}>
+                <a href="https://panel.ancestro.ai/login" className="mobile-login-btn" onClick={closeMenu}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                  {t(lang, 'auth.login')}
+                </a>
+              </div>
+            )}
 
             <div className="mobile-footer">
               <p>{t(lang, 'nav.mobile.tagline')}</p>
@@ -465,6 +477,9 @@ export default function Navbar({ lang }: NavbarProps) {
         .nav-dropdown-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;background:none;border:none;border-radius:8px;color:var(--color-white);font-family:var(--font-family);font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;transition:background 0.15s ease}
         .nav-dropdown-item:hover{background:rgba(255,255,255,0.08)}
         .nav-dropdown-logout{color:#ef4444}
+        .nav-login-btn{display:flex;align-items:center;gap:8px;padding:9px 18px;background:var(--color-primary);border:1px solid var(--color-primary);border-radius:12px;color:#0a0a0a;font-family:var(--font-family);font-size:14px;font-weight:700;text-decoration:none;white-space:nowrap;transition:all 0.2s ease}
+        .nav-login-btn:hover{background:#f8b03b;border-color:#f8b03b;transform:translateY(-1px);box-shadow:0 6px 20px rgba(248,176,59,0.35)}
+        .nav-login-btn svg{flex-shrink:0}
 
         /* Mega Menu */
         .megamenu-panel{position:absolute;top:79px;left:0;right:0;max-height:0;overflow:hidden;opacity:0;transition:max-height 0.4s cubic-bezier(0.16,1,0.3,1),opacity 0.3s ease;z-index:999;pointer-events:none}
@@ -565,6 +580,8 @@ export default function Navbar({ lang }: NavbarProps) {
           .mobile-socials a:hover{background:rgba(248,176,59,0.15);border-color:rgba(248,176,59,0.4);color:var(--color-primary);transform:translateY(-3px)}
           .mobile-logout-btn{width:100%;margin-top:12px;padding:16px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:14px;color:#ef4444;font-family:var(--font-family);font-size:16px;font-weight:600;cursor:pointer;transition:all 0.2s ease}
           .mobile-logout-btn:hover{background:rgba(239,68,68,0.2)}
+          .mobile-login-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:18px;background:var(--color-primary);border:1px solid var(--color-primary);border-radius:16px;color:#0a0a0a;font-family:var(--font-family);font-size:17px;font-weight:700;text-decoration:none;transition:all 0.2s ease}
+          .mobile-login-btn:active{transform:scale(0.98)}
           .lang-dropdown{position:fixed;top:70px;right:16px;left:auto;bottom:auto;min-width:200px;max-width:calc(100vw - 32px);max-height:70vh;overflow-y:auto;transform:translateY(-10px);z-index:10000}
           .lang-switcher.open .lang-dropdown{transform:translateY(0)}
           .lang-code{display:none}
