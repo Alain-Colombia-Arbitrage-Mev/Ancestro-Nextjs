@@ -1,15 +1,24 @@
 # Robots.txt for Ancestro
-# https://ancestro.com
+# https://ancestro.ai
 
 User-agent: *
 Allow: /
 
-# Sitemap
-Sitemap: https://ancestro.com/sitemap-index.xml
-
 # Disallow admin/private paths
 Disallow: /api/
-Disallow: /_astro/
+Disallow: /*/admin/
+Disallow: /*/dashboard/
+Disallow: /*/login/
+Disallow: /*/register/
+Disallow: /*/verify/
+Disallow: /*/reset-password/
+Disallow: /*/forgot-password/
+Disallow: /*/onboarding/
+Disallow: /*/projects/
+Disallow: /*/r/
 
 # Crawl-delay for respectful crawling
 Crawl-delay: 1
+
+# Sitemap
+Sitemap: https://ancestro.ai/sitemap.xml

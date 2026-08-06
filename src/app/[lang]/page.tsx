@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import type { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import HeroBanner from '@/components/HeroBanner';
 import AskBox from '@/components/AskBox';
@@ -10,8 +11,45 @@ import Footer from '@/components/Footer';
 import ReferralTracker from '@/components/ReferralTracker';
 import { t } from '@/i18n/translations';
 import { CDN_URL } from '@/lib/cdn';
+import { DEFAULT_OG_IMAGE, canonicalUrl, localizedAlternates, openGraphLocale } from '@/lib/seo';
 
 interface PageProps { params: Promise<{ lang: string }> }
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { lang } = await params;
+  const title = `${t(lang, 'hero.title')} ${t(lang, 'hero.title2')}`.replace(/\s+/g, ' ').trim();
+  const description = t(lang, 'hero.subtitle');
+  const url = canonicalUrl(lang);
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: url,
+      languages: localizedAlternates(),
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      locale: openGraphLocale(lang),
+      type: 'website',
+      images: [
+        {
+          url: DEFAULT_OG_IMAGE,
+          width: 1200,
+          height: 630,
+          alt: 'Ancestro clean energy subscriptions',
+        },
+      ],
+    },
+    twitter: {
+      title,
+      description,
+      images: [DEFAULT_OG_IMAGE],
+    },
+  };
+}
 
 export default async function HomePage({ params }: PageProps) {
   const { lang } = await params;

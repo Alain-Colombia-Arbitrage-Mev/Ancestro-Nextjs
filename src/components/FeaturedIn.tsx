@@ -34,6 +34,23 @@ function VerifiedBadge({ tone, label }: { tone: 'green' | 'amber'; label: string
   );
 }
 
+function TrustpilotProfileIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3" y="3" width="18" height="18" rx="6" fill="rgba(0,182,122,0.16)" />
+      <path d="M8 12.2l2.4 2.4L16.5 8.5" stroke="#00B67A" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ProofCheck() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function ArrowIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -93,25 +110,28 @@ export default function FeaturedIn({ lang }: FeaturedInProps) {
             href={TRUSTPILOT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="featured-card featured-rating"
+            className="featured-card featured-rating featured-trustpilot"
           >
             <div className="rating-header">
               <span className="brand-mark trustpilot-mark">
-                <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 2l2.9 6.9 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.5l7.1-.6L12 2z" fill="#00B67A" />
-                </svg>
+                <TrustpilotProfileIcon />
                 Trustpilot
               </span>
               <VerifiedBadge tone="green" label={t(lang, 'featured.verified')} />
             </div>
 
-            <div className="rating-block">
-              <div className="rating-number-row">
-                <span className="rating-score">4.0</span>
-                <span className="rating-out">/ 5.0</span>
+            <div className="trustpilot-block">
+              <p className="trustpilot-copy">{t(lang, 'featured.trustpilot.label')}</p>
+              <div className="trustpilot-proof-list">
+                <span>
+                  <ProofCheck />
+                  {t(lang, 'featured.trustpilot.proof1')}
+                </span>
+                <span>
+                  <ProofCheck />
+                  {t(lang, 'featured.trustpilot.proof2')}
+                </span>
               </div>
-              <Stars filled={4} color="#00B67A" size={22} />
-              <span className="rating-meta">{t(lang, 'featured.trustpilot.label')}</span>
             </div>
 
             <span className="card-footer-link">
@@ -190,6 +210,11 @@ export default function FeaturedIn({ lang }: FeaturedInProps) {
         .verified-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;padding:3px 7px;border:1px solid;border-radius:999px;background:rgba(255,255,255,0.02)}
         .verified-badge svg{width:10px;height:10px}
         .rating-block{display:flex;flex-direction:column;gap:8px}
+        .trustpilot-block{display:flex;flex-direction:column;gap:12px}
+        .trustpilot-copy{font-size:15px;font-weight:600;color:#fff;line-height:1.35;margin:0;letter-spacing:-0.01em}
+        .trustpilot-proof-list{display:flex;flex-direction:column;gap:7px}
+        .trustpilot-proof-list span{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:500;color:var(--color-gray);line-height:1.4}
+        .trustpilot-proof-list svg{flex:0 0 auto;color:#00B67A}
         .rating-number-row{display:flex;align-items:baseline;gap:5px}
         .rating-score{font-family:Georgia,'Times New Roman',serif;font-size:clamp(36px,3.8vw,48px);font-weight:600;color:#fff;line-height:0.95;letter-spacing:-0.03em}
         .rating-out{font-size:13px;font-weight:500;color:rgba(255,255,255,0.4);letter-spacing:-0.01em}
